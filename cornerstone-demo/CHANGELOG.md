@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.0.3] - 2026-08-15
+
+- test: `AnnouncementServiceImplTest` 8 用例（标题必填/强制草稿/作者自动填充/状态单向流转/删除保护）
+
+**测试方法**：`mvn test -pl cornerstone-demo`（AnnouncementControllerTest + AnnouncementServiceImplTest：MockMvc + H2 跑 Flyway + 纯单元）。
+
 ## [1.0.2] - 2026-08-15
 
 - feat: 公告作者自动填充（创建时取网关透传用户名，防前端伪造）；V3 迁移补 `announcement.author` 列，实体同步（补全前端 author 列的契约缺口）

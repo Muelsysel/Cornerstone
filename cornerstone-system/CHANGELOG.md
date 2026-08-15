@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.1.7] - 2026-08-15
+
+- test: `SysRoleServiceImplTest` 8 用例（角色唯一性/数据范围自定义部门维护/内置角色保护/菜单分配/空列表仅删除）
+
+**测试方法**：`mvn test -pl cornerstone-system`（CornerstoneDataPermissionHandlerTest / SysAuthUserControllerTest / SystemSecurityTest / SystemExtensionTest / DataScopeServiceTest / OperLogAspectTest / AuthUserSupportServiceTest / SysUserServiceImplTest / SysRoleServiceImplTest）。
+
 ## [1.1.6] - 2026-08-15
 
 - fix: 公告管理权限点缺失——V9 迁移补 `demo:announcement:edit` 菜单/按钮权限点 + admin role_menu（此前 admin JWT scope 缺该权限导致公告增删改 403）
