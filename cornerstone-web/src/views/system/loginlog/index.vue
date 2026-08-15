@@ -12,6 +12,17 @@
             <el-option label="失败" value="1" />
           </el-select>
         </el-form-item>
+        <el-form-item label="登录时间">
+          <el-date-picker
+            v-model="dateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            value-format="YYYY-MM-DD"
+            style="width: 240px"
+          />
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="handleSearch">搜索</el-button>
           <el-button :icon="Refresh" @click="handleReset">重置</el-button>
@@ -99,6 +110,8 @@ const list = ref<LoginLog[]>([])
 const total = ref(0)
 
 const query = reactive<LoginLogQuery>({ pageNum: 1, pageSize: 10 })
+// 登录时间区间（el-date-picker daterange，YYYY-MM-DD）；搜索时映射为 beginTime/endTime
+const dateRange = ref<[string, string] | null>(null)
 
 /** 每页条数变化时回到第一页（避免停留在越界页码）。 */
 function handleSizeChange() {
@@ -121,12 +134,18 @@ async function loadData() {
 
 function handleSearch() {
   query.pageNum = 1
+  // 日期区间 → 起止时间（结束日期补 23:59:59 覆盖全天）
+  query.beginTime = dateRange.value ? `${dateRange.value[0]} 00:00:00` : undefined
+  query.endTime = dateRange.value ? `${dateRange.value[1]} 23:59:59` : undefined
   loadData()
 }
 
 function handleReset() {
   query.username = undefined
   query.status = undefined
+  query.beginTime = undefined
+  query.endTime = undefined
+  dateRange.value = null
   query.pageNum = 1
   loadData()
 }

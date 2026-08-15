@@ -37,8 +37,12 @@ public class SysOperLogController {
             @RequestParam(name = "pageSize", defaultValue = "10") long pageSize,
             @RequestParam(name = "title", required = false) String title,
             @RequestParam(name = "operName", required = false) String operName,
-            @RequestParam(name = "status", required = false) String status) {
-        return Result.success(operLogService.page(pageNum, pageSize, title, operName, status));
+            @RequestParam(name = "status", required = false) String status,
+            @RequestParam(name = "beginTime", required = false) String beginTime,
+            @RequestParam(name = "endTime", required = false) String endTime) {
+        return Result.success(
+                operLogService.page(
+                        pageNum, pageSize, title, operName, status, beginTime, endTime));
     }
 
     /** 删除单条操作日志 */

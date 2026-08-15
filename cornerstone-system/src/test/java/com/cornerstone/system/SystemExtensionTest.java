@@ -123,7 +123,14 @@ class SystemExtensionTest {
     @Test
     void operLogPage_shouldPassPaginationParamsToService() throws Exception {
         org.mockito.Mockito.when(
-                        operLogService.page(eq(4L), eq(10L), anyString(), anyString(), anyString()))
+                        operLogService.page(
+                                eq(4L),
+                                eq(10L),
+                                anyString(),
+                                anyString(),
+                                anyString(),
+                                org.mockito.ArgumentMatchers.nullable(String.class),
+                                org.mockito.ArgumentMatchers.nullable(String.class)))
                 .thenReturn(new Page<SysOperLog>(4, 10));
         mockMvc.perform(
                         get("/system/operlog/page")
@@ -132,12 +139,19 @@ class SystemExtensionTest {
                                 .header("Authorization", bearer()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200));
-        verify(operLogService).page(4L, 10L, null, null, null);
+        verify(operLogService).page(4L, 10L, null, null, null, null, null);
     }
 
     @Test
     void loginLogPage_shouldPassPaginationParamsToService() throws Exception {
-        org.mockito.Mockito.when(loginLogService.page(eq(5L), eq(15L), anyString(), anyString()))
+        org.mockito.Mockito.when(
+                        loginLogService.page(
+                                eq(5L),
+                                eq(15L),
+                                anyString(),
+                                anyString(),
+                                org.mockito.ArgumentMatchers.nullable(String.class),
+                                org.mockito.ArgumentMatchers.nullable(String.class)))
                 .thenReturn(new Page<SysLoginLog>(5, 15));
         mockMvc.perform(
                         get("/system/loginlog/page")
@@ -146,7 +160,7 @@ class SystemExtensionTest {
                                 .header("Authorization", bearer()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200));
-        verify(loginLogService).page(5L, 15L, null, null);
+        verify(loginLogService).page(5L, 15L, null, null, null, null);
     }
 
     private String bearer() {
@@ -189,6 +203,8 @@ class SystemExtensionTest {
                         operLogService.page(
                                 eq(1L),
                                 eq(10L),
+                                org.mockito.ArgumentMatchers.nullable(String.class),
+                                org.mockito.ArgumentMatchers.nullable(String.class),
                                 org.mockito.ArgumentMatchers.nullable(String.class),
                                 org.mockito.ArgumentMatchers.nullable(String.class),
                                 org.mockito.ArgumentMatchers.nullable(String.class)))

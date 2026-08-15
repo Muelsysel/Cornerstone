@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.4.40] - 2026-08-16
+
+- feat(log): 操作/登录日志页加**时间区间筛选**（el-date-picker daterange → beginTime/endTime，结束日期补 23:59:59）
+
+**测试方法**：`npm test`（34 用例）+ `npm run build`。
+
 ## [1.4.39] - 2026-08-16
 
 - feat(ux): 用户管理列表加「部门」列（后端按 deptId 回填 deptName）

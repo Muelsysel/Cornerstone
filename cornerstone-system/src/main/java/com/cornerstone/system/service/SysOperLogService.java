@@ -9,8 +9,15 @@ public interface SysOperLogService {
     /** 记录操作日志 */
     void record(SysOperLog log);
 
-    /** 分页查询操作日志 */
-    Page<SysOperLog> page(long current, long size, String title, String operName, String status);
+    /** 分页查询操作日志（beginTime/endTime 为操作时间区间，格式 yyyy-MM-dd HH:mm:ss，可空） */
+    Page<SysOperLog> page(
+            long current,
+            long size,
+            String title,
+            String operName,
+            String status,
+            String beginTime,
+            String endTime);
 
     /** 删除单条操作日志 */
     void delete(Long operId);

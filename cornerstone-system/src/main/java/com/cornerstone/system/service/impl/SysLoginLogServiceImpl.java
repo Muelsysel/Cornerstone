@@ -26,11 +26,20 @@ public class SysLoginLogServiceImpl extends ServiceImpl<SysLoginLogMapper, SysLo
     }
 
     @Override
-    public Page<SysLoginLog> page(long current, long size, String username, String status) {
+    public Page<SysLoginLog> page(
+            long current,
+            long size,
+            String username,
+            String status,
+            String beginTime,
+            String endTime) {
         LambdaQueryWrapper<SysLoginLog> wrapper =
                 new LambdaQueryWrapper<SysLoginLog>()
                         .like(hasText(username), SysLoginLog::getUsername, username)
                         .eq(hasText(status), SysLoginLog::getStatus, status)
+                        // 登录时间区间过滤（MySQL DATETIME 与字符串比较隐式转换）
+                        .ge(hasText(beginTime), SysLoginLog::getLoginTime, beginTime)
+                        .le(hasText(endTime), SysLoginLog::getLoginTime, endTime)
                         // 确定性排序：同一秒多条登录时按 id 倒序兜底，保证翻页不重不漏
                         .orderByDesc(SysLoginLog::getLoginTime)
                         .orderByDesc(SysLoginLog::getId);

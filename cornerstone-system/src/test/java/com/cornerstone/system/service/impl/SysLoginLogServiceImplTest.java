@@ -7,15 +7,28 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cornerstone.system.domain.entity.SysLoginLog;
 import com.cornerstone.system.domain.mapper.SysLoginLogMapper;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 /** 登录日志服务单测：记录状态映射、分页条件、删除与清空。 */
 class SysLoginLogServiceImplTest {
+
+    @BeforeAll
+    static void initTableInfo() {
+        // 纯单测无 Spring 上下文：LambdaQueryWrapper 需要显式注册实体元数据
+        com.baomidou.mybatisplus.core.MybatisConfiguration configuration =
+                new com.baomidou.mybatisplus.core.MybatisConfiguration();
+        org.apache.ibatis.builder.MapperBuilderAssistant assistant =
+                new org.apache.ibatis.builder.MapperBuilderAssistant(configuration, "");
+        com.baomidou.mybatisplus.core.metadata.TableInfoHelper.initTableInfo(
+                assistant, SysLoginLog.class);
+    }
 
     private final SysLoginLogMapper mapper = mock(SysLoginLogMapper.class);
     private SysLoginLogServiceImpl service;
@@ -62,11 +75,25 @@ class SysLoginLogServiceImplTest {
     void pagePassesConditions() {
         doReturn(new Page<SysLoginLog>()).when(service).page(any(), any());
 
-        Page<SysLoginLog> result = service.page(2, 10, "adm", "1");
+        Page<SysLoginLog> result =
+                service.page(2, 10, "adm", "1", "2026-08-01 00:00:00", "2026-08-16 23:59:59");
 
         assertThat(result).isNotNull();
         verify(service)
                 .page(argThat(page -> page.getCurrent() == 2 && page.getSize() == 10), any());
+    }
+
+    @Test
+    void pageWithDateRangeAddsTimeConditions() {
+        // 回归：日志时间区间过滤（beginTime/endTime → oper_time ge/le）
+        doReturn(new Page<SysLoginLog>()).when(service).page(any(), any());
+        service.page(1, 10, null, null, "2026-08-01 00:00:00", "2026-08-16 23:59:59");
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        org.mockito.ArgumentCaptor<LambdaQueryWrapper<SysLoginLog>> captor =
+                org.mockito.ArgumentCaptor.forClass(LambdaQueryWrapper.class);
+        verify(service).page(any(), captor.capture());
+        String sql = captor.getValue().getSqlSegment();
+        assertThat(sql).contains("login_time").contains(">=").contains("<=");
     }
 
     @Test

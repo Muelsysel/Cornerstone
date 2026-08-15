@@ -36,8 +36,11 @@ public class SysLoginLogController {
             @RequestParam(name = "pageNum", defaultValue = "1") long pageNum,
             @RequestParam(name = "pageSize", defaultValue = "10") long pageSize,
             @RequestParam(name = "username", required = false) String username,
-            @RequestParam(name = "status", required = false) String status) {
-        return Result.success(loginLogService.page(pageNum, pageSize, username, status));
+            @RequestParam(name = "status", required = false) String status,
+            @RequestParam(name = "beginTime", required = false) String beginTime,
+            @RequestParam(name = "endTime", required = false) String endTime) {
+        return Result.success(
+                loginLogService.page(pageNum, pageSize, username, status, beginTime, endTime));
     }
 
     /** 删除单条登录日志 */

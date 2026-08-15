@@ -20,12 +20,21 @@ public class SysOperLogServiceImpl extends ServiceImpl<SysOperLogMapper, SysOper
 
     @Override
     public Page<SysOperLog> page(
-            long current, long size, String title, String operName, String status) {
+            long current,
+            long size,
+            String title,
+            String operName,
+            String status,
+            String beginTime,
+            String endTime) {
         LambdaQueryWrapper<SysOperLog> wrapper =
                 new LambdaQueryWrapper<SysOperLog>()
                         .like(hasText(title), SysOperLog::getTitle, title)
                         .like(hasText(operName), SysOperLog::getOperName, operName)
                         .eq(hasText(status), SysOperLog::getStatus, status)
+                        // 操作时间区间过滤（MySQL DATETIME 与字符串比较隐式转换）
+                        .ge(hasText(beginTime), SysOperLog::getOperTime, beginTime)
+                        .le(hasText(endTime), SysOperLog::getOperTime, endTime)
                         // 确定性排序：同一秒多条操作时按 id 倒序兜底，保证翻页不重不漏
                         .orderByDesc(SysOperLog::getOperTime)
                         .orderByDesc(SysOperLog::getId);

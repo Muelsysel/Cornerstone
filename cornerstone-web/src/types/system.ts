@@ -156,6 +156,9 @@ export interface OperLogQuery {
   operName?: string
   /** 操作状态：0 成功 / 1 失败 */
   status?: number
+  /** 操作时间区间（yyyy-MM-dd HH:mm:ss） */
+  beginTime?: string
+  endTime?: string
 }
 
 export interface LoginLog {
@@ -172,4 +175,7 @@ export interface LoginLogQuery {
   pageSize: number
   username?: string
   status?: string
+  /** 登录时间区间（yyyy-MM-dd HH:mm:ss） */
+  beginTime?: string
+  endTime?: string
 }
