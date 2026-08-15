@@ -24,7 +24,7 @@ spring:
             allowed-headers: '*'
             allow-credentials: true
 
-# 网关 JWT 校验公钥（与认证中心信号同一 RSA 公钥）
+# 网关 JWT 校验公钥（与认证中心使用同一 RSA 公钥）
 cornerstone:
   gateway:
     jwt:

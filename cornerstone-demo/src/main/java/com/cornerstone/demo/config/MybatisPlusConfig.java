@@ -10,11 +10,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MybatisPlusConfig {
 
-    /** 分页插件：按 MySQL 方言分页 */
+    /** 分页插件：按 MySQL 方言分页；maxLimit 防止超大 pageSize 拖垮数据库 */
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
+        PaginationInnerInterceptor pagination = new PaginationInnerInterceptor(DbType.MYSQL);
+        pagination.setMaxLimit(500L);
+        interceptor.addInnerInterceptor(pagination);
         return interceptor;
     }
 }

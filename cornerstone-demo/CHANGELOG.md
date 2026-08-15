@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.0.8] - 2026-08-15
+
+- fix(perf): 分页拦截器补 `maxLimit=500`（与 system 一致，防超大 pageSize 拖垮数据库）
+
+**测试方法**：`mvn test -pl cornerstone-demo`（21 用例）。
+
 ## [1.0.7] - 2026-08-15
 
 - test: `MyMetaObjectHandlerTest` 4 用例（登录用户回填 createBy/updateBy、匿名回退 system、更新只触 update 字段、空用户名回退）
