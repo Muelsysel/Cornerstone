@@ -12,6 +12,7 @@ import com.cornerstone.system.exception.SystemErrorCode;
 import com.cornerstone.system.service.SysDictService;
 import com.cornerstone.system.util.JsonCache;
 import java.util.List;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,11 +59,28 @@ public class SysDictServiceImpl implements SysDictService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public SysDictType updateType(SysDictType type) {
-        if (typeMapper.selectById(type.getId()) == null) {
+        SysDictType exist = typeMapper.selectById(type.getId());
+        if (exist == null) {
             throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
         }
-        typeMapper.updateById(type);
+        // 修改 dictType 时校验唯一性（排除自己；并发撞唯一索引由 DuplicateKeyException 兜底）
+        if (hasText(type.getDictType()) && !type.getDictType().equals(exist.getDictType())) {
+            long exists =
+                    typeMapper.selectCount(
+                            new LambdaQueryWrapper<SysDictType>()
+                                    .eq(SysDictType::getDictType, type.getDictType())
+                                    .ne(SysDictType::getId, type.getId()));
+            if (exists > 0) {
+                throw new BusinessException(SystemErrorCode.DICT_TYPE_EXISTS);
+            }
+        }
+        try {
+            typeMapper.updateById(type);
+        } catch (DuplicateKeyException e) {
+            throw new BusinessException(SystemErrorCode.DICT_TYPE_EXISTS);
+        }
         return typeMapper.selectById(type.getId());
     }
 

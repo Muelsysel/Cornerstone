@@ -79,6 +79,38 @@ class SysDictServiceImplTest {
     }
 
     @Test
+    void updateTypeRejectsDuplicateDictType() {
+        SysDictType exist = new SysDictType();
+        exist.setId(1L);
+        exist.setDictType("gender");
+        SysDictType patch = new SysDictType();
+        patch.setId(1L);
+        patch.setDictType("status"); // 改名为已存在的类型
+        when(typeMapper.selectById(1L)).thenReturn(exist);
+        when(typeMapper.selectCount(any())).thenReturn(1L);
+
+        assertThatThrownBy(() -> service.updateType(patch)).isInstanceOf(BusinessException.class);
+        verify(typeMapper, never()).updateById(any(SysDictType.class));
+    }
+
+    @Test
+    void updateTypeWithSameDictTypeSkipsCheck() {
+        SysDictType exist = new SysDictType();
+        exist.setId(1L);
+        exist.setDictType("gender");
+        SysDictType patch = new SysDictType();
+        patch.setId(1L);
+        patch.setDictType("gender"); // 类型不变（只改名称）
+        when(typeMapper.selectById(1L)).thenReturn(exist);
+
+        service.updateType(patch);
+
+        // 类型未变不触发唯一性 count
+        verify(typeMapper, never()).selectCount(any());
+        verify(typeMapper).updateById(any(SysDictType.class));
+    }
+
+    @Test
     void addDataEvictsCache() {
         SysDictData d = data(null, "gender", "男");
         service.addData(d);

@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.12] - 2026-08-15
+
+- fix: `SysDictServiceImpl.updateType` 补 dictType 唯一性校验（改名撞已有类型此前裸 500，现转业务错误；排除自己 + DuplicateKeyException 并发兜底 + @Transactional）；`SysDictServiceImplTest` 补 2 用例
+
+**测试方法**：`mvn test -pl cornerstone-system`（含 SysDictServiceImplTest 9 用例）。
+
 ## [1.2.11] - 2026-08-15
 
 - fix: `SysUserServiceImpl.update` 补用户名唯一性校验（改名撞已有用户此前裸 500，现转业务错误；排除自己 + DuplicateKeyException 并发兜底 + @Transactional）；`SysUserServiceImplTest` 补 2 用例
