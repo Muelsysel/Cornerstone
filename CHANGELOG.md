@@ -3,6 +3,10 @@
 > 项目级版本里程碑与仓库级变更记录。模块级细节见各模块 `CHANGELOG.md`
 > （common/api/gateway/auth/system/demo/web）。所有 AI 都是文档维护者（AGENTS.md「文档维护义务」）。
 
+## [1.5.19] - 2026-08-15（端到端契约扩展）
+
+- feat(scripts): `verify-chain.ps1` 断言 15→16 项——新增菜单树查询断言（admin 可获取完整菜单树，RBAC 只读契约回归）；run-demo/README 同步
+
 ## [1.5.18] - 2026-08-15（README 同步）
 
 - docs: README 端到端行同步 verify-chain 15 项断言

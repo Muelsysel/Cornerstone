@@ -121,6 +121,16 @@ try {
     try { $current = ($pageResp | ConvertFrom-Json).data.current } catch {}
     Assert 'Pagination passthrough pageNum/pageSize (current=2)' $(if ($current -eq 2) { 'OK' } else { 'FAIL' }) 'OK'
 
+    # 6b. 菜单树查询（admin 需能获取完整菜单树）
+    $menuResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
+        'http://localhost:8080/system/menu/tree'
+    $menuOk = 'FAIL'
+    try {
+        $menuArr = ($menuResp | ConvertFrom-Json).data
+        if ($menuArr -is [array] -and $menuArr.Count -gt 0) { $menuOk = 'OK' }
+    } catch {}
+    Assert 'Menu tree accessible (admin)' $menuOk 'OK'
+
     # 7. 公告编辑契约：POST 创建草稿 -> PUT /{id} 更新（曾因 PUT 缺 id 路径 100% 失败）
     $ts = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
     $annTitle = "verify-chain-$ts"
