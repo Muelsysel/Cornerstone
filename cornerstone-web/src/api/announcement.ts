@@ -43,7 +43,7 @@ export function publishAnnouncement(id: number): Promise<unknown> {
   return request({ url: `/demo/announcement/${id}/publish`, method: 'post' })
 }
 
-/** 下线公告（PUBLISHED → DRAFT） */
+/** 下线公告（PUBLISHED → OFFLINE） */
 export function offlineAnnouncement(id: number): Promise<unknown> {
   return request({ url: `/demo/announcement/${id}/offline`, method: 'post' })
 }

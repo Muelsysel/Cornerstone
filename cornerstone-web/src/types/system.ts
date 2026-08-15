@@ -7,7 +7,7 @@ export interface User {
   nickname?: string
   phone?: string
   email?: string
-  status?: string // ENABLE / DISABLE
+  status?: string // 0 正常 / 1 停用（与角色/部门/字典一致）
   deptId?: number
   remark?: string
   createTime?: string

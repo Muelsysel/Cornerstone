@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.4.15] - 2026-08-15（契约注释修正）
+
+- docs: `types/system.ts` User.status 注释对齐实际取值（0 正常/1 停用，原误写 ENABLE/DISABLE 与后端枚举不存在）；`api/auth.ts` 移除过时"后端子代理开发中"注释（POST /auth/login 已就绪）；`api/announcement.ts` 下线注释修正为 PUBLISHED → OFFLINE（原误写 DRAFT）
+
+**测试方法**：`npm test`（22 用例）+ `npm run build`（vue-tsc + vite 产物 gzip 主包 ~130KB）。
+
 ## [1.4.14] - 2026-08-15（契约修复）
 
 - fix: 公告编辑 URL 对齐后端 `PUT /demo/announcement/{id}`（此前无 id 路径导致编辑 404，100% 不可用）
