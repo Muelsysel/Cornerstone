@@ -14,11 +14,23 @@ import com.cornerstone.system.domain.mapper.SysMenuMapper;
 import com.cornerstone.system.domain.mapper.SysRoleMenuMapper;
 import com.cornerstone.system.exception.SystemErrorCode;
 import java.util.List;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /** 菜单服务单测：树组装、增删改校验、子菜单删除保护。 */
 class SysMenuServiceImplTest {
+
+    @BeforeAll
+    static void initTableInfo() {
+        // LambdaQueryWrapper 列解析需要实体元数据缓存（CI 测试顺序不同可能缺）
+        com.baomidou.mybatisplus.core.MybatisConfiguration configuration =
+                new com.baomidou.mybatisplus.core.MybatisConfiguration();
+        org.apache.ibatis.builder.MapperBuilderAssistant assistant =
+                new org.apache.ibatis.builder.MapperBuilderAssistant(configuration, "");
+        com.baomidou.mybatisplus.core.metadata.TableInfoHelper.initTableInfo(
+                assistant, SysMenu.class);
+    }
 
     private final SysMenuMapper menuMapper = mock(SysMenuMapper.class);
     private final SysRoleMenuMapper roleMenuMapper = mock(SysRoleMenuMapper.class);

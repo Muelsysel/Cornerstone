@@ -20,6 +20,7 @@ import com.cornerstone.system.domain.mapper.SysUserMapper;
 import com.cornerstone.system.domain.mapper.SysUserRoleMapper;
 import java.lang.reflect.Field;
 import java.util.List;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -27,6 +28,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 /** 用户服务单测：密码编码、内置用户保护、角色分配委托（mock 隔离 Mapper）。 */
 class SysUserServiceImplTest {
+
+    @BeforeAll
+    static void initTableInfo() {
+        // 纯单测无 Spring 上下文：LambdaQueryWrapper 需要显式注册实体元数据
+        // （CI 测试顺序与本地不同，缺此初始化会偶发 "can not find lambda cache"）
+        com.baomidou.mybatisplus.core.MybatisConfiguration configuration =
+                new com.baomidou.mybatisplus.core.MybatisConfiguration();
+        org.apache.ibatis.builder.MapperBuilderAssistant assistant =
+                new org.apache.ibatis.builder.MapperBuilderAssistant(configuration, "");
+        com.baomidou.mybatisplus.core.metadata.TableInfoHelper.initTableInfo(
+                assistant, SysUser.class);
+    }
 
     private final PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
     private final SysUserMapper userMapper = mock(SysUserMapper.class);

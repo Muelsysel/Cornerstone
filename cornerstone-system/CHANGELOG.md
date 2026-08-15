@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.54] - 2026-08-16
+
+- test(fix): 全部 ServiceImplTest 补 `TableInfoHelper.initTableInfo`——CI 测试顺序与本地不同，LambdaQueryWrapper 列解析缺实体元数据缓存会偶发 `can not find lambda cache`（本类曾因测试顺序在 CI 全绿、本地通过时仍红）；menu/dept/config/dict/user/role 六个测试类统一初始化
+
+**测试方法**：`mvn test -pl cornerstone-system`（167 用例）。
+
 ## [1.2.53] - 2026-08-16
 
 - feat(ux): 用户分页支持**部门过滤**（`deptId` 参数 eq 条件）——与数据权限叠加，管理员可按部门筛用户列表；`SysUserServiceImplTest` 新增过滤条件断言

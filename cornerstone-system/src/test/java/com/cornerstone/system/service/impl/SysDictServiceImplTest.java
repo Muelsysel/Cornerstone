@@ -18,11 +18,25 @@ import com.cornerstone.system.domain.mapper.SysDictDataMapper;
 import com.cornerstone.system.domain.mapper.SysDictTypeMapper;
 import com.cornerstone.system.util.JsonCache;
 import java.util.List;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /** 字典服务单测：列表缓存命中/回源、数据变更后缓存失效（字典缓存一致性）。 */
 class SysDictServiceImplTest {
+
+    @BeforeAll
+    static void initTableInfo() {
+        // LambdaQueryWrapper 列解析需要实体元数据缓存（CI 测试顺序不同可能缺）
+        com.baomidou.mybatisplus.core.MybatisConfiguration configuration =
+                new com.baomidou.mybatisplus.core.MybatisConfiguration();
+        org.apache.ibatis.builder.MapperBuilderAssistant assistant =
+                new org.apache.ibatis.builder.MapperBuilderAssistant(configuration, "");
+        com.baomidou.mybatisplus.core.metadata.TableInfoHelper.initTableInfo(
+                assistant, SysDictType.class);
+        com.baomidou.mybatisplus.core.metadata.TableInfoHelper.initTableInfo(
+                assistant, SysDictData.class);
+    }
 
     private final SysDictTypeMapper typeMapper = mock(SysDictTypeMapper.class);
     private final SysDictDataMapper dataMapper = mock(SysDictDataMapper.class);

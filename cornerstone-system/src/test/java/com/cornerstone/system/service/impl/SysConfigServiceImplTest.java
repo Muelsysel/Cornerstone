@@ -15,10 +15,22 @@ import com.cornerstone.system.constant.CacheConstants;
 import com.cornerstone.system.domain.entity.SysConfig;
 import com.cornerstone.system.domain.mapper.SysConfigMapper;
 import com.cornerstone.system.util.JsonCache;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /** 参数服务单测：缓存读写/命中回源、更新清旧 key、null 值不写缓存（缓存一致性）。 */
 class SysConfigServiceImplTest {
+
+    @BeforeAll
+    static void initTableInfo() {
+        // LambdaQueryWrapper 列解析需要实体元数据缓存（CI 测试顺序不同可能缺）
+        com.baomidou.mybatisplus.core.MybatisConfiguration configuration =
+                new com.baomidou.mybatisplus.core.MybatisConfiguration();
+        org.apache.ibatis.builder.MapperBuilderAssistant assistant =
+                new org.apache.ibatis.builder.MapperBuilderAssistant(configuration, "");
+        com.baomidou.mybatisplus.core.metadata.TableInfoHelper.initTableInfo(
+                assistant, SysConfig.class);
+    }
 
     private final SysConfigMapper configMapper = mock(SysConfigMapper.class);
     private final JsonCache jsonCache = mock(JsonCache.class);

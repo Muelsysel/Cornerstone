@@ -14,12 +14,24 @@ import com.cornerstone.system.domain.entity.SysDept;
 import com.cornerstone.system.domain.mapper.SysDeptMapper;
 import com.cornerstone.system.exception.SystemErrorCode;
 import java.util.List;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 /** 部门服务单测：树组装、ancestors 解析、父节点非法校验、子部门删除保护。 */
 class SysDeptServiceImplTest {
+
+    @BeforeAll
+    static void initTableInfo() {
+        // LambdaQueryWrapper 列解析需要实体元数据缓存（CI 测试顺序不同可能缺）
+        com.baomidou.mybatisplus.core.MybatisConfiguration configuration =
+                new com.baomidou.mybatisplus.core.MybatisConfiguration();
+        org.apache.ibatis.builder.MapperBuilderAssistant assistant =
+                new org.apache.ibatis.builder.MapperBuilderAssistant(configuration, "");
+        com.baomidou.mybatisplus.core.metadata.TableInfoHelper.initTableInfo(
+                assistant, SysDept.class);
+    }
 
     private final SysDeptMapper deptMapper = mock(SysDeptMapper.class);
     private SysDeptServiceImpl service;
