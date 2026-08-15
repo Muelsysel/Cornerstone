@@ -61,7 +61,10 @@ class GlobalExceptionHandlerTest {
     @Test
     void genericExceptionMasksInternalDetails() {
         Result<Void> result =
-                handler.handleException(new IllegalStateException("db connection refused"));
+                handler.handleException(
+                        new IllegalStateException("db connection refused"),
+                        new org.springframework.mock.web.MockHttpServletRequest(
+                                "GET", "/system/user/page"));
 
         assertThat(result.getCode()).isEqualTo(ErrorCode.INTERNAL_ERROR.getCode());
         // 兜底不泄露内部细节

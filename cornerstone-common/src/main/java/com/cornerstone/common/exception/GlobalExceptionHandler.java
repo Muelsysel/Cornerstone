@@ -94,10 +94,11 @@ public class GlobalExceptionHandler {
         return Result.fail(ErrorCode.NOT_FOUND);
     }
 
-    /** 兜底异常：不泄露内部细节，只记日志 */
+    /** 兜底异常：不泄露内部细节，只记日志（含请求路径便于定位） */
     @ExceptionHandler(Exception.class)
-    public Result<Void> handleException(Exception e) {
-        log.error("系统异常", e);
+    public Result<Void> handleException(
+            Exception e, jakarta.servlet.http.HttpServletRequest request) {
+        log.error("系统异常 uri={} {}", request.getRequestURI(), request.getMethod(), e);
         return Result.fail(ErrorCode.INTERNAL_ERROR);
     }
 }

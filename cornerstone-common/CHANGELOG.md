@@ -3,6 +3,12 @@
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 > 条目格式：`## [版本] - YYYY-MM-DD` → 变更类型（feat/fix/refactor/docs/test）+ 说明 + 涉及接口与测试。
 
+## [1.2.12] - 2026-08-16
+
+- feat(obs): 兜底异常日志带请求路径与方法（`uri=… GET`）——500 排查时一眼定位是哪个接口；`GlobalExceptionHandlerTest` 同步
+
+**测试方法**：`mvn test -pl cornerstone-common`（35 用例）。
+
 ## [1.2.11] - 2026-08-16
 
 - fix(contract): `GlobalExceptionHandler` 补缺参/类型错误映射——`MissingServletRequestParameterException`（缺必填参数）与 `TypeMismatchException`（如 pageNum=abc）此前走兜底 500，现返回友好 400；`GlobalExceptionHandlerTest` 新增 2 用例
