@@ -32,3 +32,16 @@ logs/
 # ---- Frontend (future) ----
 node_modules/
 dist/
+
+# ---- Secrets：防真实私钥/凭据误提交（演示用密钥已跟踪，生产密钥须放此命名并注入） ----
+*.pem
+!cornerstone-auth/src/main/resources/rsa-private.pem
+!cornerstone-auth/src/main/resources/rsa-public.pem
+!cornerstone-gateway/src/main/resources/rsa-public.pem
+!cornerstone-demo/src/test/resources/test-private-key.pem
+!cornerstone-demo/src/test/resources/test-public-key.pem
+!cornerstone-gateway/src/test/resources/test-private.pem
+!cornerstone-gateway/src/test/resources/test-public.pem
+!cornerstone-system/src/test/resources/keys/test-private.pem
+*.env
+.env.*
