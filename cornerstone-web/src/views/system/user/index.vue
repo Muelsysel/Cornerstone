@@ -42,13 +42,16 @@
             />
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="220" fixed="right">
+        <el-table-column label="操作" width="280" fixed="right">
           <template #default="{ row }: { row: any }">
             <el-button v-permission="'system:user:edit'" link type="primary" @click="handleEdit(row)">
               编辑
             </el-button>
             <el-button v-permission="'system:user:edit'" link type="primary" @click="handleAssignRoles(row)">
               分配角色
+            </el-button>
+            <el-button v-permission="'system:user:edit'" link type="warning" @click="handleResetPassword(row)">
+              重置密码
             </el-button>
             <el-button v-permission="'system:user:remove'" link type="danger" @click="handleDelete(row)">
               删除
@@ -85,6 +88,19 @@
       <template #footer>
         <el-button @click="rolesVisible = false">取消</el-button>
         <el-button type="primary" :loading="rolesSaving" @click="submitAssignRoles">确定</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 重置密码弹窗 -->
+    <el-dialog v-model="pwdResetVisible" :title="`重置密码 - ${pwdResetUser || ''}`" width="400px" destroy-on-close>
+      <el-form ref="pwdResetFormRef" :model="pwdResetForm" :rules="pwdResetRules" label-width="80px">
+        <el-form-item label="新密码" prop="password">
+          <el-input v-model="pwdResetForm.password" type="password" show-password placeholder="至少 6 位" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="pwdResetVisible = false">取消</el-button>
+        <el-button type="primary" :loading="pwdResetting" @click="submitResetPassword">确定</el-button>
       </template>
     </el-dialog>
 
@@ -141,6 +157,7 @@ import {
   getRoleList,
   getUserPage,
   getUserRoleIds,
+  resetUserPassword,
   updateUser,
 } from '@/api/system'
 import type { Role, User, UserQuery } from '@/types/system'
@@ -293,6 +310,42 @@ async function submitAssignRoles() {
     // 错误提示已由请求拦截器统一处理
   } finally {
     rolesSaving.value = false
+  }
+}
+
+// ---------------- 重置密码 ----------------
+const pwdResetVisible = ref(false)
+const pwdResetting = ref(false)
+const pwdResetUser = ref('')
+const pwdResetUserId = ref(0)
+const pwdResetFormRef = ref<FormInstance>()
+const pwdResetForm = reactive({ password: '' })
+const pwdResetRules: FormRules = {
+  password: [
+    { required: true, min: 6, message: '新密码至少 6 位', trigger: 'blur' },
+  ],
+}
+
+function handleResetPassword(row: User) {
+  pwdResetUser.value = row.username
+  pwdResetUserId.value = row.userId
+  pwdResetForm.password = ''
+  pwdResetVisible.value = true
+}
+
+async function submitResetPassword() {
+  if (!pwdResetFormRef.value) return
+  const valid = await pwdResetFormRef.value.validate().catch(() => false)
+  if (!valid) return
+  pwdResetting.value = true
+  try {
+    await resetUserPassword(pwdResetUserId.value, pwdResetForm.password)
+    ElMessage.success('密码已重置')
+    pwdResetVisible.value = false
+  } catch {
+    // 错误提示已由请求拦截器统一处理
+  } finally {
+    pwdResetting.value = false
   }
 }
 
