@@ -80,6 +80,7 @@ controller → service(业务规则) → mapper(MyBatis-Plus) → sys_* 表
 | `V7__fix_audit_columns.sql` | 补 sys_dept 审计列；补字典/参数菜单权限点（+ admin role_menu） |
 | `V8__log_remove_perm.sql` | 日志删除/清空权限点 `system:log:remove`（+ admin role_menu） |
 | `V9__announcement_menu.sql` | 公告管理菜单与 `demo:announcement:edit` 权限点（+ admin role_menu，修复 admin scope 缺该权限导致的 403） |
+| `V10__query_indexes.sql` | 查询/排序索引（日志时间/操作人/用户名、字典 dict_type、用户 dept_id、角色 role_key） |
 
 ## 测试策略
 
