@@ -48,7 +48,10 @@ Cornerstone 是**文档约束驱动**的 Spring Cloud 脚手架：文档是契�
 - **登录与权限**：用户登录在 `cornerstone-auth` 的 `POST /login`（BCrypt 校验 + 签发 JWT，claims：sub=userId、roles、scope=权限集合）；`@PreAuthorize("hasAuthority('system:user:list')")` 从 JWT scope 读取权限；客户端凭据（client_credentials）令牌无业务权限（访问业务接口返回 403 是预期行为）
 - **认证支持接口**：`/system/auth/**` 是 auth 登录时经 Feign（`AuthUserClient`）调 system 的内部接口（含 BCrypt 哈希，禁止暴露到网关外部；生产需服务间认证）
 - **Feign 契约**：`cornerstone-api` 中每个 `@FeignClient` 必须带唯一 `contextId`（同服务多客户端否则 FeignClientSpecification 冲突）；服务调用方需 `spring-cloud-starter-loadbalancer`
-- **数据权限**：`sys_role.data_scope`（1全部~5仅本人）+ `sys_role_dept`；`CornerstoneDataPermissionHandler` 按 `mappedStatementId` 拦截 `SysUserMapper` 查询自动追加条件；扩展管控其他表时在 handler 调整
+- **数据权限**：`sys_role.data_scope`（1全部~5仅本人）+ `sys_role_dept`；`CornerstoneDataPermissionHandler` 按 `mappedStatementId` 拦截 `SysUserMapper` 查询自动追加条件；扩展管控其他表时在 handler 调整。**注意**：handler 条件必须与原有 WHERE 合并（AND），不能替换（否则参数丢失报 Parameter index out of range）
+- **前后端契约**：实体主键序列化为 `userId/roleId/menuId/deptId`（`@JsonProperty`），前端统一用该命名；status 用 `'0'/'1'`；新增管理功能必须同时补菜单权限点（V5/V7 教训：controller 权限注解 + 菜单树权限点 + admin role_menu 三处一致）
+- **审计列**：实体继承 `BaseEntity` 的表必须有 `create_by/update_by` 列（否则 MyBatis-Plus 全字段查询报 Unknown column）
+- **Mapper 双参数**：`@Param` 必加（父 POM 未开 `-parameters`，XML foreach 无法按名绑定）
 - **密码与密钥**：密码用 DelegatingPasswordEncoder（支持 {noop} 客户端密钥 + 无前缀 BCrypt 用户哈希）；RSA 密钥四处一致（auth 私钥 ↔ gateway/system/demo 公钥）
 - **前端**：`cornerstone-web/`（Vue3 + Element Plus），开发经 vite 代理到网关 8080，登录态存 localStorage，接口统一 Result 处理
 
