@@ -117,6 +117,24 @@ try {
     } catch {}
     Assert 'Guest page only published announcements' $pubOk 'OK'
 
+    # 2a2. 游客显式传 status=0 仍强制已发布（回归：曾可枚举全部草稿——信息泄露）
+    $draftPage = curl.exe -s --max-time 20 'http://localhost:8080/demo/announcement/page?pageNum=1&pageSize=50&status=0'
+    $draftOk = 'FAIL'
+    try {
+        $recs = ($draftPage | ConvertFrom-Json).data.records
+        if ($recs -is [array] -and $recs.Count -gt 0) {
+            $allPublished = $true
+            foreach ($rec in $recs) {
+                if ($rec.status -ne 1) { $allPublished = $false; break }
+            }
+            if ($allPublished) { $draftOk = 'OK' }
+        } elseif ($recs -is [array] -and $recs.Count -eq 0) {
+            # 无任何已发布公告时返回空列表也可接受（仍不泄露草稿）
+            $draftOk = 'OK'
+        }
+    } catch {}
+    Assert 'Guest status=0 forced published (no draft leak)' $draftOk 'OK'
+
     # 2b. 前端容器可访问（部署完整性：nginx 托管 + 反代网关）
     $code = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 'http://localhost:8088/'
     Assert 'Frontend container reachable 200' $code '200'
@@ -191,7 +209,18 @@ try {
     $draftPage = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
         "http://localhost:8080/demo/announcement/page?pageNum=1&pageSize=20&title=$annTitle"
     $draftId = $null
-    try { $draftId = (($draftPage | ConvertFrom-Json).data.records | Where-Object { $_.title -eq $annTitle } | Select-Object -First 1).id } catch {}
+    # Locate 幂等：curl 偶发空响应/丢包时重试（创建已成功，仅定位失败则重查）
+    for ($attempt = 1; $attempt -le 2 -and -not $draftId; $attempt++) {
+        if ($attempt -gt 1) {
+            Start-Sleep -Milliseconds 500
+            $draftPage = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
+                "http://localhost:8080/demo/announcement/page?pageNum=1&pageSize=20&title=$annTitle"
+        }
+        try { $draftId = (($draftPage | ConvertFrom-Json).data.records | Where-Object { $_.title -eq $annTitle } | Select-Object -First 1).id } catch {}
+    }
+    if (-not $draftId) {
+        Write-Host "  DRAFT-RAW[len=$($draftPage.Length)]: $($draftPage.Substring(0, [Math]::Min(300, $draftPage.Length)))"
+    }
     if ($draftId) {
         Write-JsonBody "{`"id`":$draftId,`"title`":`"$annTitle-2`",`"content`":`"updated`"}"
         $updCode = $null

@@ -48,6 +48,17 @@ class AnnouncementControllerTest {
     }
 
     @Test
+    void guestPageForcesPublishedEvenWithExplicitDraftStatus() throws Exception {
+        // 回归（安全）：游客显式传 status=0 不得看到草稿（此前仅 status==null 兜底，传 0 可枚举全部草稿）
+        mockMvc.perform(get(PAGE_URL).param("status", "0"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                // 游客强制已发布：种子数据仅 1 条已发布，草稿不可见
+                .andExpect(jsonPath("$.data.total").value(1))
+                .andExpect(jsonPath("$.data.records[0].status").value(1));
+    }
+
+    @Test
     void protectedCreateReturns401WithoutToken() throws Exception {
         mockMvc.perform(
                         post(CREATE_URL)
