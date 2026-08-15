@@ -6,7 +6,7 @@
 
 - test(fix): 全部 ServiceImplTest 补 `TableInfoHelper.initTableInfo`——CI 测试顺序与本地不同，LambdaQueryWrapper 列解析缺实体元数据缓存会偶发 `can not find lambda cache`（本类曾因测试顺序在 CI 全绿、本地通过时仍红）；menu/dept/config/dict/user/role 六个测试类统一初始化
 
-**测试方法**：`mvn test -pl cornerstone-system`（167 用例）。
+**测试方法**：`mvn test -pl cornerstone-system`（166 用例）。
 
 ## [1.2.53] - 2026-08-16
 
