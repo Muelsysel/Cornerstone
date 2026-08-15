@@ -8,8 +8,9 @@
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="query.status" placeholder="全部" clearable style="width: 130px">
-            <el-option label="草稿" value="DRAFT" />
-            <el-option label="已发布" value="PUBLISHED" />
+            <el-option label="草稿" :value="0" />
+            <el-option label="已发布" :value="1" />
+            <el-option label="已下线" :value="2" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -33,8 +34,9 @@
         <el-table-column prop="title" label="标题" min-width="200" show-overflow-tooltip />
         <el-table-column label="状态" width="100">
           <template #default="{ row }: { row: any }">
-            <el-tag :type="row.status === 'PUBLISHED' ? 'success' : 'info'">
-              {{ row.status === 'PUBLISHED' ? '已发布' : '草稿' }}
+            <!-- 状态为后端整数：0草稿 1已发布 2已下线 -->
+            <el-tag :type="statusTagType(row.status)">
+              {{ statusText(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -43,8 +45,9 @@
         <el-table-column prop="updateTime" label="更新时间" min-width="170" />
         <el-table-column label="操作" width="220" fixed="right">
           <template #default="{ row }: { row: any }">
+            <!-- 草稿可发布；已发布可下线；已下线无流转按钮 -->
             <el-button
-              v-if="row.status === 'DRAFT'"
+              v-if="row.status === 0"
               v-permission="'demo:announcement:edit'"
               link
               type="primary"
@@ -53,7 +56,7 @@
               发布
             </el-button>
             <el-button
-              v-else
+              v-else-if="row.status === 1"
               v-permission="'demo:announcement:edit'"
               link
               type="warning"
@@ -90,12 +93,6 @@
         <el-form-item label="标题" prop="title">
           <el-input v-model="form.title" placeholder="公告标题" />
         </el-form-item>
-        <el-form-item label="状态">
-          <el-radio-group v-model="form.status">
-            <el-radio value="DRAFT">草稿</el-radio>
-            <el-radio value="PUBLISHED">发布</el-radio>
-          </el-radio-group>
-        </el-form-item>
         <el-form-item label="内容" prop="content">
           <el-input v-model="form.content" type="textarea" :rows="5" placeholder="公告正文" />
         </el-form-item>
@@ -127,7 +124,6 @@ interface AnnouncementForm {
   id?: number
   title: string
   content?: string
-  status: string
 }
 
 const loading = ref(false)
@@ -172,7 +168,7 @@ function handleReset() {
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref<FormInstance>()
-const form = reactive<AnnouncementForm>({ title: '', status: 'DRAFT' })
+const form = reactive<AnnouncementForm>({ title: '' })
 
 const rules: FormRules<AnnouncementForm> = {
   title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
@@ -180,7 +176,7 @@ const rules: FormRules<AnnouncementForm> = {
 
 function handleCreate() {
   isEdit.value = false
-  Object.assign(form, { id: undefined, title: '', content: '', status: 'DRAFT' })
+  Object.assign(form, { id: undefined, title: '', content: '' })
   dialogVisible.value = true
 }
 
@@ -190,9 +186,17 @@ function handleEdit(row: Announcement) {
     id: row.id,
     title: row.title,
     content: row.content || '',
-    status: row.status || 'DRAFT',
   })
   dialogVisible.value = true
+}
+
+// 状态展示映射（后端整数：0草稿 1已发布 2已下线）
+function statusText(status: number | undefined): string {
+  return status === 1 ? '已发布' : status === 2 ? '已下线' : '草稿'
+}
+
+function statusTagType(status: number | undefined): 'success' | 'warning' | 'info' {
+  return status === 1 ? 'success' : status === 2 ? 'warning' : 'info'
 }
 
 async function handleSubmit() {

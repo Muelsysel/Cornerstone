@@ -6,8 +6,8 @@ export interface Announcement {
   id: number
   title: string
   content?: string
-  /** 发布状态：DRAFT / PUBLISHED 等，以后端枚举为准。 */
-  status?: string
+  /** 发布状态（后端整数）：0 草稿 / 1 已发布 / 2 已下线 */
+  status?: number
   author?: string
   createTime?: string
   updateTime?: string
@@ -17,7 +17,7 @@ export interface AnnouncementQuery {
   pageNum: number
   pageSize: number
   title?: string
-  status?: string
+  status?: number
 }
 
 // 公开查询：demo 模块内白名单放行，无需登录（见 run-demo.md）。
