@@ -40,8 +40,21 @@ export function deleteUser(userId: number): Promise<unknown> {
   return request({ url: `/system/user/${userId}`, method: 'delete' })
 }
 
-export function changeUserStatus(data: { userId: number; status: string }): Promise<unknown> {
-  return request({ url: '/system/user/status', method: 'put', data })
+export function changeUserStatus(userId: number, status: string): Promise<unknown> {
+  return request({ url: `/system/user/${userId}/status`, method: 'put', params: { status } })
+}
+
+// ---------------------------------- 个人中心 ----------------------------------
+
+export function getProfile(): Promise<User> {
+  return request({ url: '/system/user/profile', method: 'get' })
+}
+
+export function updatePassword(data: {
+  oldPassword: string
+  newPassword: string
+}): Promise<unknown> {
+  return request({ url: '/system/user/profile/password', method: 'put', data })
 }
 
 // ---------------------------------- 角色 ----------------------------------
@@ -60,6 +73,16 @@ export function updateRole(data: Partial<Role>): Promise<unknown> {
 
 export function deleteRole(roleId: number): Promise<unknown> {
   return request({ url: `/system/role/${roleId}`, method: 'delete' })
+}
+
+/** 查询角色已分配的菜单 ID（权限回显） */
+export function getRoleMenus(roleId: number): Promise<{ menuIds: number[] }> {
+  return request({ url: `/system/role/${roleId}/menus`, method: 'get' })
+}
+
+/** 分配角色菜单权限 */
+export function assignRoleMenus(roleId: number, menuIds: number[]): Promise<unknown> {
+  return request({ url: `/system/role/${roleId}/menus`, method: 'put', data: menuIds })
 }
 
 // ---------------------------------- 菜单 ----------------------------------

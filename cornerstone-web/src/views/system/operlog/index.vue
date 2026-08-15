@@ -38,6 +38,11 @@
         </el-table-column>
         <el-table-column prop="method" label="请求方法" min-width="200" show-overflow-tooltip />
         <el-table-column prop="operTime" label="操作时间" min-width="170" />
+        <el-table-column label="操作" width="80" fixed="right">
+          <template #default="{ row }">
+            <el-button link type="primary" @click="handleDetail(row)">详情</el-button>
+          </template>
+        </el-table-column>
       </el-table>
 
       <el-pagination
@@ -51,6 +56,35 @@
         @current-change="loadData"
       />
     </el-card>
+
+    <!-- 详情弹窗 -->
+    <el-dialog v-model="detailVisible" title="操作日志详情" width="640px">
+      <el-descriptions :column="2" border v-if="detail">
+        <el-descriptions-item label="ID">{{ detail.operId }}</el-descriptions-item>
+        <el-descriptions-item label="系统模块">{{ detail.title }}</el-descriptions-item>
+        <el-descriptions-item label="操作类型">{{ businessTypeText(detail.businessType) }}</el-descriptions-item>
+        <el-descriptions-item label="操作人">{{ detail.operName }}</el-descriptions-item>
+        <el-descriptions-item label="请求方式">{{ detail.requestMethod }}</el-descriptions-item>
+        <el-descriptions-item label="操作IP">{{ detail.operIp }}</el-descriptions-item>
+        <el-descriptions-item label="状态">
+          <el-tag :type="detail.status === 0 ? 'success' : 'danger'">
+            {{ detail.status === 0 ? '成功' : '失败' }}
+          </el-tag>
+        </el-descriptions-item>
+        <el-descriptions-item label="操作时间">{{ detail.operTime }}</el-descriptions-item>
+        <el-descriptions-item label="请求地址" :span="2">{{ detail.operUrl }}</el-descriptions-item>
+        <el-descriptions-item label="请求方法" :span="2">{{ detail.method }}</el-descriptions-item>
+        <el-descriptions-item label="请求参数" :span="2">
+          <pre class="detail-pre">{{ detail.operParam }}</pre>
+        </el-descriptions-item>
+        <el-descriptions-item label="返回结果" :span="2">
+          <pre class="detail-pre">{{ detail.jsonResult }}</pre>
+        </el-descriptions-item>
+        <el-descriptions-item v-if="detail.errorMsg" label="异常信息" :span="2">
+          <pre class="detail-pre error">{{ detail.errorMsg }}</pre>
+        </el-descriptions-item>
+      </el-descriptions>
+    </el-dialog>
   </div>
 </template>
 
@@ -92,6 +126,15 @@ function handleReset() {
   loadData()
 }
 
+// ---------------- 详情 ----------------
+const detailVisible = ref(false)
+const detail = ref<OperLog | null>(null)
+
+function handleDetail(row: OperLog) {
+  detail.value = row
+  detailVisible.value = true
+}
+
 // 业务类型枚举映射（后端 businessType 为数字）。未知值宽容显示为「其他」。
 function businessTypeText(type: number | undefined): string {
   const map: Record<number, string> = {
@@ -121,5 +164,20 @@ onMounted(loadData)
 .pagination {
   margin-top: 16px;
   justify-content: flex-end;
+}
+.detail-pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 12px;
+  color: #606266;
+  max-height: 160px;
+  overflow: auto;
+  background: #f5f7fa;
+  padding: 8px;
+  border-radius: 4px;
+}
+.detail-pre.error {
+  color: #f56c6c;
 }
 </style>

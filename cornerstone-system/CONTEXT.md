@@ -9,6 +9,7 @@
   - 菜单：目录/菜单/按钮三级树查询与 CRUD。
   - 部门：树查询与 CRUD。
 - **标准集扩展**：数据字典（类型/数据）、系统参数、操作日志（`@OperLog` AOP 自动记录）、登录日志（记录 + 查询）。
+- **个人中心**：`GET/PUT /system/user/profile`——当前用户信息与修改密码（旧密码 BCrypt 验证后更新，用户自助，无需管理权限）。
 - **资源服务器示范**：作为 OAuth2 资源服务器，双保险校验 JWT（RSA 公钥），方法级 `@PreAuthorize` 权限注解。
 - **缓存示范**：字典数据、参数值写入 Redis（`cornerstone:dict:*`、`cornerstone:config:*`），Redis 不可用时降级直查库。
 

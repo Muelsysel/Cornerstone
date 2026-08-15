@@ -20,8 +20,8 @@
         <el-table-column prop="sort" label="排序" width="80" />
         <el-table-column label="状态" width="90">
           <template #default="{ row }">
-            <el-tag :type="row.status === 'ENABLE' ? 'success' : 'info'">
-              {{ row.status === 'ENABLE' ? '启用' : '停用' }}
+            <el-tag :type="row.status === '0' ? 'success' : 'info'">
+              {{ row.status === '0' ? '启用' : '停用' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -72,8 +72,8 @@
         </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="form.status">
-            <el-radio value="ENABLE">启用</el-radio>
-            <el-radio value="DISABLE">停用</el-radio>
+            <el-radio value="0">启用</el-radio>
+            <el-radio value="1">停用</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -112,7 +112,7 @@ const form = reactive<DeptForm>({
   parentId: undefined,
   deptName: '',
   sort: 0,
-  status: 'ENABLE',
+  status: '0',
 })
 
 const rules: FormRules<DeptForm> = {
@@ -148,7 +148,7 @@ function handleCreate(parent: Dept | null) {
     parentId: parent ? parent.deptId : undefined,
     deptName: '',
     sort: 0,
-    status: 'ENABLE',
+    status: '0',
     leader: '',
     phone: '',
   })
@@ -162,7 +162,7 @@ function handleEdit(row: Dept) {
     parentId: row.parentId ?? undefined,
     deptName: row.deptName,
     sort: row.sort ?? 0,
-    status: row.status || 'ENABLE',
+    status: row.status || '0',
     leader: row.leader || '',
     phone: row.phone || '',
   })

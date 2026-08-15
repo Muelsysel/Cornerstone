@@ -136,6 +136,10 @@ export interface OperLog {
   status?: number
   errorMsg?: string
   method?: string
+  requestMethod?: string
+  operUrl?: string
+  operParam?: string
+  jsonResult?: string
 }
 
 export interface OperLogQuery {

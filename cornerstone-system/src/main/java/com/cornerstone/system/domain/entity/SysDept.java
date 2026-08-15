@@ -17,8 +17,9 @@ public class SysDept extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-    /** 部门ID */
+    /** 部门ID（JSON 契约对齐前端 deptId） */
     @TableId(type = IdType.AUTO)
+    @com.fasterxml.jackson.annotation.JsonProperty("deptId")
     private Long id;
 
     /** 父部门ID */

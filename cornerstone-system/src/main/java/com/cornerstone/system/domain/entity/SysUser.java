@@ -14,8 +14,9 @@ public class SysUser extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-    /** 用户ID */
+    /** 用户ID（JSON 契约对齐前端 userId） */
     @TableId(type = IdType.AUTO)
+    @com.fasterxml.jackson.annotation.JsonProperty("userId")
     private Long id;
 
     /** 登录账号 */

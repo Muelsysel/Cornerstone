@@ -30,8 +30,8 @@
         <el-table-column prop="dictType" label="字典类型" min-width="150" />
         <el-table-column label="状态" width="90">
           <template #default="{ row }">
-            <el-tag :type="row.status === 'ENABLE' ? 'success' : 'info'">
-              {{ row.status === 'ENABLE' ? '启用' : '停用' }}
+            <el-tag :type="row.status === '0' ? 'success' : 'info'">
+              {{ row.status === '0' ? '启用' : '停用' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -78,8 +78,8 @@
         </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="form.status">
-            <el-radio value="ENABLE">启用</el-radio>
-            <el-radio value="DISABLE">停用</el-radio>
+            <el-radio value="0">启用</el-radio>
+            <el-radio value="1">停用</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注">
@@ -106,8 +106,8 @@
         <el-table-column prop="sort" label="排序" width="80" />
         <el-table-column label="状态" width="90">
           <template #default="{ row }">
-            <el-tag :type="row.status === 'ENABLE' ? 'success' : 'info'">
-              {{ row.status === 'ENABLE' ? '启用' : '停用' }}
+            <el-tag :type="row.status === '0' ? 'success' : 'info'">
+              {{ row.status === '0' ? '启用' : '停用' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -157,8 +157,8 @@
         </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="dataForm.status">
-            <el-radio value="ENABLE">启用</el-radio>
-            <el-radio value="DISABLE">停用</el-radio>
+            <el-radio value="0">启用</el-radio>
+            <el-radio value="1">停用</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注">
@@ -227,7 +227,7 @@ function handleReset() {
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref<FormInstance>()
-const form = reactive<Partial<DictType>>({ status: 'ENABLE' })
+const form = reactive<Partial<DictType>>({ status: '0' })
 
 const rules: FormRules = {
   dictName: [{ required: true, message: '请输入字典名称', trigger: 'blur' }],
@@ -236,7 +236,7 @@ const rules: FormRules = {
 
 function handleCreate() {
   isEdit.value = false
-  Object.assign(form, { dictId: undefined, dictName: '', dictType: '', status: 'ENABLE', remark: '' })
+  Object.assign(form, { dictId: undefined, dictName: '', dictType: '', status: '0', remark: '' })
   dialogVisible.value = true
 }
 
@@ -246,7 +246,7 @@ function handleEdit(row: DictType) {
     dictId: row.dictId,
     dictName: row.dictName,
     dictType: row.dictType,
-    status: row.status || 'ENABLE',
+    status: row.status || '0',
     remark: row.remark || '',
   })
   dialogVisible.value = true
@@ -324,7 +324,7 @@ const dataDialogVisible = ref(false)
 const isDataEdit = ref(false)
 const dataSubmitting = ref(false)
 const dataFormRef = ref<FormInstance>()
-const dataForm = reactive<Partial<DictData>>({ status: 'ENABLE' })
+const dataForm = reactive<Partial<DictData>>({ status: '0' })
 
 const dataRules: FormRules = {
   dictLabel: [{ required: true, message: '请输入标签', trigger: 'blur' }],
@@ -339,7 +339,7 @@ function handleDataCreate() {
     dictLabel: '',
     dictValue: '',
     sort: 0,
-    status: 'ENABLE',
+    status: '0',
     remark: '',
   })
   dataDialogVisible.value = true
@@ -353,7 +353,7 @@ function handleDataEdit(row: DictData) {
     dictLabel: row.dictLabel,
     dictValue: row.dictValue,
     sort: row.sort ?? 0,
-    status: row.status || 'ENABLE',
+    status: row.status || '0',
     remark: row.remark || '',
   })
   dataDialogVisible.value = true

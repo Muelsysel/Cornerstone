@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
@@ -43,7 +44,12 @@ public class CornerstoneDataPermissionHandler implements DataPermissionHandler {
         }
         String scope = dataScopeService.resolveDataScope(ctx);
         try {
-            return buildCondition(scope, ctx);
+            Expression condition = buildCondition(scope, ctx);
+            if (condition == null) {
+                return null;
+            }
+            // 数据权限条件与原有 WHERE 合并（AND），不可替换——原条件（如 id=?）的参数必须保留
+            return where == null ? condition : new AndExpression(where, condition);
         } catch (Exception e) {
             // 数据权限解析失败时保守拒绝：加不可能成立的条件，防止越权
             return new EqualsTo(new Column("id"), new LongValue(-1));

@@ -8,8 +8,8 @@
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="query.status" placeholder="全部" clearable style="width: 120px">
-            <el-option label="启用" value="ENABLE" />
-            <el-option label="停用" value="DISABLE" />
+            <el-option label="启用" value="0" />
+            <el-option label="停用" value="1" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -36,7 +36,7 @@
         <el-table-column label="状态" width="90">
           <template #default="{ row }">
             <el-switch
-              :model-value="row.status === 'ENABLE'"
+              :model-value="row.status === '0'"
               :loading="statusLoadingId === row.userId"
               @change="(val: boolean) => handleStatusChange(row, val)"
             />
@@ -92,8 +92,8 @@
         </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="form.status">
-            <el-radio value="ENABLE">启用</el-radio>
-            <el-radio value="DISABLE">停用</el-radio>
+            <el-radio value="0">启用</el-radio>
+            <el-radio value="1">停用</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注">
@@ -175,7 +175,7 @@ const isEdit = ref(false)
 const formRef = ref<FormInstance>()
 const form = reactive<UserForm>({
   username: '',
-  status: 'ENABLE',
+  status: '0',
 })
 
 const rules: FormRules<UserForm> = {
@@ -188,7 +188,7 @@ const rules: FormRules<UserForm> = {
 
 function handleCreate() {
   isEdit.value = false
-  Object.assign(form, { userId: undefined, username: '', password: '', nickname: '', phone: '', email: '', status: 'ENABLE', remark: '' })
+  Object.assign(form, { userId: undefined, username: '', password: '', nickname: '', phone: '', email: '', status: '0', remark: '' })
   dialogVisible.value = true
 }
 
@@ -201,7 +201,7 @@ function handleEdit(row: User) {
     nickname: row.nickname || '',
     phone: row.phone || '',
     email: row.email || '',
-    status: row.status || 'ENABLE',
+    status: row.status || '0',
     remark: row.remark || '',
   })
   dialogVisible.value = true
@@ -236,13 +236,13 @@ async function handleStatusChange(row: User, val: boolean) {
     .catch(() => Promise.reject(new Error('canceled')))
   statusLoadingId.value = row.userId
   try {
-    await changeUserStatus({ userId: row.userId, status: val ? 'ENABLE' : 'DISABLE' })
-    row.status = val ? 'ENABLE' : 'DISABLE'
+    await changeUserStatus(row.userId, val ? '0' : '1')
+    row.status = val ? '0' : '1'
     ElMessage.success(`已${action}`)
   } catch (e) {
     // 失败时还原开关状态；取消则直接忽略
     if (e instanceof Error && e.message !== 'canceled') {
-      row.status = val ? 'DISABLE' : 'ENABLE'
+      row.status = val ? '1' : '0'
     }
   } finally {
     statusLoadingId.value = null

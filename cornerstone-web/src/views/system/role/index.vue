@@ -31,14 +31,17 @@
         <el-table-column prop="sort" label="排序" width="80" />
         <el-table-column label="状态" width="90">
           <template #default="{ row }">
-            <el-tag :type="row.status === 'ENABLE' ? 'success' : 'info'">
-              {{ row.status === 'ENABLE' ? '启用' : '停用' }}
+            <el-tag :type="row.status === '0' ? 'success' : 'info'">
+              {{ row.status === '0' ? '启用' : '停用' }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" min-width="170" />
-        <el-table-column label="操作" width="160" fixed="right">
+        <el-table-column label="操作" width="230" fixed="right">
           <template #default="{ row }">
+            <el-button v-permission="'system:role:edit'" link type="primary" @click="handleAssign(row)">
+              分配权限
+            </el-button>
             <el-button v-permission="'system:role:edit'" link type="primary" @click="handleEdit(row)">
               编辑
             </el-button>
@@ -80,8 +83,8 @@
         </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="form.status">
-            <el-radio value="ENABLE">启用</el-radio>
-            <el-radio value="DISABLE">停用</el-radio>
+            <el-radio value="0">启用</el-radio>
+            <el-radio value="1">停用</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注">
@@ -93,15 +96,41 @@
         <el-button type="primary" :loading="submitting" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 分配权限弹窗：菜单树勾选 -->
+    <el-dialog v-model="assignVisible" title="分配菜单权限" width="480px" destroy-on-close>
+      <el-tree
+        ref="menuTreeRef"
+        :data="menuTree"
+        node-key="menuId"
+        show-checkbox
+        default-expand-all
+        :props="{ label: 'menuName', children: 'children' }"
+        class="menu-tree"
+      />
+      <template #footer>
+        <el-button @click="assignVisible = false">取消</el-button>
+        <el-button type="primary" :loading="assigning" @click="submitAssign">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { nextTick, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { Plus, Refresh, Search } from '@element-plus/icons-vue'
-import { createRole, deleteRole, getRolePage, updateRole } from '@/api/system'
-import type { Role, RoleQuery } from '@/types/system'
+import type { ElTree } from 'element-plus'
+import {
+  assignRoleMenus,
+  createRole,
+  deleteRole,
+  getMenuTree,
+  getRoleMenus,
+  getRolePage,
+  updateRole,
+} from '@/api/system'
+import type { Menu, Role, RoleQuery } from '@/types/system'
 
 interface RoleForm {
   roleId?: number
@@ -149,7 +178,7 @@ function handleReset() {
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref<FormInstance>()
-const form = reactive<RoleForm>({ roleName: '', roleKey: '', sort: 0, status: 'ENABLE' })
+const form = reactive<RoleForm>({ roleName: '', roleKey: '', sort: 0, status: '0' })
 
 const rules: FormRules<RoleForm> = {
   roleName: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
@@ -158,7 +187,7 @@ const rules: FormRules<RoleForm> = {
 
 function handleCreate() {
   isEdit.value = false
-  Object.assign(form, { roleId: undefined, roleName: '', roleKey: '', sort: 0, status: 'ENABLE', remark: '' })
+  Object.assign(form, { roleId: undefined, roleName: '', roleKey: '', sort: 0, status: '0', remark: '' })
   dialogVisible.value = true
 }
 
@@ -169,7 +198,7 @@ function handleEdit(row: Role) {
     roleName: row.roleName,
     roleKey: row.roleKey,
     sort: row.sort ?? 0,
-    status: row.status || 'ENABLE',
+    status: row.status || '0',
     remark: row.remark || '',
   })
   dialogVisible.value = true
@@ -194,6 +223,43 @@ async function handleSubmit() {
     // 错误提示已由请求拦截器统一处理
   } finally {
     submitting.value = false
+  }
+}
+
+// ---------------- 分配权限 ----------------
+const assignVisible = ref(false)
+const assigning = ref(false)
+const menuTreeRef = ref<InstanceType<typeof ElTree>>()
+const menuTree = ref<Menu[]>([])
+let assignRoleId = 0
+
+async function handleAssign(row: Role) {
+  assignRoleId = row.roleId
+  assignVisible.value = true
+  try {
+    menuTree.value = (await getMenuTree()) || []
+    const { menuIds } = await getRoleMenus(row.roleId)
+    // 等待树渲染后回显勾选（仅叶子/半选由 setCheckedKeys 处理）
+    await nextTick(() => {
+      menuTreeRef.value?.setCheckedKeys(menuIds || [])
+    })
+  } catch {
+    menuTree.value = []
+  }
+}
+
+async function submitAssign() {
+  const checked = menuTreeRef.value?.getCheckedKeys(false) as number[]
+  const half = menuTreeRef.value?.getHalfCheckedKeys() as number[]
+  assigning.value = true
+  try {
+    await assignRoleMenus(assignRoleId, [...checked, ...half])
+    ElMessage.success('权限分配成功')
+    assignVisible.value = false
+  } catch {
+    // 错误已由拦截器提示
+  } finally {
+    assigning.value = false
   }
 }
 

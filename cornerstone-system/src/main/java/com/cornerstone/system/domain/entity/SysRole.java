@@ -16,8 +16,9 @@ public class SysRole extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-    /** 角色ID */
+    /** 角色ID（JSON 契约对齐前端 roleId） */
     @TableId(type = IdType.AUTO)
+    @com.fasterxml.jackson.annotation.JsonProperty("roleId")
     private Long id;
 
     /** 角色名称 */

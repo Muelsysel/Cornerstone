@@ -16,8 +16,9 @@ public class SysMenu implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /** 菜单ID */
+    /** 菜单ID（JSON 契约对齐前端 menuId） */
     @TableId(type = IdType.AUTO)
+    @com.fasterxml.jackson.annotation.JsonProperty("menuId")
     private Long id;
 
     /** 父菜单ID */
