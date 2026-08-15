@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.33] - 2026-08-16
+
+- fix(security): 密码契约统一 6-72——管理员重置密码补 `@Valid` + `@Size(6-72)`（此前仅 service 层 ≤72，无下限）；用户创建/更新/重置的 service 层校验补 <6 拒绝（弱密码防护）；`SysUserServiceImplTest` 新增 `addRejectsTooShortPassword`
+
+**测试方法**：`mvn test -pl cornerstone-system`（127 用例）。
+
 ## [1.2.32] - 2026-08-16
 
 - fix(security): 个人中心改密补 `@Valid` + 新密码 `@Size(min=6, max=72)`——此前改密仅 `@NotBlank` 且无 `@Valid`（校验不触发），绕过前端可提交 1 位弱密码；现与登录/创建契约一致（6-72 字符）

@@ -158,10 +158,18 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
     }
 
     /**
-     * 密码长度上限（与认证中心登录契约一致）：BCrypt 仅处理前 72 字节，超长会静默截断—— 若允许创建超长密码，登录时认证侧 @Size(72) 会直接拒绝，用户将永远无法登录。
+     * 密码长度校验（与认证/改密契约一致）：6-72 字符。 下限防弱密码；上限因 BCrypt 仅处理前 72 字节，超长会静默截断—— 若允许创建超长密码，登录时认证侧 @Size(72)
+     * 会直接拒绝，用户将永远无法登录。
      */
     private void validatePasswordLength(String password) {
-        if (password != null && password.length() > 72) {
+        if (password == null) {
+            return;
+        }
+        if (password.length() < 6) {
+            throw new BusinessException(
+                    com.cornerstone.common.core.ErrorCode.BAD_REQUEST, "密码长度不能少于 6 个字符");
+        }
+        if (password.length() > 72) {
             throw new BusinessException(
                     com.cornerstone.common.core.ErrorCode.BAD_REQUEST, "密码长度不能超过 72 个字符");
         }

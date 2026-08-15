@@ -231,6 +231,17 @@ class SysUserServiceImplTest {
     }
 
     @Test
+    void addRejectsTooShortPassword() {
+        // 弱密码防护：显式传入不足 6 位时拒绝（默认密码 123456 不受影响）
+        when(userMapper.selectCount(any())).thenReturn(0L);
+        SysUser u = user(null, "shortpw");
+        u.setPassword("12345");
+
+        assertThatThrownBy(() -> service.add(u)).isInstanceOf(BusinessException.class);
+        verify(passwordEncoder, never()).encode(org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
     void resetPasswordRejectsOversizedPassword() {
         SysUser exist = user(8L, "bob");
         doReturn(exist).when(service).getById(8L);

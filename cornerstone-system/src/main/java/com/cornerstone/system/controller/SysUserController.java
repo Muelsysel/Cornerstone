@@ -133,13 +133,20 @@ public class SysUserController {
     @OperLog(title = "用户管理", businessType = BusinessType.UPDATE)
     @PreAuthorize("hasAuthority('system:user:edit')")
     public Result<Void> resetPassword(
-            @PathVariable(name = "userId") Long userId, @RequestBody PasswordResetRequest request) {
+            @PathVariable(name = "userId") Long userId,
+            @jakarta.validation.Valid @RequestBody PasswordResetRequest request) {
         userService.resetPassword(userId, request.password());
         return Result.success();
     }
 
-    /** 重置密码请求体 */
-    public record PasswordResetRequest(String password) {}
+    /** 重置密码请求体（6-72 位，与登录/创建/改密契约一致） */
+    public record PasswordResetRequest(
+            @jakarta.validation.constraints.NotBlank(message = "新密码不能为空")
+                    @jakarta.validation.constraints.Size(
+                            min = 6,
+                            max = 72,
+                            message = "新密码长度需在 6-72 个字符之间")
+                    String password) {}
 
     /** 分配角色（全量覆盖：先清后插） */
     @Operation(summary = "分配用户角色", description = "全量覆盖：先清后插")
