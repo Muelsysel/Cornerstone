@@ -21,16 +21,17 @@
 | --- | --- | --- | --- |
 | 公共模块 | `cornerstone-common/` | 共享库 | 统一返回结构、异常体系、工具类、常量、用户上下文持有者 |
 | API 契约 | `cornerstone-api/` | 共享库 | 跨服务 Feign 接口与 DTO 定义（契约即文档） |
-| 网关 | `cornerstone-gateway/` | 服务 | 统一入口：路由转发、跨域、令牌校验（白名单放行）、透传用户上下文 |
-| 认证中心 | `cornerstone-auth/` | 服务 | OAuth2 授权服务器：签发与校验 JWT（client_credentials）、JWKS |
-| 系统服务 | `cornerstone-system/` | 服务 | 组织与权限（RBAC）：用户、角色、菜单、部门、字典、参数、操作日志、登录日志 |
+| 网关 | `cornerstone-gateway/` | 服务 | 统一入口：路由转发、跨域、令牌校验（白名单放行）、透传用户上下文、**Redis 限流** |
+| 认证中心 | `cornerstone-auth/` | 服务 | OAuth2 授权服务器 + **用户登录**（POST /auth/login，签发带角色权限 JWT）+ 登录日志投递 |
+| 系统服务 | `cornerstone-system/` | 服务 | RBAC（用户/角色/菜单/部门/字典/参数/日志）+ **部门数据权限** + 认证支持接口（/system/auth/**，内部令牌保护） |
 | 演示模块 | `cornerstone-demo/` | 服务 | 公告管理——**新模块活模板**，克隆指引见其 CONTEXT.md |
+| 前端后台 | `cornerstone-web/` | 前端 | Vue3 管理后台（非 Maven 模块，见 ADR-0005），权限闭环（v-permission/路由守卫） |
 
 ## 部署与运行
 
-- 依赖（Nacos/MySQL/Redis）：`docker compose up -d`，或见 `docs/guides/run-demo.md` 手动启动
-- 服务端口：gateway 8080 · auth 8081 · system 8082 · demo 8083
-- 认证链路演示：见 `docs/guides/run-demo.md`（curl client_credentials → 经网关访问受保护资源）
+- 依赖（Nacos/MySQL/Redis）：`docker compose up -d`（MySQL 映射宿主 3307），或见 `docs/guides/run-demo.md` 手动启动
+- 服务端口：gateway 8080 · auth 8081 · system 8082 · demo 8083 · 前端 dev 5173
+- 演示链路：见 `docs/guides/run-demo.md`（client_credentials / 用户登录 admin/admin123 / 数据权限 / 服务间认证 / 限流）
 
 ## 决策记录（ADR）
 
