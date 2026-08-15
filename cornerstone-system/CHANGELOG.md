@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.53] - 2026-08-16
+
+- feat(ux): 用户分页支持**部门过滤**（`deptId` 参数 eq 条件）——与数据权限叠加，管理员可按部门筛用户列表；`SysUserServiceImplTest` 新增过滤条件断言
+
+**测试方法**：`mvn test -pl cornerstone-system`（166 用例）。
+
 ## [1.2.52] - 2026-08-16
 
 - feat(ux): 个人中心接口回填部门名（`SysProfileController.profile` 单查回填 `SysUser.deptName`）——个人资料弹窗显示部门名而非裸部门 ID；`SysProfileControllerTest` 新增回填用例

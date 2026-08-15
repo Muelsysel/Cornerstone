@@ -7,8 +7,8 @@ import java.util.List;
 /** 用户服务接口。 */
 public interface SysUserService {
 
-    /** 分页查询用户 */
-    Page<SysUser> page(long current, long size, String username, String status);
+    /** 分页查询用户（deptId 为部门过滤，可空） */
+    Page<SysUser> page(long current, long size, String username, String status, Long deptId);
 
     /** 按 ID 查询用户 */
     SysUser getById(Long userId);

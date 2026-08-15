@@ -18,6 +18,8 @@ export interface UserQuery {
   pageSize: number
   username?: string
   status?: string
+  /** 部门过滤（可选） */
+  deptId?: number
 }
 
 export interface Role {

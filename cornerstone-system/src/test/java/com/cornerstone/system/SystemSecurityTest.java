@@ -172,7 +172,8 @@ class SystemSecurityTest {
                                 anyLong(),
                                 anyLong(),
                                 org.mockito.ArgumentMatchers.nullable(String.class),
-                                org.mockito.ArgumentMatchers.nullable(String.class)))
+                                org.mockito.ArgumentMatchers.nullable(String.class),
+                                org.mockito.ArgumentMatchers.nullable(Long.class)))
                 .thenReturn(page);
     }
 

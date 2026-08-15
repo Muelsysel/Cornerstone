@@ -12,6 +12,19 @@
             <el-option label="停用" value="1" />
           </el-select>
         </el-form-item>
+        <el-form-item label="部门">
+          <el-tree-select
+            v-model="query.deptId"
+            :data="deptTree"
+            node-key="deptId"
+            value-key="deptId"
+            :props="{ label: 'deptName', children: 'children' }"
+            check-strictly
+            clearable
+            placeholder="全部部门"
+            style="width: 180px"
+          />
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="handleSearch">搜索</el-button>
           <el-button :icon="Refresh" @click="handleReset">重置</el-button>
@@ -225,6 +238,7 @@ function handleSearch() {
 function handleReset() {
   query.username = undefined
   query.status = undefined
+  query.deptId = undefined
   query.pageNum = 1
   loadData()
 }

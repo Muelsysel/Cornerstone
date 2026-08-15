@@ -45,11 +45,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
     }
 
     @Override
-    public Page<SysUser> page(long current, long size, String username, String status) {
+    public Page<SysUser> page(
+            long current, long size, String username, String status, Long deptId) {
         LambdaQueryWrapper<SysUser> wrapper =
                 new LambdaQueryWrapper<SysUser>()
                         .eq(hasText(username), SysUser::getUsername, username)
                         .eq(hasText(status), SysUser::getStatus, status)
+                        .eq(deptId != null, SysUser::getDeptId, deptId)
                         .orderByAsc(SysUser::getId);
         Page<SysUser> page = this.page(new Page<>(current, size), wrapper);
         enrichDeptNames(page.getRecords());

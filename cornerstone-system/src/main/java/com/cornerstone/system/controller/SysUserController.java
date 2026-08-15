@@ -48,8 +48,9 @@ public class SysUserController {
             @RequestParam(name = "pageNum", defaultValue = "1") long pageNum,
             @RequestParam(name = "pageSize", defaultValue = "10") long pageSize,
             @RequestParam(name = "username", required = false) String username,
-            @RequestParam(name = "status", required = false) String status) {
-        return Result.success(userService.page(pageNum, pageSize, username, status));
+            @RequestParam(name = "status", required = false) String status,
+            @RequestParam(name = "deptId", required = false) Long deptId) {
+        return Result.success(userService.page(pageNum, pageSize, username, status, deptId));
     }
 
     /** 按 ID 查询用户基础信息：SystemUserClient 契约 */

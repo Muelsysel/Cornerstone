@@ -11,6 +11,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cornerstone.common.exception.BusinessException;
 import com.cornerstone.system.domain.entity.SysDept;
 import com.cornerstone.system.domain.entity.SysUser;
@@ -132,10 +133,24 @@ class SysUserServiceImplTest {
         doReturn(page).when(service).page(any(), any());
 
         com.baomidou.mybatisplus.extension.plugins.pagination.Page<SysUser> result =
-                service.page(2, 10, "adm", "0");
+                service.page(2, 10, "adm", "0", null);
 
         assertThat(result).isSameAs(page);
         verify(service).page(any(), any());
+    }
+
+    @Test
+    void pageFiltersByDeptId() {
+        // 部门过滤：deptId 条件注入分页查询
+        doReturn(new com.baomidou.mybatisplus.extension.plugins.pagination.Page<SysUser>())
+                .when(service)
+                .page(any(), any());
+        service.page(1, 10, null, null, 100L);
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        org.mockito.ArgumentCaptor<LambdaQueryWrapper<SysUser>> captor =
+                org.mockito.ArgumentCaptor.forClass(LambdaQueryWrapper.class);
+        verify(service).page(any(), captor.capture());
+        assertThat(captor.getValue().getSqlSegment()).contains("dept_id");
     }
 
     @Test
@@ -153,7 +168,7 @@ class SysUserServiceImplTest {
         when(deptMapper.selectBatchIds(any())).thenReturn(List.of(dept));
 
         com.baomidou.mybatisplus.extension.plugins.pagination.Page<SysUser> result =
-                service.page(1, 10, null, null);
+                service.page(1, 10, null, null, null);
 
         assertThat(result.getRecords().get(0).getDeptName()).isEqualTo("总公司");
         verify(deptMapper).selectBatchIds(List.of(100L));

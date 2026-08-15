@@ -61,7 +61,7 @@ class SystemExtensionTest {
     /** 分页参数契约：前端传 pageNum/pageSize，controller 必须原样透传（回归：曾误用 current/size 导致翻页失效） */
     @Test
     void userPage_shouldPassPaginationParamsToService() throws Exception {
-        when(userService.page(2L, 5L, null, null)).thenReturn(new Page<SysUser>(2, 5));
+        when(userService.page(2L, 5L, null, null, null)).thenReturn(new Page<SysUser>(2, 5));
 
         mockMvc.perform(
                         get("/system/user/page")
@@ -71,7 +71,7 @@ class SystemExtensionTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200));
 
-        verify(userService).page(2L, 5L, null, null);
+        verify(userService).page(2L, 5L, null, null, null);
     }
 
     @Test
