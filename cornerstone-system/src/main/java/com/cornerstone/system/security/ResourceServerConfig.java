@@ -35,6 +35,8 @@ public class ResourceServerConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http, InternalTokenFilter internalTokenFilter) throws Exception {
         return http.csrf(csrf -> csrf.disable())
+                // CORS 白名单与网关一致：正常流量经网关（网关 CORS 处理），直连服务时合法预检也放行
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
@@ -87,5 +89,27 @@ public class ResourceServerConfig {
     @Primary
     public JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withPublicKey(RsaKeyUtils.parsePublicKey(publicKeyPem)).build();
+    }
+
+    /**
+     * CORS 白名单（与网关 globalcors 一致）：仅本地开发/演示来源。 生产经 nginx 同源反代不触发 CORS。 allow-credentials=true 时来源不能为
+     * '*'，故用白名单而非通配。
+     */
+    private org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+        org.springframework.web.cors.CorsConfiguration config =
+                new org.springframework.web.cors.CorsConfiguration();
+        config.setAllowedOriginPatterns(
+                java.util.List.of(
+                        "http://localhost:5173",
+                        "http://127.0.0.1:5173",
+                        "http://localhost:8088",
+                        "http://127.0.0.1:8088"));
+        config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(java.util.List.of("*"));
+        config.setAllowCredentials(true);
+        org.springframework.web.cors.UrlBasedCorsConfigurationSource source =
+                new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }

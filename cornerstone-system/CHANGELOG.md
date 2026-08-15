@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.31] - 2026-08-16
+
+- fix(security): 资源服务器补 CORS 白名单配置（与网关 globalcors 一致）——此前直连 system 时即使标准预检（带 Access-Control-Request-Method）也被 Spring Security CORS 拒绝 403；现直连合法预检放行，生产 nginx 同源不受影响
+
+**测试方法**：`mvn test -pl cornerstone-system`（126 用例）。
+
 ## [1.2.30] - 2026-08-16
 
 - fix(security): 资源服务器放行 OPTIONS 预检——此前 CORS 预检（无凭据头）被 `authenticated()` 拦截返回 401，直连服务/跳过网关时跨域请求失败；`SystemSecurityTest` 新增 `optionsPreflight_shouldBePermittedWithoutToken`

@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.0.16] - 2026-08-16
+
+- fix(security): 资源服务器补 CORS 白名单（与网关一致），直连服务时合法预检放行
+
+**测试方法**：`mvn test -pl cornerstone-demo`（25 用例）。
+
 ## [1.0.15] - 2026-08-16
 
 - fix(security): 游客公告分页强制已发布——此前仅在 `status==null` 时兜底，显式传 `status=0/2` 可枚举全部草稿/下线公告（信息泄露）；现游客无论传什么状态都强制已发布；`AnnouncementControllerTest` 新增 `guestPageForcesPublishedEvenWithExplicitDraftStatus`（真实 H2 回归）
