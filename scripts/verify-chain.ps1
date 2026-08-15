@@ -97,6 +97,21 @@ try {
     try { $adminToken = ($adminLogin | ConvertFrom-Json).data.access_token } catch {}
     Assert 'Login admin user' $(if ($adminToken) { 'OK' } else { 'FAIL' }) 'OK'
 
+    # 1c. 服务身份隔离：client_credentials 令牌（scope=read/write）无业务权限，
+    #     访问管理接口必须 403（服务身份不能越权调管理 API）
+    $ccToken = $null
+    $ccResp = curl.exe -s --max-time 20 -X POST 'http://localhost:8080/auth/oauth2/token' `
+        -H 'Content-Type: application/x-www-form-urlencoded' `
+        -u 'cornerstone-client:cornerstone-secret' -d 'grant_type=client_credentials&scope=read'
+    try { $ccToken = ($ccResp | ConvertFrom-Json).access_token } catch {}
+    $ccOk = 'FAIL'
+    if ($ccToken) {
+        $ccCode = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 `
+            -H "Authorization: Bearer $ccToken" 'http://localhost:8080/system/user/page?pageNum=1&pageSize=1'
+        if ($ccCode -eq '403') { $ccOk = 'OK' }
+    }
+    Assert 'Client credentials isolated from admin API (403)' $ccOk 'OK'
+
     # 2. Public endpoint without token -> 200
     $pageUrl = 'http://localhost:8080/demo/announcement/page?pageNum=1&pageSize=10'
     $code = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 $pageUrl
