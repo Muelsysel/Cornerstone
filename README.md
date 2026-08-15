@@ -145,6 +145,18 @@ curl -u "cornerstone-client:cornerstone-secret" -X POST \
 | 工程技能如何读这些文档 | [docs/agents/](docs/agents/) |
 | 一键跑通演示 | [docs/guides/run-demo.md](docs/guides/run-demo.md) |
 
+## ⚡ 性能指标（实测）
+
+| 指标 | 数值 |
+| --- | --- |
+| 前端主包 | ~390KB（gzip **130KB**）——Element Plus 按需引入 + 路由级分包 |
+| nginx gzip | 文本资源压缩 **66.5%**（主包 390KB → 130KB） |
+| 前端生产构建 | ~5s（Vite 7，含 vue-tsc 类型检查） |
+| 后端全量测试 | ~30s（clean test，H2/mock 不依赖外部服务） |
+| 静态资源缓存 | `/assets/` 7 天 immutable |
+
+> 性能细节见 [cornerstone-web/README.md](cornerstone-web/README.md)「前端设计」与 Docker 部署章节。
+
 ## 🧪 测试与质量
 
 | 检查项 | 命令 | 说明 |
