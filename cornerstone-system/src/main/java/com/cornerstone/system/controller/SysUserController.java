@@ -11,6 +11,7 @@ import com.cornerstone.system.annotation.OperLog;
 import com.cornerstone.system.constant.BusinessType;
 import com.cornerstone.system.domain.entity.SysUser;
 import com.cornerstone.system.exception.SystemErrorCode;
+import com.cornerstone.system.service.SysRoleService;
 import com.cornerstone.system.service.SysUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,9 +36,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class SysUserController {
 
     private final SysUserService userService;
+    private final SysRoleService roleService;
 
-    public SysUserController(SysUserService userService) {
+    public SysUserController(SysUserService userService, SysRoleService roleService) {
         this.userService = userService;
+        this.roleService = roleService;
     }
 
     /** 分页查询用户（权限演示：需 system:user:list） */
@@ -53,7 +56,7 @@ public class SysUserController {
         return Result.success(userService.page(pageNum, pageSize, username, status, deptId));
     }
 
-    /** 按 ID 查询用户基础信息：SystemUserClient 契约 */
+    /** 按 ID 查询用户基础信息：SystemUserClient 契约（含角色标识，供服务间调用方判断权限） */
     @Operation(summary = "查询用户基础信息", description = "实现 cornerstone-api SystemUserClient 契约")
     @GetMapping("/{userId}")
     @PreAuthorize("hasAuthority('system:user:list')")
@@ -67,6 +70,8 @@ public class SysUserController {
         dto.setUsername(user.getUsername());
         dto.setNickname(user.getNickname());
         dto.setDeptId(user.getDeptId());
+        // 角色标识集合（契约字段补齐：曾为 null，调用方无法据此做角色判断）
+        dto.setRoles(roleService.getRoleKeysByUserId(userId));
         return Result.success(dto);
     }
 

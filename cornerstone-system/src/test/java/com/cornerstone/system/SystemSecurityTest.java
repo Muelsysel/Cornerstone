@@ -46,6 +46,9 @@ class SystemSecurityTest {
 
     @MockBean private SysConfigService configService;
 
+    // 用户信息接口契约已补角色标识回填（SystemUserClient 契约字段），mock 掉避免依赖 H2 表
+    @MockBean private com.cornerstone.system.service.SysRoleService roleService;
+
     /**
      * @OperLog 切面会写操作日志，mock 掉避免未建表（本测试类不依赖 MySQL/H2 表）
      */

@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.56] - 2026-08-16
+
+- fix(contract): `GET /system/user/{id}` 回填 `roles` 字段（SystemUserClient 契约完整性）——契约 DTO 声明了角色集合但实现从未填充，调用方无法据此做角色判断；`SystemSecurityTest` 补 mock
+
+**测试方法**：`mvn test -pl cornerstone-system`（167 用例）。
+
 ## [1.2.55] - 2026-08-16
 
 - fix(data): **字典类型改名级联同步数据项**——`updateType` 修改 dictType 时，`sys_dict_data` 数据项此前保留旧类型成为孤儿（listData(新类型) 查不到，前端虽禁用改名但 API 可触发）；现用 `LambdaUpdateWrapper` 级联更新全部数据项；`SysDictServiceImplTest` 新增改名同步/类型不变不级联两个用例
