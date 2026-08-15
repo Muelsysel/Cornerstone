@@ -2,6 +2,13 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.4.2] - 2026-08-15（性能与导航）
+
+- perf: nginx 开启 gzip（文本类资源压缩，主包 390KB → 130KB，降 66.5%）
+- feat: 登录后默认进入首页 dashboard（原直达用户管理）
+
+**测试方法**：`npm run build`（vue-tsc 类型检查 + vite 构建，须通过）；`npm test`（vitest 单测，12 用例）；`docker compose up --build frontend` 后访问 http://localhost:8088 验证页面与 API 反代。
+
 ## [1.4.1] - 2026-08-15（功能补全）
 
 - feat: 用户管理页「分配角色」——行操作按钮 + 多选弹窗（角色列表/已分配回显/全量覆盖），配套后端 `PUT/GET /system/user/{userId}/roles`

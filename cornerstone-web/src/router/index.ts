@@ -22,7 +22,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('@/layout/index.vue'),
-    redirect: '/system/user',
+    redirect: '/dashboard',
     children: [
       {
         path: 'dashboard',
