@@ -83,9 +83,9 @@ TOKEN=$(curl -s -u "cornerstone-client:cornerstone-secret" -X POST \
 curl -s http://localhost:8080/system/user/1
 # → {"code":401,"message":"未认证或令牌无效","data":null}
 
-# 3. 带令牌访问 → 200（网关校验 JWT 并透传用户上下文）
+# 3. client_credentials 令牌访问用户信息接口 → 403（服务身份无业务权限；该接口需 system:user:list）
 curl -s -H "Authorization: Bearer $TOKEN" http://localhost:8080/system/user/1
-# → {"code":200,"message":"操作成功","data":{"userId":1,"username":"admin",...}}
+# → {"code":403,"message":"无权限访问","data":null}
 
 # 4. 权限点：client_credentials 令牌无业务权限 → 403
 curl -s -X POST -H "Authorization: Bearer $TOKEN" \
@@ -105,6 +105,9 @@ USER_TOKEN=$(echo $LOGIN | jq -r '.data.access_token')
 # 7. admin 令牌访问需权限的接口 → 200（@PreAuthorize 从 scope 读取权限）
 curl -s -H "Authorization: Bearer $USER_TOKEN" \
   "http://localhost:8080/system/user/page?pageNum=1&pageSize=5"
+# 用户信息接口（system:user:list）同样 200
+curl -s -H "Authorization: Bearer $USER_TOKEN" http://localhost:8080/system/user/1
+# → {"code":200,"message":"操作成功","data":{"userId":1,"username":"admin",...}}
 
 # 8. 错误密码 → 401
 curl -s -X POST http://localhost:8080/auth/login \
@@ -129,11 +132,10 @@ curl -s -H "Authorization: Bearer $TEST_TOKEN" \
 | --- | --- | --- | --- |
 | 1 | 经网关 client_credentials 拿 token | 200 + access_token | ✅ |
 | 2 | 无 token 访问受保护接口 | 401 | ✅ |
-| 3 | 带 token 经网关访问 system 用户接口 | 200 | ✅ |
-| 4 | 带 token 经网关访问 demo 公告分页 | 200 | ✅ |
-| 5 | 带 token POST 创建公告（无权限点） | 403 | ✅ |
-| 6 | 带 token 访问 system 用户分页（无权限点） | 403 | ✅ |
-| 7 | 无 token 直连 demo 公开接口 | 200 | ✅ |
+| 3 | client_credentials 访问用户信息接口（system:user:list） | 403 | ✅ |
+| 4 | client_credentials POST 创建公告（无权限点） | 403 | ✅ |
+| 5 | admin 令牌访问用户分页/信息接口 | 200 | ✅ |
+| 6 | 无 token 直连 demo 公开接口 | 200 | ✅ |
 
 ### v3 补充实测
 
