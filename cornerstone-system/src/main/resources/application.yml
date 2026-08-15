@@ -58,3 +58,10 @@ springdoc:
 logging:
   level:
     com.cornerstone.system: info
+
+# Actuator：克制暴露，仅 health/info
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

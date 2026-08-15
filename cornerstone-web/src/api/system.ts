@@ -1,6 +1,23 @@
 import { request } from '@/api/request'
 import type { PageResult } from '@/types'
-import type { Menu, Dept, Role, RoleQuery, User, UserQuery } from '@/types/system'
+import type {
+  Config,
+  ConfigQuery,
+  Dept,
+  DictData,
+  DictDataQuery,
+  DictType,
+  DictTypeQuery,
+  LoginLog,
+  LoginLogQuery,
+  Menu,
+  OperLog,
+  OperLogQuery,
+  Role,
+  RoleQuery,
+  User,
+  UserQuery,
+} from '@/types/system'
 
 // ---------------------------------- 用户 ----------------------------------
 
@@ -79,4 +96,86 @@ export function updateDept(data: Partial<Dept>): Promise<unknown> {
 
 export function deleteDept(deptId: number): Promise<unknown> {
   return request({ url: `/system/dept/${deptId}`, method: 'delete' })
+}
+
+// ---------------------------------- 字典类型 ----------------------------------
+
+export function getDictTypePage(params: DictTypeQuery): Promise<PageResult<DictType>> {
+  return request({ url: '/system/dict/type/page', method: 'get', params })
+}
+
+export function createDictType(data: Partial<DictType>): Promise<unknown> {
+  return request({ url: '/system/dict/type', method: 'post', data })
+}
+
+export function updateDictType(data: Partial<DictType>): Promise<unknown> {
+  return request({ url: '/system/dict/type', method: 'put', data })
+}
+
+export function deleteDictType(dictId: number): Promise<unknown> {
+  return request({ url: `/system/dict/type/${dictId}`, method: 'delete' })
+}
+
+// ---------------------------------- 字典数据 ----------------------------------
+
+export function getDictDataPage(params: DictDataQuery): Promise<PageResult<DictData>> {
+  return request({ url: '/system/dict/data/page', method: 'get', params })
+}
+
+export function createDictData(data: Partial<DictData>): Promise<unknown> {
+  return request({ url: '/system/dict/data', method: 'post', data })
+}
+
+export function updateDictData(data: Partial<DictData>): Promise<unknown> {
+  return request({ url: '/system/dict/data', method: 'put', data })
+}
+
+export function deleteDictData(dictCode: number): Promise<unknown> {
+  return request({ url: `/system/dict/data/${dictCode}`, method: 'delete' })
+}
+
+// ---------------------------------- 参数 ----------------------------------
+
+export function getConfigPage(params: ConfigQuery): Promise<PageResult<Config>> {
+  return request({ url: '/system/config/page', method: 'get', params })
+}
+
+export function createConfig(data: Partial<Config>): Promise<unknown> {
+  return request({ url: '/system/config', method: 'post', data })
+}
+
+export function updateConfig(data: Partial<Config>): Promise<unknown> {
+  return request({ url: '/system/config', method: 'put', data })
+}
+
+export function deleteConfig(configId: number): Promise<unknown> {
+  return request({ url: `/system/config/${configId}`, method: 'delete' })
+}
+
+// ---------------------------------- 操作日志（只读） ----------------------------------
+
+export function getOperLogPage(params: OperLogQuery): Promise<PageResult<OperLog>> {
+  return request({ url: '/system/operlog/page', method: 'get', params })
+}
+
+export function deleteOperLog(operId: number): Promise<unknown> {
+  return request({ url: `/system/operlog/${operId}`, method: 'delete' })
+}
+
+export function clearOperLog(): Promise<unknown> {
+  return request({ url: '/system/operlog/clean', method: 'delete' })
+}
+
+// ---------------------------------- 登录日志（只读） ----------------------------------
+
+export function getLoginLogPage(params: LoginLogQuery): Promise<PageResult<LoginLog>> {
+  return request({ url: '/system/loginlog/page', method: 'get', params })
+}
+
+export function deleteLoginLog(infoId: number): Promise<unknown> {
+  return request({ url: `/system/loginlog/${infoId}`, method: 'delete' })
+}
+
+export function clearLoginLog(): Promise<unknown> {
+  return request({ url: '/system/loginlog/clean', method: 'delete' })
 }

@@ -2,7 +2,9 @@
   <div>
     <el-card shadow="never">
       <div class="table-toolbar">
-        <el-button type="primary" :icon="Plus" @click="handleCreate(null)">新增部门</el-button>
+        <el-button v-permission="'system:dept:add'" type="primary" :icon="Plus" @click="handleCreate(null)">
+          新增部门
+        </el-button>
         <el-button :icon="Refresh" @click="loadData">刷新</el-button>
       </div>
 
@@ -28,9 +30,9 @@
         <el-table-column prop="createTime" label="创建时间" min-width="170" />
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleCreate(row)">新增</el-button>
-            <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
-            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+            <el-button v-permission="'system:dept:add'" link type="primary" @click="handleCreate(row)">新增</el-button>
+            <el-button v-permission="'system:dept:edit'" link type="primary" @click="handleEdit(row)">编辑</el-button>
+            <el-button v-permission="'system:dept:remove'" link type="danger" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

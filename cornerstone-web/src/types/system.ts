@@ -67,3 +67,96 @@ export interface Dept {
   phone?: string
   children?: Dept[]
 }
+
+// ---------------------------------- 字典 ----------------------------------
+
+export interface DictType {
+  dictId: number
+  dictName: string
+  dictType: string
+  status?: string
+  remark?: string
+  createTime?: string
+}
+
+export interface DictTypeQuery {
+  pageNum: number
+  pageSize: number
+  dictName?: string
+  dictType?: string
+  status?: string
+}
+
+export interface DictData {
+  dictCode: number
+  dictType: string
+  dictLabel: string
+  dictValue: string
+  sort?: number
+  status?: string
+  remark?: string
+  createTime?: string
+}
+
+export interface DictDataQuery {
+  pageNum: number
+  pageSize: number
+  dictType?: string
+  dictLabel?: string
+  status?: string
+}
+
+// ---------------------------------- 参数 ----------------------------------
+
+export interface Config {
+  configId: number
+  configName?: string
+  configKey: string
+  configValue?: string
+  remark?: string
+  createTime?: string
+}
+
+export interface ConfigQuery {
+  pageNum: number
+  pageSize: number
+  configKey?: string
+  configName?: string
+}
+
+// ---------------------------------- 日志 ----------------------------------
+
+export interface OperLog {
+  operId: number
+  title?: string
+  businessType?: number
+  operName?: string
+  operIp?: string
+  operTime?: string
+  status?: number
+  errorMsg?: string
+  method?: string
+}
+
+export interface OperLogQuery {
+  pageNum: number
+  pageSize: number
+  title?: string
+  operName?: string
+}
+
+export interface LoginLog {
+  infoId: number
+  username?: string
+  ipaddr?: string
+  status?: string
+  msg?: string
+  loginTime?: string
+}
+
+export interface LoginLogQuery {
+  pageNum: number
+  pageSize: number
+  username?: string
+  status?: string
+}

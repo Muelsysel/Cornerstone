@@ -55,3 +55,10 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     path: /v3/api-docs
+
+# Actuator：克制暴露，仅 health/info
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

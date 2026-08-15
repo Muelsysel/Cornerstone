@@ -51,7 +51,7 @@ controller → service(业务规则) → mapper(MyBatis-Plus) → announcement �
 - **分页**：MyBatis-Plus `Page` + `PaginationInnerInterceptor(MYSQL)`（`config/MybatisPlusConfig`）。
 - **状态流转规则**集中在 `AnnouncementServiceImpl`：
   - 新增即 `草稿`；仅 `草稿` 可编辑；`草稿→已发布`；`已发布→已下线`；非法流转抛 `BusinessException(ANNOUNCEMENT_STATUS_ILLEGAL)`。
-- **权限**：`SecurityConfig` 配置公开白名单 + 资源服务器校验；`@PreAuthorize("hasAuthority('demo:announcement:edit')")`。
+- **权限**：`SecurityConfig` 配置公开白名单（公告查询 / Springdoc / **Actuator**）+ 资源服务器校验；`@PreAuthorize("hasAuthority('demo:announcement:edit')")`。
 - **安全异常映射**：`config/ResourceServerExceptionAdvice` 将方法级无权限改为 HTTP 403（避免被 common 兜底吞成 200）。
 - **审计**：`config/MyMetaObjectHandler` 实现 `MetaObjectHandler`，取当前用户上下文，匿名回退 `system`。
 

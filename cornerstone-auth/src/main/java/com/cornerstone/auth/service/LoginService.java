@@ -1,12 +1,17 @@
 package com.cornerstone.auth.service;
 
 import com.cornerstone.api.client.AuthUserClient;
+import com.cornerstone.api.client.LoginLogClient;
+import com.cornerstone.api.dto.LoginLogDTO;
 import com.cornerstone.api.dto.UserAuthDTO;
 import com.cornerstone.common.core.ErrorCode;
 import com.cornerstone.common.core.Result;
 import com.cornerstone.common.exception.BusinessException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
@@ -25,6 +30,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class LoginService {
 
+    private static final Logger log = LoggerFactory.getLogger(LoginService.class);
+
     /** 签发的 access_token 有效期（12 小时） */
     public static final Duration TOKEN_TTL = Duration.ofHours(12);
 
@@ -32,23 +39,32 @@ public class LoginService {
     private static final String TOKEN_TYPE_BEARER = "Bearer";
 
     private final AuthUserClient authUserClient;
+    private final LoginLogClient loginLogClient;
     private final JwtEncoder jwtEncoder;
     private final PasswordEncoder passwordEncoder;
 
     public LoginService(
-            AuthUserClient authUserClient, JwtEncoder jwtEncoder, PasswordEncoder passwordEncoder) {
+            AuthUserClient authUserClient,
+            LoginLogClient loginLogClient,
+            JwtEncoder jwtEncoder,
+            PasswordEncoder passwordEncoder) {
         this.authUserClient = authUserClient;
+        this.loginLogClient = loginLogClient;
         this.jwtEncoder = jwtEncoder;
         this.passwordEncoder = passwordEncoder;
     }
 
-    /** 用户名密码登录；成功返回含 access_token 的响应，失败抛业务异常（401）。 */
-    public LoginResponse login(LoginRequest request) {
-        UserAuthDTO user = findUser(request.username());
+    /** 用户名密码登录；成功返回含 access_token 的响应，失败抛业务异常（401）。登录日志经 {@link LoginLogClient} 投递 system。 */
+    public LoginResponse login(LoginRequest request, String clientIp) {
+        String username = request.username();
+        UserAuthDTO user = findUser(username);
         if (user == null || !passwordEncoder.matches(request.password(), user.getPassword())) {
+            // 用户不存在时用请求中的用户名记录失败日志
+            recordLog(username, clientIp, "1", "用户名或密码错误");
             throw new BusinessException(ErrorCode.UNAUTHORIZED, "用户名或密码错误");
         }
         Jwt jwt = issueToken(user);
+        recordLog(username, clientIp, "0", "登录成功");
         return new LoginResponse(
                 jwt.getTokenValue(),
                 TOKEN_TYPE_BEARER,
@@ -56,6 +72,21 @@ public class LoginService {
                 user.getUserId(),
                 user.getUsername(),
                 user.getRoles());
+    }
+
+    /** 把一条登录日志投递 system 落库。日志记录失败不阻塞登录主流程（八荣八耻：不因日志故障阻塞登录）。 */
+    private void recordLog(String username, String clientIp, String status, String msg) {
+        try {
+            LoginLogDTO dto = new LoginLogDTO();
+            dto.setUsername(username);
+            dto.setIpaddr(clientIp);
+            dto.setStatus(status);
+            dto.setMsg(msg);
+            dto.setLoginTime(LocalDateTime.now());
+            loginLogClient.record(dto);
+        } catch (Exception e) {
+            log.warn("登录日志投递失败 username={} status={}", username, status, e);
+        }
     }
 
     /** 经契约从 system 按用户名取用户认证信息；返回 null 表示用户不存在。 */

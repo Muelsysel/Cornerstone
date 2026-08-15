@@ -41,8 +41,8 @@ public class ResourceServerConfig {
                 .authorizeHttpRequests(
                         auth ->
                                 // /system/auth/** 为服务间内部接口（认证中心登录契约），网关白名单不含 /system/** 已隔离外部；v1
-                                // 简化匿名访问
-                                auth.requestMatchers("/system/auth/**")
+                                // 简化匿名访问；/actuator/** 放行健康检查
+                                auth.requestMatchers("/system/auth/**", "/actuator/**")
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated())

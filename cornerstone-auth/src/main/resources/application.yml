@@ -12,6 +12,13 @@ spring:
   jackson:
     time-zone: GMT+8
 
+# Actuator：克制暴露，仅 health/info
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
 # 认证中心 RSA 密钥（PKCS8 PEM）。网关持有同一公钥校验令牌，二者必须一致。
 cornerstone:
   auth:

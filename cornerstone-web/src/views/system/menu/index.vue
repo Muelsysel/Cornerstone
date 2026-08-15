@@ -2,7 +2,9 @@
   <div>
     <el-card shadow="never">
       <div class="table-toolbar">
-        <el-button type="primary" :icon="Plus" @click="handleCreate(null)">新增菜单</el-button>
+        <el-button v-permission="'system:menu:add'" type="primary" :icon="Plus" @click="handleCreate(null)">
+          新增菜单
+        </el-button>
         <el-button :icon="Refresh" @click="loadData">刷新</el-button>
       </div>
 
@@ -28,9 +30,9 @@
         <el-table-column prop="sort" label="排序" width="70" />
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleCreate(row)">新增</el-button>
-            <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
-            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+            <el-button v-permission="'system:menu:add'" link type="primary" @click="handleCreate(row)">新增</el-button>
+            <el-button v-permission="'system:menu:edit'" link type="primary" @click="handleEdit(row)">编辑</el-button>
+            <el-button v-permission="'system:menu:remove'" link type="danger" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

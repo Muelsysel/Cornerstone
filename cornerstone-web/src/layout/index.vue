@@ -56,15 +56,21 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 import { routes } from '@/router'
+import { hasPermission } from '@/utils/permission'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 
-// 从路由表扁平化出用于菜单展示的一级路由
+// 从路由表扁平化用于菜单展示的一级路由，并按权限过滤：
+// 路由声明了 meta.permission 时，无对应权限点的菜单项不渲染；未声明则默认展示。
 const menuRoutes = computed(() => {
   const root = routes.find((r) => r.path === '/')
   return (root?.children || [])
+    .filter((c) => {
+      const required = c.meta?.permission as string | undefined
+      return !required || hasPermission(required)
+    })
     .map((c) => ({
       path: c.path,
       title: String(c.meta?.title || ''),

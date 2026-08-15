@@ -43,6 +43,15 @@ Cornerstone 是**文档约束驱动**的 Spring Cloud 脚手架：文档是契�
 - 登录用户从 `UserContextHolder.get()` 取（网关透传头解析而来，服务不自行解析令牌）
 - 代码格式：google-java-format（AOSP），提交前 `mvn spotless:apply`
 
+### 4b. 关键约定（v2+ 已固化的架构事实）
+
+- **登录与权限**：用户登录在 `cornerstone-auth` 的 `POST /login`（BCrypt 校验 + 签发 JWT，claims：sub=userId、roles、scope=权限集合）；`@PreAuthorize("hasAuthority('system:user:list')")` 从 JWT scope 读取权限；客户端凭据（client_credentials）令牌无业务权限（访问业务接口返回 403 是预期行为）
+- **认证支持接口**：`/system/auth/**` 是 auth 登录时经 Feign（`AuthUserClient`）调 system 的内部接口（含 BCrypt 哈希，禁止暴露到网关外部；生产需服务间认证）
+- **Feign 契约**：`cornerstone-api` 中每个 `@FeignClient` 必须带唯一 `contextId`（同服务多客户端否则 FeignClientSpecification 冲突）；服务调用方需 `spring-cloud-starter-loadbalancer`
+- **数据权限**：`sys_role.data_scope`（1全部~5仅本人）+ `sys_role_dept`；`CornerstoneDataPermissionHandler` 按 `mappedStatementId` 拦截 `SysUserMapper` 查询自动追加条件；扩展管控其他表时在 handler 调整
+- **密码与密钥**：密码用 DelegatingPasswordEncoder（支持 {noop} 客户端密钥 + 无前缀 BCrypt 用户哈希）；RSA 密钥四处一致（auth 私钥 ↔ gateway/system/demo 公钥）
+- **前端**：`cornerstone-web/`（Vue3 + Element Plus），开发经 vite 代理到网关 8080，登录态存 localStorage，接口统一 Result 处理
+
 ### 5. 验证（未验证不算完成）
 
 ```powershell

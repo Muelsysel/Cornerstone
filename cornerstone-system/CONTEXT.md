@@ -2,7 +2,7 @@
 
 ## 职责
 
-- **认证支持接口（支持 auth 登录）**：实现 `AuthUserClient` 契约，`GET /system/auth/user/{username}` 返回 `UserAuthDTO`（含 BCrypt 密码哈希、roleKey 角色、menu perms 权限），供 `cornerstone-auth` 登录换 JWT。
+- **认证支持接口（支持 auth 登录）**：实现 `AuthUserClient` 契约，`GET /system/auth/user/{username}` 返回 `UserAuthDTO`（含 BCrypt 密码哈希、roleKey 角色、menu perms 权限），供 `cornerstone-auth` 登录换 JWT；并实现 `LoginLogClient` 契约，`POST /system/auth/login-log` 接收登录日志并经 `SysLoginLogService.record()` 落库。
 - **RBAC 核心**：用户（user）、角色（role）、菜单（menu）、部门（dept）及其关联（user_role、role_menu）的完整管理。
   - 用户：分页、新增、编辑、删除（逻辑删除）、启用/停用、重置密码，实现 `SystemUserClient` 契约（`GET /system/user/{userId}`）。
   - 角色：分页、CRUD、分配菜单权限（写 role_menu）、**数据范围（data_scope）与自定义范围部门（role_dept）管理**。
@@ -41,7 +41,7 @@
 | **字典**（Dict） | 键值对配置：类型(dict_type)+数据(dict_data)，用于下拉统一维护。 |
 | **参数**（Config） | 系统运行参数，键名唯一（config_key）。 |
 | **操作日志**（OperLog） | 用户在受管操作上的审计记录，经 `@OperLog` 注解 + AOP 切面自动写入。 |
-| **登录日志**（LoginLog） | 登录成功/失败记录，`SysLoginLogService.record()` 供 v2 登录流程调用。 |
+| **登录日志**（LoginLog） | 登录成功/失败记录，`SysLoginLogService.record()` 供 auth 登录流程经 `LoginLogClient` 契约投递后落库。 |
 | **权限标识**（Permission） | 字符串形式的权限点，如 `system:user:list`，供 `@PreAuthorize("hasAuthority(...)")` 使用。 |
 | **认证支持**（AuthSupport） | `/system/auth/**` 内部接口：按用户名提供认证信息（密码哈希+角色+权限），供 `cornerstone-auth` 登录换 JWT；v1 简化匿名（网关白名单不含 /system/** 已隔离），生产需服务间认证。 |
 | **数据范围**（DataScope） | 角色级行级数据权限：1全部 2自定义 3本部门及以下 4本部门 5仅本人。经 `DataPermissionInterceptor` 对 `sys_user` 查询自动追加条件，范围取用户所有角色中最严格者。 |
@@ -60,8 +60,8 @@ controller → service(业务规则) → mapper(MyBatis-Plus) → sys_* 表
 - **分页**：MyBatis-Plus `Page` + `PaginationInnerInterceptor(MYSQL)`（`config/MybatisPlusConfig`）。
 - **审计**：`config/MyMetaObjectHandler` 实现 `MetaObjectHandler`，取 `UserContextHolder` 当前用户，匿名回退空串。
 - **逻辑删除**：`deleted` 字段 + MyBatis-Plus `logic-delete-config`（`application.yml`）。
-- **权限**：`security/ResourceServerConfig` 校验 JWT（RSA 公钥），`JwtAuthenticationConverter` 关闭前缀，从 `scope` 声明解析权限；方法级 `@PreAuthorize`。`/system/auth/**` 在公开白名单放行（服务间内部接口）。
-- **认证支持服务**：`service/AuthUserSupportService` 独立类实现认证信息查询（user→role→menu perms），不复用/修改 SysUserService/RoleService/MenuService；由 `controller/SysAuthUserController` 暴露（实现 `AuthUserClient` 契约）。
+- **权限**：`security/ResourceServerConfig` 校验 JWT（RSA 公钥），`JwtAuthenticationConverter` 关闭前缀，从 `scope` 声明解析权限；方法级 `@PreAuthorize`。`/system/auth/**` 与 `/actuator/**` 在公开白名单放行（前者为服务间内部接口，后者为健康检查）。
+- **认证支持服务**：`service/AuthUserSupportService` 独立类实现认证信息查询（user→role→menu perms），不复用/修改 SysUserService/RoleService/MenuService；由 `controller/SysAuthUserController` 暴露（实现 `AuthUserClient` 契约），同控制器实现 `LoginLogClient` 契约（POST /login-log）转调 `SysLoginLogService.record`。
 - **安全异常映射**：`config/ResourceServerExceptionAdvice` 将 `AccessDeniedException`→403、认证异常→401（避免被 common 兜底转成 200，与 demo 一致）。
 - **操作日志 AOP**：`aspect/OperLogAspect` 拦截 `@OperLog`，记录方法、URL、IP、参数、结果、操作人（来自 `UserContextHolder`）。
 - **缓存降级**：`util/JsonCache` 封装 Redis 读写并吞异常降级，保证无 Redis 时功能可用。

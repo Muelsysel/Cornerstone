@@ -31,13 +31,14 @@ import org.springframework.security.web.access.intercept.AuthorizationFilter;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    /** 公开端点白名单：公告查询与 Springdoc 文档无需登录 */
+    /** 公开端点白名单：公告查询、Springdoc 文档与 Actuator 健康检查无需登录 */
     private static final String[] PUBLIC_PATHS = {
         "/demo/announcement/page/**",
         "/demo/announcement/*",
         "/v3/api-docs/**",
         "/swagger-ui/**",
-        "/swagger-ui.html"
+        "/swagger-ui.html",
+        "/actuator/**"
     };
 
     private final UserContextFilter userContextFilter;

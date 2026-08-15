@@ -1,17 +1,23 @@
 package com.cornerstone.auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.cornerstone.api.client.AuthUserClient;
+import com.cornerstone.api.client.LoginLogClient;
+import com.cornerstone.api.dto.LoginLogDTO;
 import com.cornerstone.api.dto.UserAuthDTO;
 import com.cornerstone.common.core.Result;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,6 +45,8 @@ class LoginControllerTest {
 
     @MockBean private AuthUserClient authUserClient;
 
+    @MockBean private LoginLogClient loginLogClient;
+
     @Test
     void validCredentials_shouldReturnTokenWithPermissions() throws Exception {
         when(authUserClient.findByUsername("admin")).thenReturn(Result.success(adminUser()));
@@ -64,6 +72,9 @@ class LoginControllerTest {
         assertThat(jwt.getSubject()).isEqualTo("1");
         assertThat(jwt.<Iterable<String>>getClaim("scope")).contains("system:user:list");
         assertThat(jwt.<Iterable<String>>getClaim("roles")).contains("admin");
+
+        // 登录成功必须投递 status=0 登录日志
+        verify(loginLogClient, times(1)).record(any(LoginLogDTO.class));
     }
 
     @Test
@@ -77,6 +88,14 @@ class LoginControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(401))
                 .andExpect(jsonPath("$.message").value("用户名或密码错误"));
+
+        // 密码错误必须投递 status=1 登录日志
+        ArgumentCaptor<LoginLogDTO> captor = ArgumentCaptor.forClass(LoginLogDTO.class);
+        verify(loginLogClient, times(1)).record(captor.capture());
+        LoginLogDTO dto = captor.getValue();
+        assertThat(dto.getUsername()).isEqualTo("admin");
+        assertThat(dto.getStatus()).isEqualTo("1");
+        assertThat(dto.getMsg()).isEqualTo("用户名或密码错误");
     }
 
     @Test
@@ -90,6 +109,13 @@ class LoginControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(401))
                 .andExpect(jsonPath("$.message").value("用户名或密码错误"));
+
+        // 用户不存在时用请求中的用户名记录失败日志
+        ArgumentCaptor<LoginLogDTO> captor = ArgumentCaptor.forClass(LoginLogDTO.class);
+        verify(loginLogClient, times(1)).record(captor.capture());
+        LoginLogDTO dto = captor.getValue();
+        assertThat(dto.getUsername()).isEqualTo("nobody");
+        assertThat(dto.getStatus()).isEqualTo("1");
     }
 
     private UserAuthDTO adminUser() {

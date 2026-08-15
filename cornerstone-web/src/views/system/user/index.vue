@@ -22,7 +22,9 @@
     <!-- 表格 -->
     <el-card shadow="never">
       <div class="table-toolbar">
-        <el-button type="primary" :icon="Plus" @click="handleCreate">新增用户</el-button>
+        <el-button v-permission="'system:user:add'" type="primary" :icon="Plus" @click="handleCreate">
+          新增用户
+        </el-button>
       </div>
 
       <el-table v-loading="loading" :data="list" border stripe>
@@ -42,8 +44,12 @@
         </el-table-column>
         <el-table-column label="操作" width="160" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
-            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+            <el-button v-permission="'system:user:edit'" link type="primary" @click="handleEdit(row)">
+              编辑
+            </el-button>
+            <el-button v-permission="'system:user:remove'" link type="danger" @click="handleDelete(row)">
+              删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -225,13 +231,19 @@ async function handleSubmit() {
 
 // ---------------- 状态切换 ----------------
 async function handleStatusChange(row: User, val: boolean) {
+  const action = val ? '启用' : '停用'
+  await ElMessageBox.confirm(`确认${action}用户「${row.username}」吗？`, '提示', { type: 'warning' })
+    .catch(() => Promise.reject(new Error('canceled')))
   statusLoadingId.value = row.userId
   try {
     await changeUserStatus({ userId: row.userId, status: val ? 'ENABLE' : 'DISABLE' })
     row.status = val ? 'ENABLE' : 'DISABLE'
-    ElMessage.success(val ? '已启用' : '已停用')
-  } catch {
-    // 失败时还原开关状态（由拦截器提示错误）
+    ElMessage.success(`已${action}`)
+  } catch (e) {
+    // 失败时还原开关状态；取消则直接忽略
+    if (e instanceof Error && e.message !== 'canceled') {
+      row.status = val ? 'DISABLE' : 'ENABLE'
+    }
   } finally {
     statusLoadingId.value = null
   }
