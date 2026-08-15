@@ -5,8 +5,6 @@ export interface User {
   userId: number
   username: string
   nickname?: string
-  phone?: string
-  email?: string
   status?: string // 0 正常 / 1 停用（与角色/部门/字典一致）
   deptId?: number
   remark?: string
@@ -17,7 +15,6 @@ export interface UserQuery {
   pageNum: number
   pageSize: number
   username?: string
-  phone?: string
   status?: string
 }
 

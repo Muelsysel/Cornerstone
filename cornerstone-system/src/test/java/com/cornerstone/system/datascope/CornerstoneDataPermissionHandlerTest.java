@@ -98,6 +98,25 @@ class CornerstoneDataPermissionHandlerTest {
     }
 
     @Test
+    void scopeDeptWithoutDeptIdDenies() {
+        // 回归：本部门(4)但用户无部门归属——此前返回 null（不加条件）→ 用户可见全部数据（越权）；
+        // 现 fail-closed 返回不可能条件，与 scope 2 空部门集合同语义
+        user("4", 1L, null);
+        Expression expr = handler.getSqlSegment(null, USER_PAGE_MS_ID);
+        assertNotNull(expr);
+        assertEquals("dept_id = -1", expr.toString());
+    }
+
+    @Test
+    void scopeDeptAndChildrenWithoutDeptIdDenies() {
+        // 回归：本部门及以下(3)但用户无部门归属——此前 fail-open 可见全部数据；现 fail-closed
+        user("3", 1L, null);
+        Expression expr = handler.getSqlSegment(null, USER_PAGE_MS_ID);
+        assertNotNull(expr);
+        assertEquals("dept_id = -1", expr.toString());
+    }
+
+    @Test
     void anonymousUserAddsNoCondition() {
         UserContextHolder.clear();
         assertNull(handler.getSqlSegment(null, USER_PAGE_MS_ID));

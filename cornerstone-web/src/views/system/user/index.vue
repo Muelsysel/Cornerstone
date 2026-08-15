@@ -31,8 +31,6 @@
         <el-table-column prop="userId" label="ID" width="70" />
         <el-table-column prop="username" label="用户名" min-width="110" />
         <el-table-column prop="nickname" label="昵称" min-width="120" />
-        <el-table-column prop="phone" label="手机号" min-width="130" />
-        <el-table-column prop="email" label="邮箱" min-width="180" show-overflow-tooltip />
         <el-table-column label="状态" width="90">
           <template #default="{ row }: { row: any }">
             <el-switch
@@ -123,11 +121,19 @@
         <el-form-item v-if="!isEdit" label="密码" prop="password">
           <el-input v-model="form.password" type="password" show-password placeholder="初始密码" />
         </el-form-item>
-        <el-form-item label="手机号" prop="phone">
-          <el-input v-model="form.phone" placeholder="手机号" />
-        </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="form.email" placeholder="邮箱" />
+        <el-form-item label="部门">
+          <el-tree-select
+            v-model="form.deptId"
+            :data="deptTree"
+            node-key="deptId"
+            value-key="deptId"
+            :props="{ label: 'deptName', children: 'children' }"
+            check-strictly
+            clearable
+            default-expand-all
+            placeholder="不选则为顶级部门"
+            style="width: 100%"
+          />
         </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="form.status">
@@ -136,7 +142,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注">
-          <el-input v-model="form.remark" type="textarea" :rows="2" placeholder="备注" />
+          <el-input v-model="form.remark" type="textarea" :rows="2" maxlength="500" show-word-limit placeholder="备注" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -156,13 +162,14 @@ import {
   changeUserStatus,
   createUser,
   deleteUser,
+  getDeptTree,
   getRoleList,
   getUserPage,
   getUserRoleIds,
   resetUserPassword,
   updateUser,
 } from '@/api/system'
-import type { Role, User, UserQuery } from '@/types/system'
+import type { Dept, Role, User, UserQuery } from '@/types/system'
 import { pageNumAfterDelete } from '@/utils/pagination'
 
 interface UserForm {
@@ -170,8 +177,7 @@ interface UserForm {
   username: string
   password?: string
   nickname?: string
-  phone?: string
-  email?: string
+  deptId?: number
   status: string
   remark?: string
 }
@@ -181,6 +187,8 @@ const submitting = ref(false)
 const statusLoadingId = ref<number | null>(null)
 const list = ref<User[]>([])
 const total = ref(0)
+// 部门树（表单部门选择器数据源，复用 /system/dept/tree）
+const deptTree = ref<Dept[]>([])
 
 const query = reactive<UserQuery>({
   pageNum: 1,
@@ -237,7 +245,7 @@ const rules: FormRules<UserForm> = {
 
 function handleCreate() {
   isEdit.value = false
-  Object.assign(form, { userId: undefined, username: '', password: '', nickname: '', phone: '', email: '', status: '0', remark: '' })
+  Object.assign(form, { userId: undefined, username: '', password: '', nickname: '', deptId: undefined, status: '0', remark: '' })
   dialogVisible.value = true
 }
 
@@ -248,8 +256,7 @@ function handleEdit(row: User) {
     username: row.username,
     password: '',
     nickname: row.nickname || '',
-    phone: row.phone || '',
-    email: row.email || '',
+    deptId: row.deptId || undefined,
     status: row.status || '0',
     remark: row.remark || '',
   })
@@ -388,7 +395,19 @@ async function handleDelete(row: User) {
   }
 }
 
-onMounted(loadData)
+async function loadDeptTree() {
+  try {
+    deptTree.value = await getDeptTree()
+  } catch {
+    // 部门树加载失败不阻塞页面（仅表单选择器受影响），错误已由拦截器提示
+    deptTree.value = []
+  }
+}
+
+onMounted(() => {
+  loadData()
+  loadDeptTree()
+})
 </script>
 
 <style scoped>

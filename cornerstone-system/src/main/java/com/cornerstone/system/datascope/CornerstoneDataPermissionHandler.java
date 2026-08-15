@@ -73,7 +73,9 @@ public class CornerstoneDataPermissionHandler implements DataPermissionHandler {
                 { // 本部门及以下
                     Long deptId = ctx.getDeptId();
                     if (deptId == null) {
-                        return null;
+                        // fail-closed：无部门归属时不可见任何数据（与 scope 2 空部门集合同语义），
+                        // 避免用户无部门却看到全部数据（越权）
+                        return new EqualsTo(new Column("dept_id"), new LongValue(-1));
                     }
                     return CCJSqlParserUtil.parseCondExpression(
                             "dept_id IN (SELECT id FROM sys_dept WHERE id = "
@@ -86,7 +88,7 @@ public class CornerstoneDataPermissionHandler implements DataPermissionHandler {
                 { // 本部门
                     Long deptId = ctx.getDeptId();
                     if (deptId == null) {
-                        return null;
+                        return new EqualsTo(new Column("dept_id"), new LongValue(-1));
                     }
                     return CCJSqlParserUtil.parseCondExpression("dept_id = " + deptId);
                 }
