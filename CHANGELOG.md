@@ -3,6 +3,10 @@
 > 项目级版本里程碑与仓库级变更记录。模块级细节见各模块 `CHANGELOG.md`
 > （common/api/gateway/auth/system/demo/web）。所有 AI 都是文档维护者（AGENTS.md「文档维护义务」）。
 
+## [1.5.15] - 2026-08-15（脚手架易用性）
+
+- fix(scripts): `start-all.ps1 -Stop` 兜底停止 8080-8083 监听进程（此前仅按 .pids 记录停止，重启后 PID 漂移会残留服务）——实测 Stop → 重启 → verify-chain 13 项全 PASS 闭环
+
 ## [1.5.14] - 2026-08-15（文档演进注记）
 
 - docs: spec-001 顶部加演进注记（数据权限/前端/限流已落地、测试缝实为 H2+mock、待办授权码），避免历史规格误导后续 AI

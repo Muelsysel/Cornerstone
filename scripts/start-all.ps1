@@ -25,6 +25,7 @@ $pidFile = Join-Path $logDir ".pids"
 
 # ---------- Stop 模式 ----------
 if ($Stop) {
+    # 1) 按 .pids 记录停止（脚本启动的进程）
     if (Test-Path $pidFile) {
         Get-Content $pidFile | ForEach-Object {
             $procId = [int]$_
@@ -34,9 +35,16 @@ if ($Stop) {
             }
         }
         Remove-Item $pidFile -Force
-    } else {
-        Write-Host "No services recorded (logs/.pids not found). Nothing to stop."
     }
+    # 2) 兜底：停止仍监听服务端口的进程（覆盖 .pids 记录不全/重启后 PID 漂移的情况）
+    foreach ($port in 8080, 8081, 8082, 8083) {
+        Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue |
+            ForEach-Object {
+                Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue
+                Write-Host "Stopped listener PID $($_.OwningProcess) on :$port"
+            }
+    }
+    Write-Host "服务已停止（如仍有残留，可手动检查 8080-8083 端口占用）"
     exit 0
 }
 
