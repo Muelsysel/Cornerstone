@@ -10,6 +10,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.cornerstone.common.exception.BusinessException;
 import com.cornerstone.system.constant.CacheConstants;
 import com.cornerstone.system.domain.entity.SysDictData;
@@ -153,6 +154,29 @@ class SysDictServiceImplTest {
         // 类型未变不触发唯一性 count
         verify(typeMapper, never()).selectCount(any());
         verify(typeMapper).updateById(any(SysDictType.class));
+        // 类型未变不级联数据项
+        verify(dataMapper, never()).update(org.mockito.ArgumentMatchers.isNull(), any());
+    }
+
+    @Test
+    void updateTypeRenameSyncsDataItems() {
+        // 回归：字典类型改名后数据项 dict_type 未同步 → 数据项成为孤儿（listData(新类型) 查不到）
+        SysDictType exist = new SysDictType();
+        exist.setId(1L);
+        exist.setDictType("gender");
+        SysDictType patch = new SysDictType();
+        patch.setId(1L);
+        patch.setDictType("gender_v2"); // 改名
+        when(typeMapper.selectById(1L)).thenReturn(exist);
+        when(typeMapper.selectCount(any())).thenReturn(0L);
+
+        service.updateType(patch);
+
+        // 级联更新数据项：新 dictType 写入所有旧类型数据行
+        verify(dataMapper)
+                .update(
+                        org.mockito.ArgumentMatchers.isNull(),
+                        org.mockito.ArgumentMatchers.<LambdaUpdateWrapper<SysDictData>>any());
     }
 
     @Test

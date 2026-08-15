@@ -1,6 +1,7 @@
 package com.cornerstone.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cornerstone.common.exception.BusinessException;
 import com.cornerstone.common.util.ValidationUtils;
@@ -92,6 +93,14 @@ public class SysDictServiceImpl implements SysDictService {
             typeMapper.updateById(type);
         } catch (DuplicateKeyException e) {
             throw new BusinessException(SystemErrorCode.DICT_TYPE_EXISTS);
+        }
+        // 字典类型改名：级联同步数据项的 dict_type，否则数据项成为孤儿（listData(新类型) 查不到）
+        if (hasText(type.getDictType()) && !type.getDictType().equals(exist.getDictType())) {
+            dataMapper.update(
+                    null,
+                    new LambdaUpdateWrapper<SysDictData>()
+                            .set(SysDictData::getDictType, type.getDictType())
+                            .eq(SysDictData::getDictType, exist.getDictType()));
         }
         return typeMapper.selectById(type.getId());
     }
