@@ -420,7 +420,8 @@ try {
     try { $dsRecords = ($dsPage | ConvertFrom-Json).data.records } catch {}
     $dsOk = 'FAIL'
     if ($dsRecords -is [array] -and $dsRecords.Count -eq 1 -and $dsRecords[0].username -eq 'test') {
-        $dsOk = 'OK'
+        # 部门名回填契约：test 隶属「测试部门」(dept_id=200)，deptName 必须正确（批量回填防 N+1 回归）
+        if ($dsRecords[0].deptName -eq '测试部门') { $dsOk = 'OK' }
     }
     Assert 'Data scope: test sees only self' $dsOk 'OK'
 
