@@ -8,7 +8,7 @@
 - fix(security): **停用账号禁止登录**——`AuthUserSupportService.findByUsername` 过滤 `status='0'`（fail-closed，避免账号状态枚举）；verify-chain 新增「停用用户拒登」断言
 - fix(data): **RBAC 全部可写字符串字段补长度校验**（`ValidationUtils.maxLength`，与 DB 列对齐，DataTruncation 500 → 友好 400）+ **全部枚举字段补合法性校验**（`ValidationUtils.oneOf`：状态/类型/数据范围/是否默认）；前端表单 maxlength 同步对齐
 - feat(scripts): `verify-chain.ps1` 断言 30→33 项（超长标题/超长参数值 400、停用用户拒登）
-- test: 后端 213→**220 用例**（common 30 + system 152 + demo 27 + auth 17 + gateway 14 等）、前端 34、e2e 33
+- test: 后端 213→**246 用例**（common 30 + gateway 18 + auth 17 + system 154 + demo 27）、前端 34、e2e 33
 
 ## [1.5.27] - 2026-08-16（公告字段校验）
 
