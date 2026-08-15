@@ -12,3 +12,9 @@ Status: accepted
 Consequences: 爆破被有效缓解（IP 层限速 + 账号层锁窗）；锁定窗口内合法用户登录受阻 5 分钟（可接受，v4 候选：指数退避或验证码）；计数键 5 分钟 TTL 自动过期，无手动清理负担；网关限流经 Redis 共享，多实例网关计数一致。
 
 Considered Options: 单靠网关 IP 限流（拒绝：攻击者可换 IP 继续爆破，无法保护被猜中的弱密码账号）；单靠账号锁定（拒绝：无 IP 层缓解，分布式爆破放大请求）；验证码/滑块（用户体验负担重，列为 v4 候选）。
+
+## 后续加固（2026-08-16 更新）
+
+1. **受信反代限流键**（`ClientIpKeyResolver`）：生产经 nginx 容器（8088）反代时，网关看到的 remoteAddress 恒为 nginx 容器 IP——直接用其限流会让所有用户共享一个桶（IP 层防护失效）。方案：仅当直连对端在 `cornerstone.gateway.trusted-proxy-ips` 受信列表时采信 `X-Forwarded-For` 首值；不受信一律用直连 IP。**拒绝直接信任 XFF**：客户端可伪造首值绕过限流。默认空列表 = 行为与旧版一致。
+2. **停用账号 fail-closed**：`AuthUserSupportService.findByUsername` 查询强制过滤 `status='0'`，停用用户视为不存在，认证统一报「用户名或密码错误」。**拒绝区分提示**（如「账号已停用」）：避免账号状态枚举（攻击者可探测有效账号并针对性爆破）。
+
