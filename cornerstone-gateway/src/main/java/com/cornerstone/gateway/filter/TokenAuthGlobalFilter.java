@@ -44,20 +44,36 @@ public class TokenAuthGlobalFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        ServerHttpRequest request = exchange.getRequest();
+        // 统一剥除外部传入的透传头（防身份伪造）：透传头只允许由本过滤器按 JWT 重建，
+        // 否则攻击者可携带 X-Cornerstone-User-Id/Roles 等伪造身份（白名单路径同样清洗）。
+        ServerHttpRequest request = stripPassthroughHeaders(exchange.getRequest());
+        ServerWebExchange stripped = exchange.mutate().request(request).build();
         if (isWhitelisted(request.getPath().value())) {
-            return chain.filter(exchange);
+            return chain.filter(stripped);
         }
 
         String token = extractBearerToken(request);
         if (token == null) {
-            return unauthorized(exchange);
+            return unauthorized(stripped);
         }
 
         return jwtDecoder
                 .decode(token)
-                .flatMap(jwt -> chain.filter(forwardWithHeaders(exchange, jwt)))
-                .onErrorResume(e -> unauthorized(exchange));
+                .flatMap(jwt -> chain.filter(forwardWithHeaders(stripped, jwt)))
+                .onErrorResume(e -> unauthorized(stripped));
+    }
+
+    /** 剥除客户端可控的透传上下文头（X-Cornerstone-*），防止伪造身份透传到下游服务 */
+    private ServerHttpRequest stripPassthroughHeaders(ServerHttpRequest request) {
+        return request.mutate()
+                .headers(
+                        h -> {
+                            h.remove(UserContext.HEADER_USER_ID);
+                            h.remove(UserContext.HEADER_USERNAME);
+                            h.remove(UserContext.HEADER_DEPT_ID);
+                            h.remove(UserContext.HEADER_ROLES);
+                        })
+                .build();
     }
 
     /** 白名单判断：路径前缀命中即放行 */

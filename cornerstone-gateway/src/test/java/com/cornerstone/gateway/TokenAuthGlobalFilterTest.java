@@ -124,6 +124,41 @@ class TokenAuthGlobalFilterTest {
         assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
+    /** 白名单路径也必须剥除客户端伪造的透传头（防身份伪造） */
+    @Test
+    void whitelistPathStripsForgedPassthroughHeaders() {
+        MockServerWebExchange exchange =
+                MockServerWebExchange.from(
+                        MockServerHttpRequest.get("/demo/announcement/page")
+                                .header(UserContext.HEADER_USER_ID, "999")
+                                .header(UserContext.HEADER_ROLES, "admin"));
+        ServerWebExchangeMutator mutator = new ServerWebExchangeMutator();
+        filter().filter(exchange, mutator).block();
+
+        assertThat(mutator.getMutatedHeaders().getFirst(UserContext.HEADER_USER_ID)).isNull();
+        assertThat(mutator.getMutatedHeaders().getFirst(UserContext.HEADER_ROLES)).isNull();
+    }
+
+    /** 有效令牌 + 外部伪造透传头：伪造值被剥除，透传头只来自 JWT 声明 */
+    @Test
+    void validTokenOverridesForgedPassthroughHeaders() {
+        String token = issueToken(Map.of("scope", List.of("read")));
+        MockServerWebExchange exchange =
+                MockServerWebExchange.from(
+                        MockServerHttpRequest.get("/system/user/1")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                                .header(UserContext.HEADER_USER_ID, "999")
+                                .header(UserContext.HEADER_ROLES, "admin"));
+        ServerWebExchangeMutator mutator = new ServerWebExchangeMutator();
+        filter().filter(exchange, mutator).block();
+
+        HttpHeaders forwarded = mutator.getMutatedHeaders();
+        // 伪造的 User-Id 被剥除（JWT sub 非数字 → 不写 User-Id）；Roles 来自 JWT scope
+        assertThat(forwarded.getFirst(UserContext.HEADER_USER_ID)).isNull();
+        assertThat(forwarded.getFirst(UserContext.HEADER_ROLES)).isEqualTo("read");
+        assertThat(forwarded.getFirst(UserContext.HEADER_USERNAME)).isEqualTo("cornerstone-client");
+    }
+
     /** 透传头捕获器：记录过滤链实际转发时携带的头 */
     static class ServerWebExchangeMutator implements GatewayFilterChain {
         private HttpHeaders mutatedHeaders;
