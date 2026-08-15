@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.4.30] - 2026-08-16
+
+- fix(security): nginx 补安全响应头——X-Frame-Options（防点击劫持）/ X-Content-Type-Options（防 MIME 嗅探）/ Referrer-Policy / CSP（禁外部脚本资源，Element Plus 需 style unsafe-inline）；实测页面与 API 均正常
+
+**测试方法**：`npm test`（34 用例）+ `docker compose up -d --build frontend`（验证响应头）。
+
 ## [1.4.29] - 2026-08-16
 
 - fix(ux): 5xx 错误提示友好中文「服务器开小差了，请稍后重试」——此前暴露 axios 英文原语；`request.spec.ts` 新增 HTTP 500 回归用例
