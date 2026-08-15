@@ -29,7 +29,7 @@ Cornerstone 仓库里的文档不是摆设，而是每个 AI 必须遵守的**�
 - **黄金法则**（[AGENTS.md](AGENTS.md)）：动代码前必须完成文档导航（CONTEXT-MAP → 模块 CONTEXT → ADR）
 - **文档维护义务**：每个 AI 都是文档维护者——改代码必须同步该模块的 `CONTEXT.md`（职责/词汇表）与
   `CHANGELOG.md`（变更记录），并按"测试方法"全量验证后再提交
-- **决策留痕**：难逆决策写进 [ADR](docs/adr/)（当前 8 条），后来的 AI 不再重复踩坑
+- **决策留痕**：难逆决策写进 [ADR](docs/adr/)（当前 9 条），后来的 AI 不再重复踩坑
 - **可执行的技能**：`skills/cornerstone-dev` 是 AI 的强制工作流，装进 Claude Code / Cursor / DSH / Codex 即生效
 
 ## ✨ 特性
@@ -166,7 +166,7 @@ curl -u "cornerstone-client:cornerstone-secret" -X POST \
 | 文档完整性 | `bash scripts/check-docs.sh` | CONTEXT/ADR/CHANGELOG 存在性 + ADR 编号 |
 | 前端构建 | `cd cornerstone-web && npm run build` | vue-tsc 类型检查 + vite 构建 |
 | 前端单测 | `cd cornerstone-web && npm test` | Vitest + jsdom |
-| 端到端 | `docs/guides/run-demo.md` | curl 链路（认证/数据权限/限流/服务间认证） |
+| 端到端 | `scripts/verify-chain.ps1 -UseRunning` | 13 项契约断言（认证/分页/公告隐私/IDOR/锁定/数据权限），见 `docs/guides/run-demo.md` |
 
 > 接口纪律：**新增/修改接口必须补测试并全量跑通后再推送**（AGENTS.md「文档维护义务」）。
 
