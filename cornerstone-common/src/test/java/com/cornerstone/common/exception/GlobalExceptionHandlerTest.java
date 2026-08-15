@@ -11,6 +11,7 @@ import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpMethod;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -70,7 +71,8 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void notFoundReturns404Code() {
-        Result<Void> result = handler.handleNotFound(new NoResourceFoundException("GET", "/nope"));
+        Result<Void> result =
+                handler.handleNotFound(new NoResourceFoundException(HttpMethod.GET, "/nope"));
 
         assertThat(result.getCode()).isEqualTo(ErrorCode.NOT_FOUND.getCode());
     }
