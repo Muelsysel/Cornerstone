@@ -7,6 +7,8 @@ export interface User {
   nickname?: string
   status?: string // 0 正常 / 1 停用（与角色/部门/字典一致）
   deptId?: number
+  /** 部门名称（列表展示用，后端按 deptId 批量回填） */
+  deptName?: string
   remark?: string
   createTime?: string
 }

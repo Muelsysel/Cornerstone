@@ -31,6 +31,9 @@
         <el-table-column prop="userId" label="ID" width="70" />
         <el-table-column prop="username" label="用户名" min-width="110" />
         <el-table-column prop="nickname" label="昵称" min-width="120" />
+        <el-table-column prop="deptName" label="部门" min-width="120">
+          <template #default="{ row }: { row: any }">{{ row.deptName || '—' }}</template>
+        </el-table-column>
         <el-table-column label="状态" width="90">
           <template #default="{ row }: { row: any }">
             <el-switch

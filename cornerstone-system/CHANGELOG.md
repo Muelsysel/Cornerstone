@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.43] - 2026-08-16
+
+- feat(ux): 用户分页列表按 deptId 批量回填部门名（`SysUser.deptName` 非表字段，`enrichDeptNames` 避免 N+1）——用户管理页新增「部门」列
+
+**测试方法**：`mvn test -pl cornerstone-system`（157 用例）。
+
 ## [1.2.42] - 2026-08-16
 
 - fix(security): **数据权限 fail-open 修复**——数据范围「本部门(4)/本部门及以下(3)」下用户无部门归属（deptId 为空）时，此前返回无过滤条件（可见全部数据，越权）；现与「自定义(2)」空部门集合同语义返回不可能条件 `dept_id = -1`（fail-closed）；`CornerstoneDataPermissionHandlerTest` 新增 2 个回归用例

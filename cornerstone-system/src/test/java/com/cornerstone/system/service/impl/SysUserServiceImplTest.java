@@ -12,7 +12,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.cornerstone.common.exception.BusinessException;
+import com.cornerstone.system.domain.entity.SysDept;
 import com.cornerstone.system.domain.entity.SysUser;
+import com.cornerstone.system.domain.mapper.SysDeptMapper;
 import com.cornerstone.system.domain.mapper.SysUserMapper;
 import com.cornerstone.system.domain.mapper.SysUserRoleMapper;
 import java.lang.reflect.Field;
@@ -28,12 +30,14 @@ class SysUserServiceImplTest {
     private final PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
     private final SysUserMapper userMapper = mock(SysUserMapper.class);
     private final SysUserRoleMapper userRoleMapper = mock(SysUserRoleMapper.class);
+    private final SysDeptMapper deptMapper = mock(SysDeptMapper.class);
 
     private SysUserServiceImpl service;
 
     @BeforeEach
     void setUp() throws Exception {
-        SysUserServiceImpl impl = new SysUserServiceImpl(passwordEncoder, userRoleMapper);
+        SysUserServiceImpl impl =
+                new SysUserServiceImpl(passwordEncoder, userRoleMapper, deptMapper);
         // 注入 MyBatis-Plus ServiceImpl 的 baseMapper（protected 字段，3.5.9+ 声明于 CrudRepository）
         Field field =
                 com.baomidou.mybatisplus.spring.repository.CrudRepository.class.getDeclaredField(
@@ -132,6 +136,27 @@ class SysUserServiceImplTest {
 
         assertThat(result).isSameAs(page);
         verify(service).page(any(), any());
+    }
+
+    @Test
+    void pageEnrichesDeptNames() {
+        // 列表展示部门名：按 deptId 批量回填 deptName（非表字段），避免 N+1
+        SysUser u = user(3L, "bob");
+        u.setDeptId(100L);
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<SysUser> page =
+                new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(1, 10);
+        page.setRecords(List.of(u));
+        doReturn(page).when(service).page(any(), any());
+        SysDept dept = new SysDept();
+        dept.setId(100L);
+        dept.setDeptName("总公司");
+        when(deptMapper.selectBatchIds(any())).thenReturn(List.of(dept));
+
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<SysUser> result =
+                service.page(1, 10, null, null);
+
+        assertThat(result.getRecords().get(0).getDeptName()).isEqualTo("总公司");
+        verify(deptMapper).selectBatchIds(List.of(100L));
     }
 
     @Test

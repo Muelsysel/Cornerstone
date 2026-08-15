@@ -36,6 +36,10 @@ public class SysUser extends BaseEntity {
     /** 部门ID */
     private Long deptId;
 
+    /** 部门名称（列表展示用，非表字段，page 服务批量填充） */
+    @com.baomidou.mybatisplus.annotation.TableField(exist = false)
+    private String deptName;
+
     /** 帐号状态:0正常,1停用 */
     private String status;
 }

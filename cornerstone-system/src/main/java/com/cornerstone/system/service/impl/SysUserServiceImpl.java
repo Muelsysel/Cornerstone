@@ -5,12 +5,17 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.cornerstone.common.exception.BusinessException;
 import com.cornerstone.common.util.ValidationUtils;
+import com.cornerstone.system.domain.entity.SysDept;
 import com.cornerstone.system.domain.entity.SysUser;
+import com.cornerstone.system.domain.mapper.SysDeptMapper;
 import com.cornerstone.system.domain.mapper.SysUserMapper;
 import com.cornerstone.system.domain.mapper.SysUserRoleMapper;
 import com.cornerstone.system.exception.SystemErrorCode;
 import com.cornerstone.system.service.SysUserService;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,10 +28,15 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
 
     private final PasswordEncoder passwordEncoder;
     private final SysUserRoleMapper userRoleMapper;
+    private final SysDeptMapper deptMapper;
 
-    public SysUserServiceImpl(PasswordEncoder passwordEncoder, SysUserRoleMapper userRoleMapper) {
+    public SysUserServiceImpl(
+            PasswordEncoder passwordEncoder,
+            SysUserRoleMapper userRoleMapper,
+            SysDeptMapper deptMapper) {
         this.passwordEncoder = passwordEncoder;
         this.userRoleMapper = userRoleMapper;
+        this.deptMapper = deptMapper;
     }
 
     @Override
@@ -41,7 +51,25 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
                         .eq(hasText(username), SysUser::getUsername, username)
                         .eq(hasText(status), SysUser::getStatus, status)
                         .orderByAsc(SysUser::getId);
-        return this.page(new Page<>(current, size), wrapper);
+        Page<SysUser> page = this.page(new Page<>(current, size), wrapper);
+        enrichDeptNames(page.getRecords());
+        return page;
+    }
+
+    /** 列表部门名填充：按 deptId 批量查 sys_dept，避免逐行 N+1 查询。 */
+    private void enrichDeptNames(List<SysUser> users) {
+        List<Long> deptIds =
+                users.stream().map(SysUser::getDeptId).filter(Objects::nonNull).distinct().toList();
+        if (deptIds.isEmpty()) {
+            return;
+        }
+        Map<Long, String> nameById =
+                deptMapper.selectBatchIds(deptIds).stream()
+                        .collect(
+                                Collectors.toMap(
+                                        SysDept::getId, SysDept::getDeptName, (a, b) -> a));
+        users.forEach(
+                u -> u.setDeptName(u.getDeptId() == null ? null : nameById.get(u.getDeptId())));
     }
 
     @Override
