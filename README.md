@@ -26,6 +26,7 @@ Java 17 · Spring Boot 3.2 · Spring Cloud 2023.0 · Spring Cloud Alibaba (Nacos
 | `cornerstone-auth` | 服务 | OAuth2 授权服务器：签发/校验 JWT |
 | `cornerstone-system` | 服务 | RBAC：用户/角色/菜单/部门/字典/参数/操作日志/登录日志 |
 | `cornerstone-demo` | 服务 | 公告管理——**新模块活模板** |
+| `cornerstone-web` | 前端 | 管理后台（Vue3 + Vite + Element Plus；非 Maven 模块，见 ADR-0005） |
 
 ## 快速开始
 
@@ -49,6 +50,16 @@ curl -u "cornerstone-client:cornerstone-secret" -X POST \
 ### 方式二：手动（无 Docker）
 
 详见 [docs/guides/run-demo.md](docs/guides/run-demo.md)（Nacos/MySQL/Redis 手动安装说明）。
+
+### 前端管理后台（Vue3）
+
+```bash
+cd cornerstone-web
+npm install
+npm run dev     # http://localhost:5173，admin / admin123
+```
+
+详见 [cornerstone-web/README.md](cornerstone-web/README.md)。
 
 ## 文档导航（AI 与开发者必读）
 

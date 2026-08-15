@@ -38,7 +38,14 @@ public class ResourceServerConfig {
         return http.csrf(csrf -> csrf.disable())
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .authorizeHttpRequests(
+                        auth ->
+                                // /system/auth/** 为服务间内部接口（认证中心登录契约），网关白名单不含 /system/** 已隔离外部；v1
+                                // 简化匿名访问
+                                auth.requestMatchers("/system/auth/**")
+                                        .permitAll()
+                                        .anyRequest()
+                                        .authenticated())
                 .oauth2ResourceServer(
                         oauth2 ->
                                 oauth2.jwt(

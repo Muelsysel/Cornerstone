@@ -38,6 +38,21 @@
             <groupId>com.cornerstone</groupId>
             <artifactId>cornerstone-common</artifactId>
         </dependency>
+        <!-- 跨服务 Feign 契约（UserAuthDTO / AuthUserClient） -->
+        <dependency>
+            <groupId>com.cornerstone</groupId>
+            <artifactId>cornerstone-api</artifactId>
+        </dependency>
+        <!-- OpenFeign：登录时经 AuthUserClient 从 system 获取用户认证信息 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <!-- 负载均衡：@FeignClient(name=...) 服务发现解析所必需 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
         <!-- 公共模块全局异常处理依赖 jakarta.validation，显式提供运行时类 -->
         <dependency>
             <groupId>jakarta.validation</groupId>

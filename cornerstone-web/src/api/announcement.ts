@@ -1,0 +1,39 @@
+import { request } from '@/api/request'
+import type { PageResult } from '@/types'
+
+// 公告实体类型（cornerstone-demo 活模板业务实体）。
+export interface Announcement {
+  id: number
+  title: string
+  content?: string
+  /** 发布状态：DRAFT / PUBLISHED 等，以后端枚举为准。 */
+  status?: string
+  author?: string
+  createTime?: string
+  updateTime?: string
+}
+
+export interface AnnouncementQuery {
+  pageNum: number
+  pageSize: number
+  title?: string
+  status?: string
+}
+
+// 公开查询：demo 模块内白名单放行，无需登录（见 run-demo.md）。
+export function getAnnouncementPage(params: AnnouncementQuery): Promise<PageResult<Announcement>> {
+  return request({ url: '/demo/announcement/page', method: 'get', params })
+}
+
+// 以下管理操作需要登录态（Authorization: Bearer token）。
+export function createAnnouncement(data: Partial<Announcement>): Promise<unknown> {
+  return request({ url: '/demo/announcement', method: 'post', data })
+}
+
+export function updateAnnouncement(data: Partial<Announcement>): Promise<unknown> {
+  return request({ url: '/demo/announcement', method: 'put', data })
+}
+
+export function deleteAnnouncement(id: number): Promise<unknown> {
+  return request({ url: `/demo/announcement/${id}`, method: 'delete' })
+}

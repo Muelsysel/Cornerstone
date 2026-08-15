@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cornerstone.common.exception.BusinessException;
 import com.cornerstone.system.domain.entity.SysRole;
+import com.cornerstone.system.domain.mapper.SysRoleDeptMapper;
 import com.cornerstone.system.domain.mapper.SysRoleMapper;
 import com.cornerstone.system.domain.mapper.SysRoleMenuMapper;
 import com.cornerstone.system.domain.mapper.SysUserRoleMapper;
@@ -22,10 +23,15 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
 
     private final SysRoleMenuMapper roleMenuMapper;
     private final SysUserRoleMapper userRoleMapper;
+    private final SysRoleDeptMapper roleDeptMapper;
 
-    public SysRoleServiceImpl(SysRoleMenuMapper roleMenuMapper, SysUserRoleMapper userRoleMapper) {
+    public SysRoleServiceImpl(
+            SysRoleMenuMapper roleMenuMapper,
+            SysUserRoleMapper userRoleMapper,
+            SysRoleDeptMapper roleDeptMapper) {
         this.roleMenuMapper = roleMenuMapper;
         this.userRoleMapper = userRoleMapper;
+        this.roleDeptMapper = roleDeptMapper;
     }
 
     @Override
@@ -53,6 +59,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
             throw new BusinessException(SystemErrorCode.ROLE_KEY_EXISTS);
         }
         this.save(role);
+        saveDataScopeDepts(role);
         return role;
     }
 
@@ -63,7 +70,27 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
             throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
         }
         this.updateById(role);
+        saveDataScopeDepts(role);
         return this.getById(role.getId());
+    }
+
+    /** 数据范围=自定义(2)时维护 role_dept 关联；其他范围清空关联 */
+    @Transactional(rollbackFor = Exception.class)
+    protected void saveDataScopeDepts(SysRole role) {
+        if (role.getId() == null) {
+            return;
+        }
+        roleDeptMapper.deleteByRoleId(role.getId());
+        if ("2".equals(role.getDataScope())
+                && role.getDeptIds() != null
+                && !role.getDeptIds().isEmpty()) {
+            roleDeptMapper.batchInsert(role.getId(), role.getDeptIds());
+        }
+    }
+
+    @Override
+    public List<Long> getDeptIdsByRoleId(Long roleId) {
+        return roleDeptMapper.selectDeptIdsByRoleId(roleId);
     }
 
     @Override

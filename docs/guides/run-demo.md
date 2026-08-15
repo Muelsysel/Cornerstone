@@ -64,6 +64,20 @@ curl -s -X POST -H "Authorization: Bearer $TOKEN" \
 
 # 5. 公开接口：demo 的公告查询无需令牌（模块内白名单；演示可直连服务端口）
 curl -s "http://localhost:8083/demo/announcement/page?pageNum=1&pageSize=5"
+
+# ---- v2：用户登录（完整 RBAC 演示，admin/admin123）----
+# 6. admin 登录换 JWT（令牌携带全部菜单权限，存于 scope 声明）
+LOGIN=$(curl -s -X POST http://localhost:8080/auth/login \
+  -H 'Content-Type: application/json' -d '{"username":"admin","password":"admin123"}')
+USER_TOKEN=$(echo $LOGIN | jq -r '.data.access_token')
+
+# 7. admin 令牌访问需权限的接口 → 200（@PreAuthorize 从 scope 读取权限）
+curl -s -H "Authorization: Bearer $USER_TOKEN" \
+  "http://localhost:8080/system/user/page?pageNum=1&pageSize=5"
+
+# 8. 错误密码 → 401
+curl -s -X POST http://localhost:8080/auth/login \
+  -H 'Content-Type: application/json' -d '{"username":"admin","password":"wrong"}'
 ```
 
 ### 实测记录（7 步）

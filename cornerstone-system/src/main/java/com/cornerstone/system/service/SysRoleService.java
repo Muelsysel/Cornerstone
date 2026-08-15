@@ -29,6 +29,9 @@ public interface SysRoleService {
     /** 查询角色拥有的菜单ID */
     List<Long> getMenuIdsByRoleId(Long roleId);
 
+    /** 查询角色自定义数据范围的部门ID集合 */
+    List<Long> getDeptIdsByRoleId(Long roleId);
+
     /** 查询角色标识（供权限解析） */
     List<SysRole> listAll();
 

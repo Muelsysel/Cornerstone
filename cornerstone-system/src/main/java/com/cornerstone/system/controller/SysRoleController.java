@@ -92,4 +92,11 @@ public class SysRoleController {
         data.put("menuIds", roleService.getMenuIdsByRoleId(roleId));
         return Result.success(data);
     }
+
+    /** 查询角色自定义数据范围的部门ID集合（dataScope=2 时回显） */
+    @GetMapping("/{roleId}/depts")
+    @PreAuthorize("hasAuthority('system:role:list')")
+    public Result<List<Long>> roleDepts(@PathVariable(name = "roleId") Long roleId) {
+        return Result.success(roleService.getDeptIdsByRoleId(roleId));
+    }
 }
