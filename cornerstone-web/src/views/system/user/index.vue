@@ -98,7 +98,7 @@
     <el-dialog v-model="pwdResetVisible" :title="`重置密码 - ${pwdResetUser || ''}`" width="400px" destroy-on-close>
       <el-form ref="pwdResetFormRef" :model="pwdResetForm" :rules="pwdResetRules" label-width="80px">
         <el-form-item label="新密码" prop="password">
-          <el-input v-model="pwdResetForm.password" type="password" show-password placeholder="至少 6 位" />
+          <el-input v-model="pwdResetForm.password" type="password" show-password maxlength="72" placeholder="6-72 位" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -122,7 +122,7 @@
           <el-input v-model="form.nickname" maxlength="30" placeholder="显示昵称" />
         </el-form-item>
         <el-form-item v-if="!isEdit" label="密码" prop="password">
-          <el-input v-model="form.password" type="password" show-password placeholder="初始密码" />
+          <el-input v-model="form.password" type="password" show-password maxlength="72" placeholder="初始密码（6-72 位）" />
         </el-form-item>
         <el-form-item label="部门">
           <el-tree-select
