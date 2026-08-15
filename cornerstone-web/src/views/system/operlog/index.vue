@@ -16,9 +16,20 @@
       </el-form>
     </el-card>
 
-    <!-- 表格（只读） -->
+    <!-- 表格（只读 + 清空） -->
     <el-card shadow="never">
-      <div class="table-toolbar">操作日志</div>
+      <div class="table-toolbar">
+        <span>操作日志</span>
+        <el-button
+          v-permission="'system:log:remove'"
+          link
+          type="danger"
+          :icon="Delete"
+          @click="handleClean"
+        >
+          清空
+        </el-button>
+      </div>
       <el-table v-loading="loading" :data="list" border stripe>
         <el-table-column prop="operId" label="ID" width="70" />
         <el-table-column prop="title" label="系统模块" min-width="130" />
@@ -90,8 +101,9 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { Refresh, Search } from '@element-plus/icons-vue'
-import { getOperLogPage } from '@/api/system'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Delete, Refresh, Search } from '@element-plus/icons-vue'
+import { clearOperLog, getOperLogPage } from '@/api/system'
 import type { OperLog, OperLogQuery } from '@/types/system'
 
 const loading = ref(false)
@@ -153,6 +165,21 @@ function businessTypeText(type: number | undefined): string {
     9: '查询',
   }
   return type !== undefined && type in map ? map[type] : '其他'
+}
+
+async function handleClean() {
+  await ElMessageBox.confirm('确认清空全部操作日志吗？此操作不可恢复。', '提示', {
+    type: 'warning',
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+  }).catch(() => Promise.reject(new Error('canceled')))
+  try {
+    await clearOperLog()
+    ElMessage.success('已清空')
+    loadData()
+  } catch (e) {
+    if (e instanceof Error && e.message === 'canceled') return
+  }
 }
 
 onMounted(loadData)

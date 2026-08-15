@@ -11,4 +11,10 @@ public interface SysLoginLogService {
 
     /** 分页查询登录日志 */
     Page<SysLoginLog> page(long current, long size, String username, String status);
+
+    /** 删除单条登录日志 */
+    void delete(Long infoId);
+
+    /** 清空登录日志 */
+    void clean();
 }

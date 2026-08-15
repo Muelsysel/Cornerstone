@@ -2,10 +2,14 @@ package com.cornerstone.system.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cornerstone.common.core.Result;
+import com.cornerstone.system.annotation.OperLog;
+import com.cornerstone.system.constant.BusinessType;
 import com.cornerstone.system.domain.entity.SysLoginLog;
 import com.cornerstone.system.service.SysLoginLogService;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,5 +34,23 @@ public class SysLoginLogController {
             @RequestParam(name = "username", required = false) String username,
             @RequestParam(name = "status", required = false) String status) {
         return Result.success(loginLogService.page(current, size, username, status));
+    }
+
+    /** 删除单条登录日志 */
+    @DeleteMapping("/{infoId}")
+    @OperLog(title = "登录日志", businessType = BusinessType.DELETE)
+    @PreAuthorize("hasAuthority('system:log:remove')")
+    public Result<Void> delete(@PathVariable(name = "infoId") Long infoId) {
+        loginLogService.delete(infoId);
+        return Result.success();
+    }
+
+    /** 清空登录日志 */
+    @DeleteMapping("/clean")
+    @OperLog(title = "登录日志", businessType = BusinessType.CLEAN)
+    @PreAuthorize("hasAuthority('system:log:remove')")
+    public Result<Void> clean() {
+        loginLogService.clean();
+        return Result.success();
     }
 }

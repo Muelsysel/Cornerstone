@@ -11,4 +11,10 @@ public interface SysOperLogService {
 
     /** 分页查询操作日志 */
     Page<SysOperLog> page(long current, long size, String title, String operName, String status);
+
+    /** 删除单条操作日志 */
+    void delete(Long operId);
+
+    /** 清空操作日志 */
+    void clean();
 }

@@ -35,6 +35,17 @@ public class SysLoginLogServiceImpl extends ServiceImpl<SysLoginLogMapper, SysLo
         return this.page(new Page<>(current, size), wrapper);
     }
 
+    @Override
+    public void delete(Long infoId) {
+        this.removeById(infoId);
+    }
+
+    @Override
+    public void clean() {
+        // 审计日志不做逻辑删除：全表清空
+        this.remove(null);
+    }
+
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
     }

@@ -30,6 +30,17 @@ public class SysOperLogServiceImpl extends ServiceImpl<SysOperLogMapper, SysOper
         return this.page(new Page<>(current, size), wrapper);
     }
 
+    @Override
+    public void delete(Long operId) {
+        this.removeById(operId);
+    }
+
+    @Override
+    public void clean() {
+        // 审计日志不做逻辑删除：全表清空（remove(null) 无条件删除）
+        this.remove(null);
+    }
+
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
     }

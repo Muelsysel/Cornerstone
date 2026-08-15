@@ -19,9 +19,20 @@
       </el-form>
     </el-card>
 
-    <!-- 表格（只读） -->
+    <!-- 表格（只读 + 清空） -->
     <el-card shadow="never">
-      <div class="table-toolbar">登录日志</div>
+      <div class="table-toolbar">
+        <span>登录日志</span>
+        <el-button
+          v-permission="'system:log:remove'"
+          link
+          type="danger"
+          :icon="Delete"
+          @click="handleClean"
+        >
+          清空
+        </el-button>
+      </div>
       <el-table v-loading="loading" :data="list" border stripe>
         <el-table-column prop="infoId" label="ID" width="70" />
         <el-table-column prop="username" label="用户名" min-width="120" />
@@ -74,8 +85,9 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { Refresh, Search } from '@element-plus/icons-vue'
-import { getLoginLogPage } from '@/api/system'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Delete, Refresh, Search } from '@element-plus/icons-vue'
+import { clearLoginLog, getLoginLogPage } from '@/api/system'
 import type { LoginLog, LoginLogQuery } from '@/types/system'
 
 const loading = ref(false)
@@ -122,6 +134,21 @@ const detail = ref<LoginLog | null>(null)
 function handleDetail(row: LoginLog) {
   detail.value = row
   detailVisible.value = true
+}
+
+async function handleClean() {
+  await ElMessageBox.confirm('确认清空全部登录日志吗？此操作不可恢复。', '提示', {
+    type: 'warning',
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+  }).catch(() => Promise.reject(new Error('canceled')))
+  try {
+    await clearLoginLog()
+    ElMessage.success('已清空')
+    loadData()
+  } catch (e) {
+    if (e instanceof Error && e.message === 'canceled') return
+  }
 }
 
 onMounted(loadData)

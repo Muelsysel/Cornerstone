@@ -2,6 +2,13 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.1.5] - 2026-08-15
+
+- feat: 操作/登录日志删除与清空——`DELETE /system/{operlog|loginlog}/{id}` 与 `/clean`（权限点 `system:log:remove`，V8 迁移补按钮权限点 + admin 关联）；BusinessType 补 CLEAN(8)
+- fix: 补全前端已声明但后端缺失的日志删除/清空端点（消除契约缺口）
+
+**测试方法**：`mvn test -pl cornerstone-system`（CornerstoneDataPermissionHandlerTest / SysAuthUserControllerTest / SystemSecurityTest / SystemExtensionTest / DataScopeServiceTest / OperLogAspectTest / AuthUserSupportServiceTest / SysUserServiceImplTest）。
+
 ## [1.1.4] - 2026-08-15
 
 - test: `SysUserServiceImplTest` 6 用例（密码编码/默认密码/重名拒绝/内置用户保护/角色分配委托/空列表仅删除）

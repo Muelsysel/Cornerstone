@@ -9,7 +9,9 @@ public enum BusinessType {
     /** 修改 */
     UPDATE(2),
     /** 删除 */
-    DELETE(3);
+    DELETE(3),
+    /** 清空 */
+    CLEAN(8);
 
     private final int code;
 
