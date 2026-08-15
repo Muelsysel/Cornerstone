@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.9] - 2026-08-16
+
+- test: `GatewayContextLoadTest` 新增限流契约断言——反射读取 `RedisRateLimiter.defaultConfig`，锁定文档记录的限流数值（默认 10/s+突发 20、登录 5/s+突发 10），防数值漂移
+
+**测试方法**：`mvn test -pl cornerstone-gateway`（13 用例）。
+
 ## [1.2.8] - 2026-08-15
 
 - docs: CONTEXT.md 职责补访问日志说明（X-Forwarded-For 客户端 IP + 探针静默）
