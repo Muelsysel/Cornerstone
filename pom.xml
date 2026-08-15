@@ -38,7 +38,7 @@
         <lombok.version>1.18.46</lombok.version>
 
         <!-- 插件版本 -->
-        <spotless.version>2.43.0</spotless.version>
+        <spotless.version>3.9.0</spotless.version>
     </properties>
 
     <dependencyManagement>
