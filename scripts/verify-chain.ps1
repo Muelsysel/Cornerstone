@@ -423,6 +423,17 @@ try {
     }
     Assert 'Password policy: short rejected + reset works' $rpOk 'OK'
 
+    # 14. 主键 JSON 契约：操作日志/登录日志响应必须含 operId/infoId（回归：曾返回 id，
+    #     前端读 operId 得 null → 删除日志失败）
+    $logIdOk = 'FAIL'
+    $logPage = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
+        'http://localhost:8080/system/loginlog/page?pageNum=1&pageSize=1'
+    try {
+        $logRec = ($logPage | ConvertFrom-Json).data.records[0]
+        if ($logRec -and $logRec.infoId) { $logIdOk = 'OK' }
+    } catch {}
+    Assert 'Login log exposes infoId (frontend contract)' $logIdOk 'OK'
+
     if ($script:fail -eq 0) {
         Write-Host ''
         Write-Host '=== End-to-end verification PASSED ==='
