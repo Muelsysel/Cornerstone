@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.50] - 2026-08-16
+
+- test(security): `SystemSecurityTest` 补两个权限契约回归用例——`GET /system/user/{id}` 需 `system:user:list`（无权限 403）、`GET /system/config/value/{key}` 需 `system:config:list`
+
+**测试方法**：`mvn test -pl cornerstone-system`（163 用例）。
+
 ## [1.2.49] - 2026-08-16
 
 - fix(data): 操作日志参数/结果截断（20000 字符，TEXT 列上限内）——超大请求体曾写满 TEXT 触发 DataTruncation → 操作日志丢失；`operName`/`operUrl`/`operIp` 同步按列上限截断；`OperLogAspectTest` 新增截断用例

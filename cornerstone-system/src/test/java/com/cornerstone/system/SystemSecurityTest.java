@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cornerstone.system.domain.entity.SysUser;
+import com.cornerstone.system.service.SysConfigService;
 import com.cornerstone.system.service.SysOperLogService;
 import com.cornerstone.system.service.SysUserService;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -42,6 +43,8 @@ class SystemSecurityTest {
     @Autowired private MockMvc mockMvc;
 
     @MockBean private SysUserService userService;
+
+    @MockBean private SysConfigService configService;
 
     /**
      * @OperLog 切面会写操作日志，mock 掉避免未建表（本测试类不依赖 MySQL/H2 表）
@@ -133,6 +136,34 @@ class SystemSecurityTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.records[0].username").value("admin"))
                 .andExpect(jsonPath("$.data.records[0].password").doesNotExist());
+    }
+
+    @Test
+    void getUserById_requiresUserListPermission() throws Exception {
+        // 回归：/system/user/{id} 曾无 @PreAuthorize，任意登录者可枚举他人基础信息
+        String token = signToken(List.of("system:user:list"));
+        mockMvc.perform(get("/system/user/1").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+
+        String other = signToken(List.of("system:role:list"));
+        mockMvc.perform(get("/system/user/1").header("Authorization", "Bearer " + other))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void configValue_requiresConfigListPermission() throws Exception {
+        // 回归：参数值接口曾仅 isAuthenticated()，任意登录者（含服务身份）可读任意参数值
+        java.util.Map<String, String> data = new java.util.HashMap<>();
+        data.put("k", "v");
+        org.mockito.Mockito.when(configService.getValueByKey("k")).thenReturn("v");
+
+        String token = signToken(List.of("system:config:list"));
+        mockMvc.perform(get("/system/config/value/k").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+
+        String other = signToken(List.of("system:user:list"));
+        mockMvc.perform(get("/system/config/value/k").header("Authorization", "Bearer " + other))
+                .andExpect(status().isForbidden());
     }
 
     private void whenUserPage(Page<SysUser> page) {
