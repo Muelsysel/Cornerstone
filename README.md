@@ -39,8 +39,11 @@ docker compose up -d
 mvn -pl cornerstone-auth,cornerstone-system,cornerstone-demo spring-boot:run
 mvn -pl cornerstone-gateway spring-boot:run
 
-# 3. 演示认证链路（详见 docs/guides/run-demo.md）
-curl -X POST http://localhost:8080/oauth2/token -d "grant_type=client_credentials&client_id=...&client_secret=..." 
+# 3. 演示认证链路（详见 docs/guides/run-demo.md，已实测）
+curl -u "cornerstone-client:cornerstone-secret" -X POST \
+  "http://localhost:8080/auth/oauth2/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials&scope=read"
 ```
 
 ### 方式二：手动（无 Docker）

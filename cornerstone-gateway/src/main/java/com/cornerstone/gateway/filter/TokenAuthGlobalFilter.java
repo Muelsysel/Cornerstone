@@ -26,9 +26,13 @@ import reactor.core.publisher.Mono;
 @Component
 public class TokenAuthGlobalFilter implements GlobalFilter, Ordered {
 
-    /** 白名单前缀：认证、Actuator、OpenAPI 文档路径免令牌 */
+    /**
+     * 白名单前缀：认证、演示服务、Actuator、OpenAPI 文档路径免令牌。
+     *
+     * <p>/demo/ 整体放行——演示服务内含公开接口，其"公开还是受保护"由服务层资源服务器自行裁决 （双保险设计）；/system/ 等其余服务路径由网关统一校验。
+     */
     static final List<String> WHITELIST =
-            List.of("/auth/", "/actuator/", "/swagger-ui/", "/v3/api-docs/", "/webjars/");
+            List.of("/auth/", "/demo/", "/actuator/", "/swagger-ui/", "/v3/api-docs/", "/webjars/");
 
     private final ReactiveJwtDecoder jwtDecoder;
     private final ObjectMapper objectMapper;
@@ -85,7 +89,13 @@ public class TokenAuthGlobalFilter implements GlobalFilter, Ordered {
                                 h -> {
                                     String sub = jwt.getSubject();
                                     if (sub != null) {
-                                        h.add(UserContext.HEADER_USER_ID, sub);
+                                        // 用户令牌：sub 为数字用户 ID；client_credentials 令牌：sub 为
+                                        // client_id（透传为用户名）
+                                        if (sub.matches("\\d+")) {
+                                            h.add(UserContext.HEADER_USER_ID, sub);
+                                        } else {
+                                            h.add(UserContext.HEADER_USERNAME, sub);
+                                        }
                                     }
                                     String username =
                                             firstClaim(jwt, "username", "preferred_username");

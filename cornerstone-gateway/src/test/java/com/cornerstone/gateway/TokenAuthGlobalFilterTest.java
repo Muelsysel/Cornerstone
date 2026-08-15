@@ -106,8 +106,9 @@ class TokenAuthGlobalFilterTest {
 
         assertThat(exchange.getResponse().getStatusCode()).isNull();
         HttpHeaders forwarded = mutator.getMutatedHeaders();
-        assertThat(forwarded.getFirst(UserContext.HEADER_USER_ID)).isEqualTo("cornerstone-client");
-        assertThat(forwarded.getFirst(UserContext.HEADER_USERNAME)).isNull();
+        // client_credentials 令牌：sub 为 client_id（非数字）→ 透传为用户名，不写 User-Id
+        assertThat(forwarded.getFirst(UserContext.HEADER_USER_ID)).isNull();
+        assertThat(forwarded.getFirst(UserContext.HEADER_USERNAME)).isEqualTo("cornerstone-client");
         // scope：测试令牌 scope 为 read,write
         assertThat(forwarded.getFirst(UserContext.HEADER_ROLES)).isEqualTo("read,write");
     }

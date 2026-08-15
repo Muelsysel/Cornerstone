@@ -29,6 +29,8 @@ public class SecurityConfig {
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
             throws Exception {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+        // client_credentials 的令牌端点由客户端凭证认证，不受浏览器 CSRF 威胁；v2 授权码流程启用时按 OAuth2 规范细化
+        http.csrf(csrf -> csrf.disable());
         return http.build();
     }
 

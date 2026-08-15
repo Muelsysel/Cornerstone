@@ -32,7 +32,12 @@ public final class UserContextHolder {
             return null;
         }
         UserContext context = new UserContext();
-        context.setUserId(Long.valueOf(userId.trim()));
+        try {
+            context.setUserId(Long.valueOf(userId.trim()));
+        } catch (NumberFormatException e) {
+            // 非数字主体（如 client_credentials 的 client_id）：不设 userId，仅保留其他字段
+            context.setUserId(null);
+        }
         context.setUsername(headers.get(UserContext.HEADER_USERNAME));
         String deptId = headers.get(UserContext.HEADER_DEPT_ID);
         context.setDeptId(deptId == null || deptId.isBlank() ? null : Long.valueOf(deptId.trim()));
