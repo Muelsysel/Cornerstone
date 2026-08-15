@@ -29,6 +29,11 @@
         <el-table-column prop="roleName" label="角色名称" min-width="130" />
         <el-table-column prop="roleKey" label="权限字符" min-width="140" />
         <el-table-column prop="sort" label="排序" width="80" />
+        <el-table-column label="数据范围" min-width="110">
+          <template #default="{ row }: { row: any }">
+            {{ dataScopeText(row.dataScope) }}
+          </template>
+        </el-table-column>
         <el-table-column label="状态" width="90">
           <template #default="{ row }: { row: any }">
             <el-tag :type="row.status === '0' ? 'success' : 'info'">
@@ -221,6 +226,18 @@ const dialogVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref<FormInstance>()
 const form = reactive<RoleForm>({ roleName: '', roleKey: '', sort: 0, status: '0', dataScope: '1' })
+
+/** 数据范围展示映射：1全部 2自定义 3本部门及以下 4本部门 5仅本人 */
+const DATA_SCOPE_TEXT: Record<string, string> = {
+  '1': '全部数据',
+  '2': '自定义',
+  '3': '本部门及以下',
+  '4': '本部门',
+  '5': '仅本人',
+}
+function dataScopeText(scope: string | undefined): string {
+  return scope ? DATA_SCOPE_TEXT[scope] || scope : '—'
+}
 
 const rules: FormRules<RoleForm> = {
   roleName: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
