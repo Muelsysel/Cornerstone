@@ -103,6 +103,11 @@
         <el-table-column prop="dictCode" label="ID" width="70" />
         <el-table-column prop="dictLabel" label="标签" min-width="120" />
         <el-table-column prop="dictValue" label="键值" min-width="120" />
+        <el-table-column label="默认" width="70" align="center">
+          <template #default="{ row }: { row: any }">
+            <el-tag v-if="row.isDefault === 'Y'" size="small" type="warning">默认</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="sort" label="排序" width="80" />
         <el-table-column label="状态" width="90">
           <template #default="{ row }: { row: any }">
@@ -154,6 +159,12 @@
         </el-form-item>
         <el-form-item label="排序">
           <el-input-number v-model="dataForm.sort" :min="0" :max="999" />
+        </el-form-item>
+        <el-form-item label="是否默认">
+          <el-radio-group v-model="dataForm.isDefault">
+            <el-radio value="Y">是</el-radio>
+            <el-radio value="N">否</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="dataForm.status">
@@ -335,7 +346,7 @@ const dataDialogVisible = ref(false)
 const isDataEdit = ref(false)
 const dataSubmitting = ref(false)
 const dataFormRef = ref<FormInstance>()
-const dataForm = reactive<Partial<DictData>>({ status: '0' })
+const dataForm = reactive<Partial<DictData>>({ status: '0', isDefault: 'N' })
 
 const dataRules: FormRules = {
   dictLabel: [{ required: true, message: '请输入标签', trigger: 'blur' }],
@@ -350,6 +361,7 @@ function handleDataCreate() {
     dictLabel: '',
     dictValue: '',
     sort: 0,
+    isDefault: 'N',
     status: '0',
     remark: '',
   })
@@ -364,6 +376,7 @@ function handleDataEdit(row: DictData) {
     dictLabel: row.dictLabel,
     dictValue: row.dictValue,
     sort: row.sort ?? 0,
+    isDefault: row.isDefault || 'N',
     status: row.status || '0',
     remark: row.remark || '',
   })

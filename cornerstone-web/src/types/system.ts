@@ -94,6 +94,8 @@ export interface DictData {
   dictLabel: string
   dictValue: string
   sort?: number
+  /** 是否默认：Y 是 / N 否 */
+  isDefault?: string
   status?: string
   remark?: string
   createTime?: string
