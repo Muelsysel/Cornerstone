@@ -28,6 +28,9 @@ public class Announcement {
     /** 状态：0草稿/1已发布/2已下线，见 {@link AnnouncementStatus} */
     private Integer status;
 
+    /** 作者（创建时由服务层自动填充当前用户名，展示用） */
+    private String author;
+
     /** 发布时间 */
     private LocalDateTime publishTime;
 

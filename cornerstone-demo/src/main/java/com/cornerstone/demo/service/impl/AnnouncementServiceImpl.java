@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cornerstone.common.exception.BusinessException;
+import com.cornerstone.common.security.UserContext;
+import com.cornerstone.common.security.UserContextHolder;
 import com.cornerstone.demo.domain.Announcement;
 import com.cornerstone.demo.domain.AnnouncementStatus;
 import com.cornerstone.demo.domain.DemoErrorCode;
@@ -43,6 +45,11 @@ public class AnnouncementServiceImpl extends ServiceImpl<AnnouncementMapper, Ann
         validateTitle(announcement.getTitle());
         // 新建即草稿态
         announcement.setStatus(AnnouncementStatus.DRAFT.getCode());
+        // 作者自动取自网关透传的当前用户（与审计列一致），避免前端传参伪造
+        UserContext context = UserContextHolder.get();
+        if (context != null && StringUtils.hasText(context.getUsername())) {
+            announcement.setAuthor(context.getUsername());
+        }
         save(announcement);
         return announcement;
     }
