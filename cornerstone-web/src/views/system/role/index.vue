@@ -87,6 +87,20 @@
             <el-radio value="1">停用</el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item label="数据范围">
+          <el-radio-group v-model="form.dataScope">
+            <el-radio value="1">全部数据</el-radio>
+            <el-radio value="2">自定义</el-radio>
+            <el-radio value="3">本部门及以下</el-radio>
+            <el-radio value="4">本部门</el-radio>
+            <el-radio value="5">仅本人</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item v-if="form.dataScope === '2'" label="自定义部门">
+          <el-button :icon="FolderOpened" @click="openDeptPicker">
+            选择部门（{{ form.deptIds?.length || 0 }} 个）
+          </el-button>
+        </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="form.remark" type="textarea" :rows="2" placeholder="备注" />
         </el-form-item>
@@ -114,24 +128,43 @@
         <el-button type="primary" :loading="assigning" @click="submitAssign">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 自定义数据范围部门选择弹窗 -->
+    <el-dialog v-model="deptPickerVisible" title="选择自定义部门" width="420px" destroy-on-close>
+      <el-tree
+        ref="deptTreeRef"
+        v-loading="deptTreeLoading"
+        :data="deptTree"
+        node-key="deptId"
+        show-checkbox
+        default-expand-all
+        :props="{ label: 'deptName', children: 'children' }"
+      />
+      <template #footer>
+        <el-button @click="deptPickerVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitDeptPicker">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { nextTick, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
+import { FolderOpened, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import type { ElTree } from 'element-plus'
 import {
   assignRoleMenus,
   createRole,
   deleteRole,
+  getDeptTree,
   getMenuTree,
+  getRoleDepts,
   getRoleMenus,
   getRolePage,
   updateRole,
 } from '@/api/system'
-import type { Menu, Role, RoleQuery } from '@/types/system'
+import type { Dept, Menu, Role, RoleQuery } from '@/types/system'
 
 interface RoleForm {
   roleId?: number
@@ -140,6 +173,8 @@ interface RoleForm {
   sort: number
   status: string
   remark?: string
+  dataScope: string
+  deptIds?: number[]
 }
 
 const loading = ref(false)
@@ -184,7 +219,7 @@ function handleReset() {
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref<FormInstance>()
-const form = reactive<RoleForm>({ roleName: '', roleKey: '', sort: 0, status: '0' })
+const form = reactive<RoleForm>({ roleName: '', roleKey: '', sort: 0, status: '0', dataScope: '1' })
 
 const rules: FormRules<RoleForm> = {
   roleName: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
@@ -193,11 +228,20 @@ const rules: FormRules<RoleForm> = {
 
 function handleCreate() {
   isEdit.value = false
-  Object.assign(form, { roleId: undefined, roleName: '', roleKey: '', sort: 0, status: '0', remark: '' })
+  Object.assign(form, {
+    roleId: undefined,
+    roleName: '',
+    roleKey: '',
+    sort: 0,
+    status: '0',
+    remark: '',
+    dataScope: '1',
+    deptIds: [],
+  })
   dialogVisible.value = true
 }
 
-function handleEdit(row: Role) {
+async function handleEdit(row: Role) {
   isEdit.value = true
   Object.assign(form, {
     roleId: row.roleId,
@@ -206,8 +250,47 @@ function handleEdit(row: Role) {
     sort: row.sort ?? 0,
     status: row.status || '0',
     remark: row.remark || '',
+    dataScope: row.dataScope || '1',
+    deptIds: [],
   })
   dialogVisible.value = true
+  // 数据范围=自定义(2) 时回显已选部门
+  if (form.dataScope === '2' && row.roleId != null) {
+    try {
+      form.deptIds = (await getRoleDepts(row.roleId)) || []
+    } catch {
+      form.deptIds = []
+    }
+  }
+}
+
+// ---------------- 自定义数据范围部门选择 ----------------
+const deptPickerVisible = ref(false)
+const deptTreeLoading = ref(false)
+const deptTree = ref<Dept[]>([])
+const deptTreeRef = ref<InstanceType<typeof ElTree>>()
+
+async function openDeptPicker() {
+  deptPickerVisible.value = true
+  deptTreeLoading.value = true
+  try {
+    deptTree.value = (await getDeptTree()) || []
+    await nextTick(() => {
+      deptTreeRef.value?.setCheckedKeys(form.deptIds || [])
+    })
+  } catch {
+    deptTree.value = []
+  } finally {
+    deptTreeLoading.value = false
+  }
+}
+
+function submitDeptPicker() {
+  const checked = (deptTreeRef.value?.getCheckedKeys(false) as number[]) || []
+  const half = (deptTreeRef.value?.getHalfCheckedKeys() as number[]) || []
+  // 自定义范围包含父级与子级（半选父级也算），与后端数据权限语义一致
+  form.deptIds = [...checked, ...half]
+  deptPickerVisible.value = false
 }
 
 async function handleSubmit() {

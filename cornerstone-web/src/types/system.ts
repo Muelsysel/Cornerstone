@@ -28,6 +28,10 @@ export interface Role {
   sort?: number
   status?: string
   remark?: string
+  /** 数据范围：1全部 2自定义 3本部门及以下 4本部门 5仅本人 */
+  dataScope?: string
+  /** 数据范围=自定义(2)时的部门 ID 集合 */
+  deptIds?: number[]
   createTime?: string
 }
 

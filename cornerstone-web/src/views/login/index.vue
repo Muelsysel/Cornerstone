@@ -94,7 +94,9 @@ async function handleLogin() {
   try {
     await userStore.login(form)
     ElMessage.success('登录成功')
-    const redirect = (route.query.redirect as string) || '/'
+    // 防开放重定向：仅接受站内绝对路径（/ 开头且非 // 协议相对地址）
+    const raw = (route.query.redirect as string) || '/'
+    const redirect = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/'
     router.push(redirect)
   } catch {
     // 登录失败提示已由请求拦截器统一处理

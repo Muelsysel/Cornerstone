@@ -302,12 +302,10 @@ const dataLoading = ref(false)
 const dataList = ref<DictData[]>([])
 const dataTotal = ref(0)
 const currentDictType = ref('')
-const currentDictId = ref<number | undefined>(undefined)
 
 const dataQuery = reactive({ pageNum: 1, pageSize: 10, dictType: '' })
 
 async function handleData(row: DictType) {
-  currentDictId.value = row.dictId
   currentDictType.value = row.dictType
   dataQuery.dictType = row.dictType
   dataQuery.pageNum = 1

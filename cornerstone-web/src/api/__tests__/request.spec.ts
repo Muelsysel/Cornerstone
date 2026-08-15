@@ -74,6 +74,24 @@ describe('request 拦截器 401 处理', () => {
     expect(replaceMock).not.toHaveBeenCalled()
     expect(result).toBeDefined()
   })
+
+  it('登录接口 401（密码错误）不清理会话不跳转', async () => {
+    const store = useUserStore()
+    store.$patch({
+      user: { userId: 1, username: 'admin', roles: ['admin'], permissions: [] },
+    })
+
+    await expect(
+      handlers[0].fulfilled({
+        data: { code: 401, message: '用户名或密码错误' },
+        config: { url: '/auth/login' },
+      }),
+    ).rejects.toBeTruthy()
+
+    // 登录失败不是会话失效：不清理用户、不跳登录页
+    expect(store.user).not.toBeNull()
+    expect(replaceMock).not.toHaveBeenCalled()
+  })
 })
 
 // 请求拦截器：携带 Bearer 令牌

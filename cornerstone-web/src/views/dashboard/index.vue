@@ -51,13 +51,15 @@ const rolesText = computed(() => {
 
 const permissionsCount = computed(() => userStore.permissions?.length || 0)
 
-// 当前日期（中文长格式），欢迎语氛围
-const today = new Date().toLocaleDateString('zh-CN', {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-  weekday: 'long',
-})
+// 当前日期（中文长格式），欢迎语氛围；computed 保证跨夜刷新
+const today = computed(() =>
+  new Date().toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'long',
+  }),
+)
 
 // 能力卡片（静态展示项目能力，不依赖统计接口——克制不造新后端接口）
 const cards = [

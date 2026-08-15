@@ -100,6 +100,11 @@ export function assignRoleMenus(roleId: number, menuIds: number[]): Promise<unkn
   return request({ url: `/system/role/${roleId}/menus`, method: 'put', data: menuIds })
 }
 
+/** 查询角色自定义数据范围的部门 ID 集合（dataScope=2 回显） */
+export function getRoleDepts(roleId: number): Promise<number[]> {
+  return request({ url: `/system/role/${roleId}/depts`, method: 'get' })
+}
+
 // ---------------------------------- 菜单 ----------------------------------
 
 export function getMenuTree(): Promise<Menu[]> {
