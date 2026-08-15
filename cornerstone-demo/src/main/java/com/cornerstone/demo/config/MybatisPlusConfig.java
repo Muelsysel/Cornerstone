@@ -16,6 +16,8 @@ public class MybatisPlusConfig {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
         PaginationInnerInterceptor pagination = new PaginationInnerInterceptor(DbType.MYSQL);
         pagination.setMaxLimit(500L);
+        // pageNum 超出总页数时自动回退到最后一页，避免越界空页（配合前端删除回退双保险）
+        pagination.setOverflow(true);
         interceptor.addInnerInterceptor(pagination);
         return interceptor;
     }

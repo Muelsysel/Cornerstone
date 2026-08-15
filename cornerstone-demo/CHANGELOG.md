@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.0.13] - 2026-08-16
+
+- fix(data): 分页拦截器开启 `overflow`——pageNum 超出总页数时自动回退最后一页，消除越界空页
+
+**测试方法**：`mvn test -pl cornerstone-demo`（24 用例）。
+
 ## [1.0.12] - 2026-08-15
 
 - fix(data): 分页/列表排序加确定性 tiebreaker——`page` 由单键 `create_time DESC` 改为 `create_time DESC, id DESC`，同一秒多条时顺序不再不确定，翻页不重不漏（`AnnouncementServiceImplTest` 新增 `pageUsesDeterministicSort` 断言 SQL 片段）
