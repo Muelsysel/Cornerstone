@@ -46,7 +46,9 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
                 new LambdaQueryWrapper<SysRole>()
                         .like(hasText(roleName), SysRole::getRoleName, roleName)
                         .eq(hasText(status), SysRole::getStatus, status)
-                        .orderByAsc(SysRole::getSort);
+                        // 确定性排序：sort 可重复，按 id 升序兜底，保证翻页不重不漏
+                        .orderByAsc(SysRole::getSort)
+                        .orderByAsc(SysRole::getId);
         return this.page(new Page<>(current, size), wrapper);
     }
 
@@ -152,7 +154,10 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
 
     @Override
     public List<SysRole> listAll() {
-        return this.list(new LambdaQueryWrapper<SysRole>().orderByAsc(SysRole::getSort));
+        return this.list(
+                new LambdaQueryWrapper<SysRole>()
+                        .orderByAsc(SysRole::getSort)
+                        .orderByAsc(SysRole::getId));
     }
 
     @Override

@@ -28,7 +28,9 @@ public class SysDeptServiceImpl implements SysDeptService {
                 new LambdaQueryWrapper<SysDept>()
                         .like(hasText(deptName), SysDept::getDeptName, deptName)
                         .eq(hasText(status), SysDept::getStatus, status)
-                        .orderByAsc(SysDept::getSort);
+                        // 确定性排序：sort 可重复，按 id 升序兜底，保证树形结构稳定
+                        .orderByAsc(SysDept::getSort)
+                        .orderByAsc(SysDept::getId);
         List<SysDept> all = deptMapper.selectList(wrapper);
         return buildTree(all);
     }

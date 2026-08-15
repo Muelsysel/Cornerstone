@@ -31,7 +31,9 @@ public class SysLoginLogServiceImpl extends ServiceImpl<SysLoginLogMapper, SysLo
                 new LambdaQueryWrapper<SysLoginLog>()
                         .like(hasText(username), SysLoginLog::getUsername, username)
                         .eq(hasText(status), SysLoginLog::getStatus, status)
-                        .orderByDesc(SysLoginLog::getLoginTime);
+                        // 确定性排序：同一秒多条登录时按 id 倒序兜底，保证翻页不重不漏
+                        .orderByDesc(SysLoginLog::getLoginTime)
+                        .orderByDesc(SysLoginLog::getId);
         return this.page(new Page<>(current, size), wrapper);
     }
 

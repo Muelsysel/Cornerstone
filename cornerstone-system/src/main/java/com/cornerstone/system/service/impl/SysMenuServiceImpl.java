@@ -30,7 +30,9 @@ public class SysMenuServiceImpl implements SysMenuService {
                 new LambdaQueryWrapper<SysMenu>()
                         .like(hasText(menuName), SysMenu::getMenuName, menuName)
                         .eq(hasText(status), SysMenu::getStatus, status)
-                        .orderByAsc(SysMenu::getSort);
+                        // 确定性排序：sort 可重复，按 id 升序兜底，保证树形结构稳定
+                        .orderByAsc(SysMenu::getSort)
+                        .orderByAsc(SysMenu::getId);
         List<SysMenu> all = menuMapper.selectList(wrapper);
         return buildTree(all);
     }

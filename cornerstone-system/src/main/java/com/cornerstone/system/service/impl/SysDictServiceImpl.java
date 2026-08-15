@@ -116,7 +116,9 @@ public class SysDictServiceImpl implements SysDictService {
                         new LambdaQueryWrapper<SysDictData>()
                                 .eq(SysDictData::getDictType, dictType)
                                 .eq(SysDictData::getStatus, "0")
-                                .orderByAsc(SysDictData::getDictSort));
+                                // 确定性排序：sort 可重复，按 id 升序兜底
+                                .orderByAsc(SysDictData::getDictSort)
+                                .orderByAsc(SysDictData::getId));
         jsonCache.setList(key, data);
         return data;
     }
@@ -129,7 +131,9 @@ public class SysDictServiceImpl implements SysDictService {
                         .eq(hasText(dictType), SysDictData::getDictType, dictType)
                         .like(hasText(dictLabel), SysDictData::getDictLabel, dictLabel)
                         .eq(hasText(status), SysDictData::getStatus, status)
-                        .orderByAsc(SysDictData::getDictSort);
+                        // 确定性排序：sort 可重复，按 id 升序兜底，保证翻页不重不漏
+                        .orderByAsc(SysDictData::getDictSort)
+                        .orderByAsc(SysDictData::getId);
         Page<SysDictData> page = new Page<>(current, size);
         dataMapper.selectPage(page, wrapper);
         return page;

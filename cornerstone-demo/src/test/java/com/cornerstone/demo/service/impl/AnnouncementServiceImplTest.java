@@ -9,6 +9,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.cornerstone.common.exception.BusinessException;
 import com.cornerstone.common.security.UserContext;
 import com.cornerstone.common.security.UserContextHolder;
@@ -16,6 +18,7 @@ import com.cornerstone.demo.domain.Announcement;
 import com.cornerstone.demo.mapper.AnnouncementMapper;
 import java.lang.reflect.Field;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -26,6 +29,16 @@ class AnnouncementServiceImplTest {
 
     private AnnouncementServiceImpl service;
     private AnnouncementMapper mapper;
+
+    @BeforeAll
+    static void initTableInfo() {
+        // 让 LambdaQueryWrapper 能解析实体列名（分页排序断言依赖）
+        com.baomidou.mybatisplus.core.MybatisConfiguration configuration =
+                new com.baomidou.mybatisplus.core.MybatisConfiguration();
+        org.apache.ibatis.builder.MapperBuilderAssistant assistant =
+                new org.apache.ibatis.builder.MapperBuilderAssistant(configuration, "");
+        TableInfoHelper.initTableInfo(assistant, Announcement.class);
+    }
 
     @BeforeEach
     void setUp() throws Exception {
@@ -136,5 +149,18 @@ class AnnouncementServiceImplTest {
         when(mapper.selectById(1L)).thenReturn(null);
         assertThatThrownBy(() -> service.delete(1L)).isInstanceOf(BusinessException.class);
         verify(mapper, never()).deleteById(1L);
+    }
+
+    @Test
+    void pageUsesDeterministicSort() {
+        // 同一秒多条时顺序不定会导致翻页重复/遗漏：必须按 id 兜底排序
+        service.page(1, 10, null, null);
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        ArgumentCaptor<LambdaQueryWrapper<Announcement>> captor =
+                ArgumentCaptor.forClass(LambdaQueryWrapper.class);
+        verify(mapper).selectPage(any(), captor.capture());
+        String sql = captor.getValue().getSqlSegment();
+        assertThat(sql).contains("create_time DESC").contains("id DESC");
+        assertThat(sql.indexOf("create_time DESC")).isLessThan(sql.indexOf("id DESC"));
     }
 }

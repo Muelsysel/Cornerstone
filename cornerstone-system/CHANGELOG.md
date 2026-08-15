@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.22] - 2026-08-15
+
+- fix(data): 分页/列表排序全部加确定性 tiebreaker——`page`/`list` 由单键排序改为 `sort/time + id` 双键（SysLoginLog、SysOperLog、SysRole、SysDictData、SysMenu、SysDept），时间戳精确到秒/sort 可重复时顺序不再不确定，翻页不重不漏、树形结构稳定
+
+**测试方法**：`mvn test -pl cornerstone-system`（120 用例）。
+
 ## [1.2.21] - 2026-08-15
 
 - test: `SysUserServiceImplTest` 补 page 分页委托用例

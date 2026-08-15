@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.0.12] - 2026-08-15
+
+- fix(data): 分页/列表排序加确定性 tiebreaker——`page` 由单键 `create_time DESC` 改为 `create_time DESC, id DESC`，同一秒多条时顺序不再不确定，翻页不重不漏（`AnnouncementServiceImplTest` 新增 `pageUsesDeterministicSort` 断言 SQL 片段）
+
+**测试方法**：`mvn test -pl cornerstone-demo`（24 用例）。
+
 ## [1.0.11] - 2026-08-15
 
 - docs: CONTEXT.md 同步白名单常量拆分（PUBLIC_GET_PATHS/PUBLIC_OTHER_PATHS）与仅 GET 公开语义

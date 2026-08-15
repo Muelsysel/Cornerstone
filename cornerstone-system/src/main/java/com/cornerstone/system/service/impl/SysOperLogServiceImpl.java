@@ -26,7 +26,9 @@ public class SysOperLogServiceImpl extends ServiceImpl<SysOperLogMapper, SysOper
                         .like(hasText(title), SysOperLog::getTitle, title)
                         .like(hasText(operName), SysOperLog::getOperName, operName)
                         .eq(hasText(status), SysOperLog::getStatus, status)
-                        .orderByDesc(SysOperLog::getOperTime);
+                        // 确定性排序：同一秒多条操作时按 id 倒序兜底，保证翻页不重不漏
+                        .orderByDesc(SysOperLog::getOperTime)
+                        .orderByDesc(SysOperLog::getId);
         return this.page(new Page<>(current, size), wrapper);
     }
 

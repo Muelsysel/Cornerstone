@@ -32,7 +32,9 @@ public class AnnouncementServiceImpl extends ServiceImpl<AnnouncementMapper, Ann
                 new LambdaQueryWrapper<Announcement>()
                         .like(StringUtils.hasText(title), Announcement::getTitle, title)
                         .eq(status != null, Announcement::getStatus, status)
-                        .orderByDesc(Announcement::getCreateTime);
+                        // 确定性排序：时间精确到秒，同一秒多条时按 id 倒序兜底，保证翻页不重不漏
+                        .orderByDesc(Announcement::getCreateTime)
+                        .orderByDesc(Announcement::getId);
         return baseMapper.selectPage(new Page<>(pageNum, pageSize), wrapper);
     }
 
