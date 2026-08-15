@@ -317,9 +317,14 @@ try {
         try { $guestCode = ($guestDetail | ConvertFrom-Json).code } catch {}
         Assert 'Guest cannot read non-published detail (code != 200)' $(if ($guestCode -ne 200) { 'OK' } else { 'FAIL' }) 'OK'
 
-        # 清理临时草稿
-        curl.exe -s -o NUL --max-time 20 -X DELETE "http://localhost:8080/demo/announcement/$draftId" `
-            -H "Authorization: Bearer $adminToken" | Out-Null
+        # 清理临时草稿（幂等重试：curl 偶发空响应时 DELETE 未执行会残留）
+        for ($attempt = 1; $attempt -le 2; $attempt++) {
+            $delCode = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 `
+                -X DELETE "http://localhost:8080/demo/announcement/$draftId" `
+                -H "Authorization: Bearer $adminToken"
+            if ($delCode -eq '200') { break }
+            Start-Sleep -Milliseconds 500
+        }
     } else {
         Assert 'Locate created draft id' 'FAIL' 'OK'
     }
