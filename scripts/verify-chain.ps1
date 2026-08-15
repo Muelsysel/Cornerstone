@@ -134,11 +134,20 @@ try {
     Assert 'Invalid token 401' $code '401'
 
     # 6. 分页参数契约：pageNum/pageSize 必须直达后端（曾回归为 current/size 导致翻页失效）
+    #    pageSize=1（种子用户仅 admin+test 两条 → 恰好 2 页），pageNum=2 不越界，
+    #    不受分页 overflow（越界自动回退末页）影响，同时验证 pageSize 透传生效。
     $pageResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
-        'http://localhost:8080/system/user/page?pageNum=2&pageSize=5'
+        'http://localhost:8080/system/user/page?pageNum=2&pageSize=1'
     $current = $null
-    try { $current = ($pageResp | ConvertFrom-Json).data.current } catch {}
-    Assert 'Pagination passthrough pageNum/pageSize (current=2)' $(if ($current -eq 2) { 'OK' } else { 'FAIL' }) 'OK'
+    $pageRecords = $null
+    try {
+        $pageJson = $pageResp | ConvertFrom-Json
+        $current = $pageJson.data.current
+        $pageRecords = @($pageJson.data.records).Count
+    } catch {}
+    $pageOk = 'FAIL'
+    if ($current -eq 2 -and $pageRecords -eq 1) { $pageOk = 'OK' }
+    Assert 'Pagination passthrough pageNum/pageSize (current=2)' $pageOk 'OK'
 
     # 6b. 菜单树查询（admin 需能获取完整菜单树）
     $menuResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
