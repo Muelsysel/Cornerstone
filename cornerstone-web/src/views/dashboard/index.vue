@@ -91,6 +91,10 @@ function go(path: string) {
 }
 .card {
   text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .card:hover {
@@ -108,5 +112,9 @@ function go(path: string) {
   color: var(--cs-text-secondary);
   font-size: 12px;
   line-height: 1.6;
+  min-height: 38px; /* 固定描述区高度，卡片高度一致避免 hover 抖动 */
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
 }
 </style>
