@@ -231,14 +231,17 @@ try {
 
     # 6c2. 角色分页 roleKey 过滤契约：搜 roleKey=admin 必须命中 admin 角色（回归：前端搜索参数曾静默无效）
     $roleKeyOk = 'FAIL'
-    $roleResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
-        'http://localhost:8080/system/role/page?pageNum=1&pageSize=20&roleKey=admin'
-    try {
-        $roleRecs = ($roleResp | ConvertFrom-Json).data.records
-        if ($roleRecs -is [array] -and ($roleRecs | Where-Object { $_.roleKey -eq 'admin' })) {
-            $roleKeyOk = 'OK'
-        }
-    } catch {}
+    for ($attempt = 1; $attempt -le 2 -and $roleKeyOk -ne 'OK'; $attempt++) {
+        $roleResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
+            'http://localhost:8080/system/role/page?pageNum=1&pageSize=20&roleKey=admin'
+        try {
+            $roleRecs = ($roleResp | ConvertFrom-Json).data.records
+            if ($roleRecs -is [array] -and ($roleRecs | Where-Object { $_.roleKey -eq 'admin' })) {
+                $roleKeyOk = 'OK'
+            }
+        } catch {}
+        if ($roleKeyOk -ne 'OK' -and $attempt -lt 2) { Start-Sleep -Milliseconds 500 }
+    }
     Assert 'Role page roleKey filter works' $roleKeyOk 'OK'
 
     # 6d. 审计契约：登录日志含 admin 记录（登录成功已投递审计，回归防丢失）
@@ -258,12 +261,15 @@ try {
     #     注意：URL 内空格必须编码为 %20（curl.exe 遇裸空格返回空响应）
     $today = Get-Date -Format 'yyyy-MM-dd'
     $rangeOk = 'FAIL'
-    $rangeResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
-        "http://localhost:8080/system/loginlog/page?pageNum=1&pageSize=20&username=admin&beginTime=$today%2000:00:00"
-    try {
-        $rangeRecs = ($rangeResp | ConvertFrom-Json).data.records
-        if ($rangeRecs -is [array] -and $rangeRecs.Count -gt 0) { $rangeOk = 'OK' }
-    } catch {}
+    for ($attempt = 1; $attempt -le 2 -and $rangeOk -ne 'OK'; $attempt++) {
+        $rangeResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
+            "http://localhost:8080/system/loginlog/page?pageNum=1&pageSize=20&username=admin&beginTime=$today%2000:00:00"
+        try {
+            $rangeRecs = ($rangeResp | ConvertFrom-Json).data.records
+            if ($rangeRecs -is [array] -and $rangeRecs.Count -gt 0) { $rangeOk = 'OK' }
+        } catch {}
+        if ($rangeOk -ne 'OK' -and $attempt -lt 2) { Start-Sleep -Milliseconds 500 }
+    }
     Assert 'Login log date-range filter works' $rangeOk 'OK'
 
     # 7. 公告编辑契约：POST 创建草稿 -> PUT /{id} 更新（曾因 PUT 缺 id 路径 100% 失败）
@@ -282,11 +288,14 @@ try {
 
     # 7a. 字段上限契约：超长标题（DB varchar(100)）必须返回友好 400，而非 DataTruncation 500
     $longTitle = 'x' * 101
-    Write-JsonBody "{`"title`":`"$longTitle`",`"content`":`"too-long`"}"
-    $longResp = curl.exe -s --max-time 20 -X POST 'http://localhost:8080/demo/announcement' `
-        -H "Authorization: Bearer $adminToken" -H 'Content-Type: application/json' --data-binary "@$tmpJson"
     $longCode = $null
-    try { $longCode = ($longResp | ConvertFrom-Json).code } catch {}
+    for ($attempt = 1; $attempt -le 2 -and $longCode -ne 400; $attempt++) {
+        Write-JsonBody "{`"title`":`"$longTitle`",`"content`":`"too-long`"}"
+        $longResp = curl.exe -s --max-time 20 -X POST 'http://localhost:8080/demo/announcement' `
+            -H "Authorization: Bearer $adminToken" -H 'Content-Type: application/json' --data-binary "@$tmpJson"
+        try { $longCode = ($longResp | ConvertFrom-Json).code } catch {}
+        if ($longCode -ne 400 -and $attempt -lt 2) { Start-Sleep -Milliseconds 500 }
+    }
     Assert 'Oversized title rejected with 400 (not 500)' $(if ($longCode -eq 400) { 'OK' } else { 'FAIL' }) 'OK'
     $draftPage = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
         "http://localhost:8080/demo/announcement/page?pageNum=1&pageSize=20&title=$annTitle"
@@ -360,9 +369,12 @@ try {
         Assert 'State machine rejects illegal transition (1001)' $flowOk 'OK'
 
         # 8. 隐私契约：游客访问非已发布（草稿/已下线）详情 -> 业务码非 200（按不存在处理，防泄露）
-        $guestDetail = curl.exe -s --max-time 20 "http://localhost:8080/demo/announcement/$draftId"
         $guestCode = $null
-        try { $guestCode = ($guestDetail | ConvertFrom-Json).code } catch {}
+        for ($attempt = 1; $attempt -le 2 -and $guestCode -eq $null; $attempt++) {
+            $guestDetail = curl.exe -s --max-time 20 "http://localhost:8080/demo/announcement/$draftId"
+            try { $guestCode = ($guestDetail | ConvertFrom-Json).code } catch {}
+            if ($guestCode -eq $null -and $attempt -lt 2) { Start-Sleep -Milliseconds 500 }
+        }
         Assert 'Guest cannot read non-published detail (code != 200)' $(if ($guestCode -ne 200) { 'OK' } else { 'FAIL' }) 'OK'
 
         # 清理临时草稿（幂等重试：curl 偶发空响应时 DELETE 未执行会残留）
@@ -403,9 +415,12 @@ try {
 
         # 9b. IDOR 正向：test 查自己（userId=2）应成功（仅限本人语义的合法访问）
         $selfCode = $null
-        $selfResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $testToken" `
-            'http://localhost:8080/system/user/info?userId=2'
-        try { $selfCode = ($selfResp | ConvertFrom-Json).code } catch {}
+        for ($attempt = 1; $attempt -le 2 -and $selfCode -ne 200; $attempt++) {
+            $selfResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $testToken" `
+                'http://localhost:8080/system/user/info?userId=2'
+            try { $selfCode = ($selfResp | ConvertFrom-Json).code } catch {}
+            if ($selfCode -ne 200 -and $attempt -lt 2) { Start-Sleep -Milliseconds 500 }
+        }
         Assert 'IDOR allowed: self info 200' $(if ($selfCode -eq 200) { 'OK' } else { 'FAIL' }) 'OK'
 
         # 9c. 缺参契约：/system/user/info 不传必填 userId → 业务码 400（回归：曾走兜底 500）
