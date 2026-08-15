@@ -105,7 +105,7 @@ class SysMenuServiceImplTest {
                 .isInstanceOf(BusinessException.class)
                 .extracting(e -> ((BusinessException) e).getCode())
                 .isEqualTo(SystemErrorCode.RESOURCE_NOT_FOUND.getCode());
-        verify(menuMapper, never()).updateById(any());
+        verify(menuMapper, never()).updateById(any(SysMenu.class));
     }
 
     @Test
@@ -129,7 +129,7 @@ class SysMenuServiceImplTest {
                 .isInstanceOf(BusinessException.class)
                 .extracting(e -> ((BusinessException) e).getCode())
                 .isEqualTo(SystemErrorCode.DELETE_WITH_CHILD_MENU.getCode());
-        verify(menuMapper, never()).deleteById(any());
+        verify(menuMapper, never()).deleteById(any(Long.class));
     }
 
     @Test

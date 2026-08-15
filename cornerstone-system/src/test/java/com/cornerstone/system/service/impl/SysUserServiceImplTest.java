@@ -31,9 +31,9 @@ class SysUserServiceImplTest {
     @BeforeEach
     void setUp() throws Exception {
         service = new SysUserServiceImpl(passwordEncoder, userRoleMapper);
-        // 注入 MyBatis-Plus ServiceImpl 的 baseMapper（protected 字段）
+        // 注入 MyBatis-Plus ServiceImpl 的 baseMapper（protected 字段，3.5.9+ 声明于 CrudRepository）
         Field field =
-                com.baomidou.mybatisplus.extension.service.impl.ServiceImpl.class.getDeclaredField(
+                com.baomidou.mybatisplus.spring.repository.CrudRepository.class.getDeclaredField(
                         "baseMapper");
         field.setAccessible(true);
         field.set(service, userMapper);

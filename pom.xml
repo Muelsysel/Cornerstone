@@ -29,12 +29,13 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- 核心框架版本：仅此处定义，模块禁止私自引版本（依赖集中管理） -->
-        <spring-boot.version>3.2.4</spring-boot.version>
-        <spring-cloud.version>2023.0.1</spring-cloud.version>
-        <spring-cloud-alibaba.version>2023.0.1.0</spring-cloud-alibaba.version>
-        <mybatis-plus.version>3.5.5</mybatis-plus.version>
+        <!-- 保守升级策略：保持 Boot 3.2 / Cloud 2023.0 代际，取各线最终补丁（含安全修复） -->
+        <spring-boot.version>3.2.12</spring-boot.version>
+        <spring-cloud.version>2023.0.6</spring-cloud.version>
+        <spring-cloud-alibaba.version>2023.0.3.4</spring-cloud-alibaba.version>
+        <mybatis-plus.version>3.5.17</mybatis-plus.version>
         <springdoc.version>2.3.0</springdoc.version>
-        <lombok.version>1.18.30</lombok.version>
+        <lombok.version>1.18.46</lombok.version>
 
         <!-- 插件版本 -->
         <spotless.version>2.43.0</spotless.version>
@@ -81,6 +82,12 @@
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            <!-- MyBatis-Plus 3.5.9+：jsqlparser 拆分为独立模块（数据权限 SQL 改写依赖） -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-jsqlparser</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
 

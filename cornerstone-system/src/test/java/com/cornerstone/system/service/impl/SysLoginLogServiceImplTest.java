@@ -24,7 +24,7 @@ class SysLoginLogServiceImplTest {
     void setUp() throws Exception {
         SysLoginLogServiceImpl impl = new SysLoginLogServiceImpl();
         java.lang.reflect.Field field =
-                com.baomidou.mybatisplus.extension.service.impl.ServiceImpl.class.getDeclaredField(
+                com.baomidou.mybatisplus.spring.repository.CrudRepository.class.getDeclaredField(
                         "baseMapper");
         field.setAccessible(true);
         field.set(impl, mapper);
@@ -33,7 +33,7 @@ class SysLoginLogServiceImplTest {
 
     @Test
     void recordSuccessMapsStatusZero() {
-        doReturn(true).when(service).save(any());
+        doReturn(true).when(service).save(any(SysLoginLog.class));
 
         service.record("admin", "127.0.0.1", true, "登录成功");
 
@@ -50,7 +50,7 @@ class SysLoginLogServiceImplTest {
 
     @Test
     void recordFailureMapsStatusOne() {
-        doReturn(true).when(service).save(any());
+        doReturn(true).when(service).save(any(SysLoginLog.class));
 
         service.record("test", "10.0.0.1", false, "密码错误");
 

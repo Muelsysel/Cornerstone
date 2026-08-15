@@ -2,7 +2,7 @@ package com.cornerstone.demo.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.cornerstone.common.exception.BusinessException;
 import com.cornerstone.common.security.UserContext;
 import com.cornerstone.common.security.UserContextHolder;

@@ -11,6 +11,7 @@ import com.cornerstone.system.domain.mapper.SysRoleDeptMapper;
 import com.cornerstone.system.domain.mapper.SysRoleMapper;
 import java.util.List;
 import java.util.Set;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -19,6 +20,17 @@ import org.junit.jupiter.api.Test;
  * <p>数据权限是安全核心（SQL 层自动过滤），用 mock 隔离 Mapper 验证纯逻辑。
  */
 class DataScopeServiceTest {
+
+    @BeforeAll
+    static void initTableInfo() {
+        // 纯单测无 Spring 上下文：LambdaQueryWrapper 需要显式注册实体元数据（MP 3.5.9+）
+        com.baomidou.mybatisplus.core.MybatisConfiguration configuration =
+                new com.baomidou.mybatisplus.core.MybatisConfiguration();
+        org.apache.ibatis.builder.MapperBuilderAssistant assistant =
+                new org.apache.ibatis.builder.MapperBuilderAssistant(configuration, "");
+        com.baomidou.mybatisplus.core.metadata.TableInfoHelper.initTableInfo(
+                assistant, SysRole.class);
+    }
 
     private final SysRoleMapper roleMapper = mock(SysRoleMapper.class);
     private final SysRoleDeptMapper roleDeptMapper = mock(SysRoleDeptMapper.class);

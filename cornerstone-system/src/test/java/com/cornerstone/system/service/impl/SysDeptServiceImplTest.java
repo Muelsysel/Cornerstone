@@ -87,7 +87,7 @@ class SysDeptServiceImplTest {
                 .isInstanceOf(BusinessException.class)
                 .extracting(e -> ((BusinessException) e).getCode())
                 .isEqualTo(SystemErrorCode.INVALID_PARENT.getCode());
-        verify(deptMapper, never()).insert(any());
+        verify(deptMapper, never()).insert(any(SysDept.class));
     }
 
     @Test
@@ -99,7 +99,7 @@ class SysDeptServiceImplTest {
                 .isInstanceOf(BusinessException.class)
                 .extracting(e -> ((BusinessException) e).getCode())
                 .isEqualTo(SystemErrorCode.INVALID_PARENT.getCode());
-        verify(deptMapper, never()).updateById(any());
+        verify(deptMapper, never()).updateById(any(SysDept.class));
     }
 
     @Test
@@ -136,7 +136,7 @@ class SysDeptServiceImplTest {
                 .isInstanceOf(BusinessException.class)
                 .extracting(e -> ((BusinessException) e).getCode())
                 .isEqualTo(SystemErrorCode.DELETE_WITH_CHILD_DEPT.getCode());
-        verify(deptMapper, never()).deleteById(any());
+        verify(deptMapper, never()).deleteById(any(Long.class));
     }
 
     @Test

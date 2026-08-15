@@ -16,6 +16,7 @@ import com.cornerstone.system.domain.mapper.SysUserMapper;
 import com.cornerstone.system.domain.mapper.SysUserRoleMapper;
 import java.util.List;
 import java.util.Set;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -24,6 +25,21 @@ import org.junit.jupiter.api.Test;
  * <p>认证核心（auth 登录依赖），用 mock 隔离 Mapper 验证组装逻辑。
  */
 class AuthUserSupportServiceTest {
+
+    @BeforeAll
+    static void initTableInfo() {
+        // 纯单测无 Spring 上下文：LambdaQueryWrapper 需要显式注册实体元数据（MP 3.5.9+）
+        com.baomidou.mybatisplus.core.MybatisConfiguration configuration =
+                new com.baomidou.mybatisplus.core.MybatisConfiguration();
+        org.apache.ibatis.builder.MapperBuilderAssistant assistant =
+                new org.apache.ibatis.builder.MapperBuilderAssistant(configuration, "");
+        com.baomidou.mybatisplus.core.metadata.TableInfoHelper.initTableInfo(
+                assistant, SysUser.class);
+        com.baomidou.mybatisplus.core.metadata.TableInfoHelper.initTableInfo(
+                assistant, SysRole.class);
+        com.baomidou.mybatisplus.core.metadata.TableInfoHelper.initTableInfo(
+                assistant, SysMenu.class);
+    }
 
     private final SysUserMapper userMapper = mock(SysUserMapper.class);
     private final SysUserRoleMapper userRoleMapper = mock(SysUserRoleMapper.class);

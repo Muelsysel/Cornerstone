@@ -24,7 +24,7 @@ class SysOperLogServiceImplTest {
     void setUp() throws Exception {
         SysOperLogServiceImpl impl = new SysOperLogServiceImpl();
         java.lang.reflect.Field field =
-                com.baomidou.mybatisplus.extension.service.impl.ServiceImpl.class.getDeclaredField(
+                com.baomidou.mybatisplus.spring.repository.CrudRepository.class.getDeclaredField(
                         "baseMapper");
         field.setAccessible(true);
         field.set(impl, mapper);

@@ -34,9 +34,9 @@ class SysRoleServiceImplTest {
     void setUp() throws Exception {
         SysRoleServiceImpl impl =
                 new SysRoleServiceImpl(roleMenuMapper, userRoleMapper, roleDeptMapper);
-        // 注入 ServiceImpl 的 baseMapper
+        // 注入 ServiceImpl 的 baseMapper（3.5.9+ 声明于 CrudRepository）
         Field field =
-                com.baomidou.mybatisplus.extension.service.impl.ServiceImpl.class.getDeclaredField(
+                com.baomidou.mybatisplus.spring.repository.CrudRepository.class.getDeclaredField(
                         "baseMapper");
         field.setAccessible(true);
         field.set(impl, mock(SysRoleMapper.class));

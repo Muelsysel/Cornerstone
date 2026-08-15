@@ -3,6 +3,12 @@
 > 项目级版本里程碑与仓库级变更记录。模块级细节见各模块 `CHANGELOG.md`
 > （common/api/gateway/auth/system/demo/web）。所有 AI 都是文档维护者（AGENTS.md「文档维护义务」）。
 
+## [1.5.11] - 2026-08-15（依赖健康：框架补丁升级）
+
+- deps: Spring Boot 3.2.4→**3.2.12**（3.2 线最终版，含安全修复）、Spring Cloud 2023.0.1→**2023.0.6**、Spring Cloud Alibaba 2023.0.1.0→**2023.0.3.4**、Lombok 1.18.30→**1.18.46**（保守策略：保持 Boot 3.2 代际取各线最终补丁）
+- deps: MyBatis-Plus 3.5.5→**3.5.17**（破坏性迁移：`ServiceImpl`/`IService` 移至 `com.baomidou.mybatisplus.spring.*`、jsqlparser 拆为独立 `mybatis-plus-jsqlparser` 依赖、`BaseMapper` 新增 Collection 重载）——主类 import、测试反射路径/类型化 matcher/TableInfo 显式注册全部适配
+- note: springdoc 保持 2.3.0（2.9.0 需 Spring 6.2+/Boot 3.4+，与 Boot 3.2 不兼容，试升验证后回退）
+
 ## [1.5.10] - 2026-08-15（端到端契约回归固化）
 
 - feat(scripts): `verify-chain.ps1` 断言从 5 项扩展至 12 项——固化近期修复的关键契约：分页参数穿透（pageNum/pageSize→current=2）、公告创建/编辑 URL（POST→PUT /{id}）、游客读草稿详情被拒（隐私）、跨用户 IDOR 拦截（403）、登录 5 次失败锁定；JSON body 改走临时文件规避 PS 5.1 向 curl.exe 传参破坏（真实 bug 修复）
