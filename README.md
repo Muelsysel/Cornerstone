@@ -4,7 +4,7 @@
 
 **文档约束驱动的多 AI 协作 Spring Cloud 脚手架**
 
-借鉴 RuoYi 的工程思想（RBAC · 前后端分离 · 模块化），**零代码借鉴、从零自研**。
+采用业界成熟工程范式（RBAC · 前后端分离 · 模块化），**零依赖第三方业务代码、从零自研**。
 核心卖点不是代码，而是：**任何 AI 读文档即可上手、遵循统一工作流、产出符合规范的代码**。
 
 [![CI](https://img.shields.io/github/actions/workflow/status/Muelsysel/cornerstone/ci.yml?branch=master&style=flat-square&logo=githubactions&logoColor=white&label=CI)](https://github.com/Muelsysel/cornerstone/actions/workflows/ci.yml)

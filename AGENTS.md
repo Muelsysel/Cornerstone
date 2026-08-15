@@ -1,6 +1,6 @@
 # Cornerstone — 文档约束驱动的 AI 协作 Spring Cloud 脚手架
 
-Cornerstone 的定位：**快速使用 AI 开发 Spring Cloud 项目的基石**。它借鉴 RuoYi 的工程思想（RBAC、前后端分离、模块化），但不借鉴一行代码。仓库里的文档不是摆设，而是每个 AI 必须遵守的**契约**——这就是"文档约束"：任何 AI 在本仓库动代码之前，必须先完成文档导航。
+Cornerstone 的定位：**快速使用 AI 开发 Spring Cloud 项目的基石**。它采用业界成熟工程范式（RBAC、前后端分离、模块化）从零自研。仓库里的文档不是摆设，而是每个 AI 必须遵守的**契约**——这就是"文档约束"：任何 AI 在本仓库动代码之前，必须先完成文档导航。
 
 ## 黄金法则（任何开发工作前）
 
@@ -20,7 +20,7 @@ Cornerstone 的定位：**快速使用 AI 开发 Spring Cloud 项目的基石**�
 
 ## 项目速览
 
-- 定位：面向多 AI 协作的 Spring Cloud 脚手架基石，ruoyi 思想借鉴、零代码借鉴
+- 定位：面向多 AI 协作的 Spring Cloud 脚手架基石，业界成熟工程范式（RBAC、前后端分离、模块化）从零自研
 - 技术栈：Java 17 · Spring Boot 3.2 · Spring Cloud 2023 · Spring Cloud Alibaba (Nacos) · Spring Cloud Gateway · OpenFeign · Spring Security + OAuth2 · MyBatis-Plus · Redis · MySQL · Vue3 + Vite 7 + Element Plus（按需引入，Vitest 单测，cornerstone-web）
 - 模块：`cornerstone-gateway`（网关）· `cornerstone-auth`（认证中心，含用户登录）· `cornerstone-system`（系统服务：RBAC + 数据权限）· `cornerstone-demo`（演示业务）· `cornerstone-common`（公共）· `cornerstone-api`（跨服务契约）· `cornerstone-web`（前端）
 - 已实现能力：client_credentials 认证 · 用户名密码登录（POST /auth/login，admin/admin123，网关独立限流防爆破）· RBAC（用户/角色/菜单/部门/字典/参数/日志）· 部门数据权限 · 操作/登录日志（含密码脱敏）· 公告演示 · 管理后台 · Nginx 容器化部署（前后端分离）· 一键启动脚本 scripts/start-all.ps1

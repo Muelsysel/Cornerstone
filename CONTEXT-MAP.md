@@ -6,7 +6,7 @@
 
 | 术语 | 定义 |
 | --- | --- |
-| **Cornerstone** | 本项目的名称。定位：快速使用 AI 开发 Spring Cloud 项目的基石，借鉴 RuoYi 工程思想、零代码借鉴。 |
+| **Cornerstone** | 本项目的名称。定位：快速使用 AI 开发 Spring Cloud 项目的基石，采用业界成熟工程范式（RBAC、前后端分离、模块化）从零自研。 |
 | **文档约束**（Documentation-Constraint） | 本项目的核心理念：仓库文档（AGENTS.md / CONTEXT-MAP / CONTEXT / ADR / skill）是每个 AI 必须遵守的**契约**，先读文档后写代码，文档与代码同改。 |
 | **模块**（Module） | 一个可独立构建、独立部署的 Spring Boot 服务（如 gateway/auth/system），或一个共享库（如 common/api）。每个模块有自己的 `CONTEXT.md`。 |
 | **认证链路**（Auth Chain） | gateway → auth → system 的请求认证通路：客户端经网关获取/校验令牌，凭据访问受保护资源。 |
