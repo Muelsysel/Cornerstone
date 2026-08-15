@@ -3,6 +3,12 @@
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 > 条目格式：`## [版本] - YYYY-MM-DD` → 变更类型（feat/fix/refactor/docs/test）+ 说明 + 涉及接口与测试。
 
+## [1.2.1] - 2026-08-15
+
+- test: `GlobalExceptionHandlerTest` 5 用例（业务码透传/字段校验 400/约束违规/404/兜底不泄露内部细节）
+
+**测试方法**：`mvn test -pl cornerstone-common`（Result 序列化契约、UserContext 解析、RsaKeyUtils、GlobalExceptionHandler）。
+
 ## [1.2.0] - 2026-08-15
 
 - feat: `RsaKeyUtils` 统一 RSA PEM 解析（公钥 SPKI/私钥 PKCS8，容忍头尾与换行），gateway/auth/system/demo 四处共用（消除重复实现，AGENTS 四处密钥一致约定落地）
