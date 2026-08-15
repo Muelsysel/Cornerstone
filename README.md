@@ -42,10 +42,10 @@ Cornerstone 仓库里的文档不是摆设，而是每个 AI 必须遵守的**�
 | 📋 **审计** | 操作日志（AOP 自动记录 + 详情查看）、登录日志（成功/失败自动入库） |
 | 🚦 **治理** | 网关 Redis 限流、网关访问日志、actuator 健康检查、CI 门禁（编译/测试/Spotless/文档校验） |
 | 🧩 **模块化** | 7 个模块（4 服务 + 2 库 + 1 前端）；**API 契约先行**（禁止服务间直连）；新模块照 `cornerstone-demo` 活模板克隆 |
-
-> ⚠️ **生产安全须知**：演示环境的内部令牌（`cornerstone.internal-token`）、数据库密码、Nacos 凭据为**硬编码默认值**，仅用于本地/CI 演示。生产部署必须通过环境变量覆盖（如 `SPRING_DATASOURCE_PASSWORD`、`CORNERSTONE_INTERNAL_TOKEN`），并更换 JWT 签名密钥对（`rsa-private.pem`/`rsa-public.pem` 与各服务 `public-key`）。
 | 🎨 **前端** | Vue3 + Vite + Element Plus（**按需引入**，主包 gzip ≈ 130KB）；「基石蓝」设计语言；nginx 容器化部署（前后端分离） |
 | 📊 **数据** | MySQL 8（Flyway 增量迁移）+ Redis + MyBatis-Plus + Nacos 注册配置 |
+
+> ⚠️ **生产安全须知**：演示环境的内部令牌（`cornerstone.internal-token`）、数据库密码、Nacos 凭据为**硬编码默认值**，仅用于本地/CI 演示。生产部署必须通过环境变量覆盖（如 `SPRING_DATASOURCE_PASSWORD`、`CORNERSTONE_INTERNAL_TOKEN`），并更换 JWT 签名密钥对（`rsa-private.pem`/`rsa-public.pem` 与各服务 `public-key`）。
 
 ## 🏛️ 架构
 
