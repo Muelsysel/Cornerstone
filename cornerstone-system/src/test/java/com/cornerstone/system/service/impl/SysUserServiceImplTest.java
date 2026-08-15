@@ -112,6 +112,19 @@ class SysUserServiceImplTest {
     }
 
     @Test
+    void pagePassesParamsAndBuildsWrapper() {
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<SysUser> page =
+                new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(2, 10);
+        doReturn(page).when(service).page(any(), any());
+
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<SysUser> result =
+                service.page(2, 10, "adm", "0");
+
+        assertThat(result).isSameAs(page);
+        verify(service).page(any(), any());
+    }
+
+    @Test
     void updateRejectsMissingUser() {
         doReturn(null).when(service).getById(99L);
 
