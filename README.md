@@ -14,7 +14,7 @@
 
 ## 技术栈
 
-Java 17 · Spring Boot 3.2 · Spring Cloud 2023.0 · Spring Cloud Alibaba (Nacos) · Spring Cloud Gateway · OpenFeign · **Spring Security + OAuth2 (Spring Authorization Server)** · MyBatis-Plus · Redis · MySQL 8 · Flyway · Springdoc OpenAPI
+Java 17 · Spring Boot 3.2 · Spring Cloud 2023.0 · Spring Cloud Alibaba (Nacos) · Spring Cloud Gateway（含 Redis 限流）· OpenFeign · **Spring Security + OAuth2 (Spring Authorization Server)** · MyBatis-Plus · Redis · MySQL 8 · Flyway · Springdoc OpenAPI · Vue3 + Element Plus（前端）
 
 ## 模块结构
 
@@ -22,11 +22,19 @@ Java 17 · Spring Boot 3.2 · Spring Cloud 2023.0 · Spring Cloud Alibaba (Nacos
 | --- | --- | --- |
 | `cornerstone-common` | 库 | 统一返回 `Result<T>`、错误码、全局异常、用户上下文、工具 |
 | `cornerstone-api` | 库 | 跨服务 Feign 契约（契约先行，禁止服务间直连） |
-| `cornerstone-gateway` | 服务 | 统一入口：路由、令牌校验、白名单、跨域 |
-| `cornerstone-auth` | 服务 | OAuth2 授权服务器：签发/校验 JWT |
-| `cornerstone-system` | 服务 | RBAC：用户/角色/菜单/部门/字典/参数/操作日志/登录日志 |
+| `cornerstone-gateway` | 服务 | 统一入口：路由、令牌校验、白名单、跨域、**Redis 限流** |
+| `cornerstone-auth` | 服务 | OAuth2 授权服务器 + **用户登录**（POST /auth/login，签发带权限 JWT） |
+| `cornerstone-system` | 服务 | RBAC：用户/角色/菜单/部门/字典/参数/操作日志/登录日志 + **部门数据权限** |
 | `cornerstone-demo` | 服务 | 公告管理——**新模块活模板** |
 | `cornerstone-web` | 前端 | 管理后台（Vue3 + Vite + Element Plus；非 Maven 模块，见 ADR-0005） |
+
+## 已实现能力（v1–v3）
+
+- **认证**：client_credentials（服务间）+ 用户名密码登录（admin/admin123）+ JWT（RS256，携带角色与权限）
+- **权限**：RBAC（菜单-按钮权限点）+ 部门数据权限（全部/自定义/本部门及以下/本部门/仅本人）+ 前端 v-permission/路由守卫
+- **审计**：操作日志（@OperLog AOP）+ 登录日志（成功/失败自动记录）
+- **治理**：服务间内部令牌认证（ADR-0007）、actuator 健康检查、网关 Redis 限流、CI（编译/测试/Spotless/文档校验）
+- **文档约束**：AGENTS.md（黄金法则 + 八荣八耻）、CONTEXT-MAP、6+ 条 ADR、项目技能 `skills/cornerstone-dev`
 
 ## 快速开始
 
