@@ -141,6 +141,16 @@ try {
     } catch {}
     Assert 'Dept tree accessible (admin)' $deptOk 'OK'
 
+    # 6d. 审计契约：登录日志含 admin 记录（登录成功已投递审计，回归防丢失）
+    $logResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
+        'http://localhost:8080/system/loginlog/page?pageNum=1&pageSize=20&username=admin'
+    $logOk = 'FAIL'
+    try {
+        $logRecs = ($logResp | ConvertFrom-Json).data.records
+        if ($logRecs -is [array] -and $logRecs.Count -gt 0) { $logOk = 'OK' }
+    } catch {}
+    Assert 'Login log contains admin record (audit)' $logOk 'OK'
+
     # 7. 公告编辑契约：POST 创建草稿 -> PUT /{id} 更新（曾因 PUT 缺 id 路径 100% 失败）
     $ts = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
     $annTitle = "verify-chain-$ts"
@@ -163,18 +173,18 @@ try {
         Assert 'Update announcement PUT /{id} 200' $(if ($updCode -eq 200) { 'OK' } else { 'FAIL' }) 'OK'
 
         # 7b. 状态机契约：发布（草稿→已发布）→ 下线（已发布→已下线）
-        #     断言以操作响应为准，偶发 curl 捕获异常时再查一次状态兜底（不重试带副作用的状态流转操作）
+        #     断言以操作响应为准，偶发 curl 捕获异常时按 draftId 查详情兜底（不重试带副作用的状态流转操作）
         $pubCode = $null
         for ($attempt = 1; $attempt -le 2 -and $pubCode -ne 200; $attempt++) {
             $pubResp = curl.exe -s --max-time 20 -X POST "http://localhost:8080/demo/announcement/$draftId/publish" `
                 -H "Authorization: Bearer $adminToken"
             try { $pubCode = ($pubResp | ConvertFrom-Json).code } catch {}
             if ($pubCode -ne 200 -and $attempt -lt 2) {
-                # 首次响应异常：查当前状态判断是否已发布（响应丢失但操作成功）
+                # 首次响应异常：按 id 查详情判断是否已发布（响应丢失但操作成功）
                 $stResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
-                    "http://localhost:8080/demo/announcement/page?pageNum=1&pageSize=20&title=$annTitle"
+                    "http://localhost:8080/demo/announcement/$draftId"
                 try {
-                    $stRec = (($stResp | ConvertFrom-Json).data.records | Where-Object { $_.title -eq $annTitle } | Select-Object -First 1)
+                    $stRec = ($stResp | ConvertFrom-Json).data
                     if ($stRec -and $stRec.status -eq 1) { $pubCode = 200 }
                 } catch {}
             }
@@ -187,9 +197,9 @@ try {
             try { $offCode = ($offResp | ConvertFrom-Json).code } catch {}
             if ($offCode -ne 200 -and $attempt -lt 2) {
                 $stResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
-                    "http://localhost:8080/demo/announcement/page?pageNum=1&pageSize=20&title=$annTitle"
+                    "http://localhost:8080/demo/announcement/$draftId"
                 try {
-                    $stRec = (($stResp | ConvertFrom-Json).data.records | Where-Object { $_.title -eq $annTitle } | Select-Object -First 1)
+                    $stRec = ($stResp | ConvertFrom-Json).data
                     if ($stRec -and $stRec.status -eq 2) { $offCode = 200 }
                 } catch {}
             }

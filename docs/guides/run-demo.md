@@ -58,8 +58,8 @@ $env:JAVA_HOME = "C:\Dev\Lang\JAVA\JAVA17"
 一键验证（服务已启动时）：
 
 ```powershell
-# 复用正在运行的服务（如 scripts/start-all.ps1 启动的），自动断言 17 项契约：
-# 令牌签发/公开与受保护端点/无效令牌/分页参数穿透/菜单与部门树/公告增改与发布下线/游客隐私/IDOR 拦截/登录锁定/数据权限（test 仅本人）
+# 复用正在运行的服务（如 scripts/start-all.ps1 启动的），自动断言 18 项契约：
+# 令牌签发/公开与受保护端点/无效令牌/分页参数穿透/菜单与部门树/登录日志审计/公告增改与发布下线/游客隐私/IDOR 拦截/登录锁定/数据权限（test 仅本人）
 powershell -ExecutionPolicy Bypass -File scripts/verify-chain.ps1 -UseRunning
 ```
 
