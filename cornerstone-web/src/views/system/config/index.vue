@@ -29,6 +29,12 @@
         <el-table-column prop="configName" label="参数名称" min-width="150" />
         <el-table-column prop="configKey" label="参数键名" min-width="160" />
         <el-table-column prop="configValue" label="参数键值" min-width="180" show-overflow-tooltip />
+        <el-table-column label="内置" width="80" align="center">
+          <template #default="{ row }: { row: any }">
+            <el-tag v-if="row.configType === 'Y'" size="small" type="warning">系统</el-tag>
+            <el-tag v-else size="small" type="info">自定义</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="remark" label="备注" min-width="150" show-overflow-tooltip />
         <el-table-column prop="createTime" label="创建时间" min-width="170" />
         <el-table-column label="操作" width="140" fixed="right">
