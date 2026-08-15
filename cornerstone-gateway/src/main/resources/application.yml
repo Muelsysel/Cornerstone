@@ -29,6 +29,9 @@ cornerstone:
   gateway:
     jwt:
       public-key: classpath:rsa-public.pem
+    # 受信反代 IP（逗号分隔，默认空）：仅当直连对端在此列表时，限流键取 X-Forwarded-For 首值还原真实客户端。
+    # 生产经 nginx 容器（8088）反代时填入 nginx 容器 IP（如 docker inspect 查 bridge IP），否则所有用户共享一个限流桶。
+    trusted-proxy-ips: ""
 
 # Actuator：克制暴露，仅 health/info
 management:

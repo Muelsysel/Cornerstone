@@ -1,5 +1,6 @@
 package com.cornerstone.gateway.config;
 
+import java.util.Set;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
 import org.springframework.cloud.gateway.support.ConfigurationService;
@@ -8,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
-import reactor.core.publisher.Mono;
 
 /**
  * 网关限流配置：基于 Redis 的令牌桶（RequestRateLimiter）。
@@ -62,15 +62,17 @@ public class GatewayRateLimitConfig {
         return config;
     }
 
-    /** 按客户端 IP 限流（IPv4/IPv6 原文） */
+    /** 按客户端 IP 限流（IPv4/IPv6 原文；受信代理场景取 XFF 首值还原真实客户端，见 {@link ClientIpKeyResolver}） */
     @Bean
-    public KeyResolver ipKeyResolver() {
-        return exchange -> {
-            String ip =
-                    exchange.getRequest().getRemoteAddress() != null
-                            ? exchange.getRequest().getRemoteAddress().getAddress().getHostAddress()
-                            : "unknown";
-            return Mono.just(ip);
-        };
+    public KeyResolver ipKeyResolver(
+            @org.springframework.beans.factory.annotation.Value(
+                            "${cornerstone.gateway.trusted-proxy-ips:}")
+                    String trustedProxyIps) {
+        Set<String> trusted =
+                java.util.Arrays.stream(trustedProxyIps.split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .collect(java.util.stream.Collectors.toSet());
+        return new ClientIpKeyResolver(trusted);
     }
 }

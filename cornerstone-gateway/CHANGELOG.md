@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.12] - 2026-08-16
+
+- feat(security): 限流键解析支持受信反代——新增 `ClientIpKeyResolver`：默认按直连 IP 限流；当直连对端在 `cornerstone.gateway.trusted-proxy-ips` 列表时取 X-Forwarded-For 首值还原真实客户端（生产经 nginx 容器 8088 反代时，此前所有用户共享一个限流桶，登录爆破防护失效；直接信任 XFF 可被伪造绕过，故仅受信代理采信）；`ClientIpKeyResolverTest` 4 用例（不受信不采信/受信取首值/无 XFF 回退/畸形头回退）
+
+**测试方法**：`mvn test -pl cornerstone-gateway`（18 用例）+ 实测限流。
+
 ## [1.2.11] - 2026-08-16
 
 - fix(security): **修复网关限流完全失效**——曾用 `new RedisRateLimiter(10, 20)` 构造（无 RedisTemplate/脚本注入），限流器空转（请求全放行、Redis 无 request_rate_limiter key）；改为「模板 + 脚本 + ConfigurationService」正确构造，速率按路由 id 预置 config map（auth-login 5/s+突发10，auth/system/demo 10/s+突发20）；实测登录 20 连发触发 9 次 429
