@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.11] - 2026-08-15
+
+- fix: `SysUserServiceImpl.update` 补用户名唯一性校验（改名撞已有用户此前裸 500，现转业务错误；排除自己 + DuplicateKeyException 并发兜底 + @Transactional）；`SysUserServiceImplTest` 补 2 用例
+
+**测试方法**：`mvn test -pl cornerstone-system`（含 SysUserServiceImplTest 13 用例）。
+
 ## [1.2.10] - 2026-08-15
 
 - fix: `SysDeptServiceImpl.update` 移动部门后**级联更新子孙的 ancestors**（此前仅更新自身，子孙路径指向旧位置造成数据不一致）；`SysDeptServiceImplTest` 补级联用例

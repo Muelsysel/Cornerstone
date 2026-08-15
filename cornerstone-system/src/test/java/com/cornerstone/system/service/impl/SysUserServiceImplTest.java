@@ -141,6 +141,32 @@ class SysUserServiceImplTest {
     }
 
     @Test
+    void updateRejectsUsernameTakenByAnother() {
+        SysUser exist = user(4L, "alice");
+        SysUser patch = user(4L, "alice-renamed");
+        doReturn(exist).when(service).getById(4L);
+        doReturn(1L).when(service).count(any());
+
+        assertThatThrownBy(() -> service.update(patch)).isInstanceOf(BusinessException.class);
+        verify(service, never()).updateById(any());
+    }
+
+    @Test
+    void updateWithSameUsernameSkipsUniquenessCheck() {
+        SysUser exist = user(4L, "alice");
+        SysUser patch = user(4L, "alice"); // 用户名不变（如只改昵称/状态）
+        doReturn(exist).when(service).getById(4L);
+        doReturn(true).when(service).updateById(any());
+        doReturn(exist).when(service).getById(4L);
+
+        service.update(patch);
+
+        // 用户名未变不触发唯一性 count
+        verify(service, never()).count(any());
+        verify(service).updateById(any());
+    }
+
+    @Test
     void changeStatusPatchesOnlyStatus() {
         service.changeStatus(7L, "1");
 

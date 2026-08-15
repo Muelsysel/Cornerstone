@@ -66,10 +66,22 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public SysUser update(SysUser user) {
         SysUser exist = this.getById(user.getId());
         if (exist == null) {
             throw new BusinessException(SystemErrorCode.USER_NOT_FOUND);
+        }
+        // 修改用户名时校验唯一性（排除自己；并发撞唯一索引由 DuplicateKeyException 兜底）
+        if (hasText(user.getUsername()) && !user.getUsername().equals(exist.getUsername())) {
+            long exists =
+                    this.count(
+                            new LambdaQueryWrapper<SysUser>()
+                                    .eq(SysUser::getUsername, user.getUsername())
+                                    .ne(SysUser::getId, user.getId()));
+            if (exists > 0) {
+                throw new BusinessException(SystemErrorCode.USERNAME_EXISTS);
+            }
         }
         // 密码字段只在显式传入时更新
         if (!hasText(user.getPassword())) {
@@ -77,7 +89,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
         } else {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
-        this.updateById(user);
+        try {
+            this.updateById(user);
+        } catch (DuplicateKeyException e) {
+            // 并发同名：唯一索引兜底，转为业务错误而非裸 500
+            throw new BusinessException(SystemErrorCode.USERNAME_EXISTS);
+        }
         return this.getById(user.getId());
     }
 
