@@ -56,7 +56,11 @@ public class OAuth2JwtConfig {
                         .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                         .scope("read")
                         .scope("write")
-                        .tokenSettings(TokenSettings.builder().build())
+                        // client_credentials 令牌有效期 12 小时（默认 5 分钟过短，服务调用频繁需重换）
+                        .tokenSettings(
+                                TokenSettings.builder()
+                                        .accessTokenTimeToLive(java.time.Duration.ofHours(12))
+                                        .build())
                         .build();
         return new InMemoryRegisteredClientRepository(client);
     }

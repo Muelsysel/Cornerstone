@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.0.15] - 2026-08-16
+
+- fix(ops): client_credentials 令牌有效期调至 12 小时——默认 5 分钟过短，服务调用频繁需重换 token
+
+**测试方法**：`mvn test -pl cornerstone-auth`（17 用例）。
+
 ## [1.0.14] - 2026-08-16
 
 - fix(ops): Feign 超时配置（connect 3s / read 10s）——登录依赖 system 查询用户，此前默认 read 60s，system 无响应时登录长时间挂起
