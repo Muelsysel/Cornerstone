@@ -1,6 +1,7 @@
 package com.cornerstone.gateway.config;
 
 import com.cornerstone.api.ServiceConstants;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -17,8 +18,8 @@ public class GatewayRouteConfig {
     private final KeyResolver ipKeyResolver;
 
     public GatewayRouteConfig(
-            RedisRateLimiter redisRateLimiter,
-            RedisRateLimiter loginRateLimiter,
+            @Qualifier("redisRateLimiter") RedisRateLimiter redisRateLimiter,
+            @Qualifier("loginRateLimiter") RedisRateLimiter loginRateLimiter,
             KeyResolver ipKeyResolver) {
         this.redisRateLimiter = redisRateLimiter;
         this.loginRateLimiter = loginRateLimiter;

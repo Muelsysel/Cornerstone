@@ -4,6 +4,7 @@ import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import reactor.core.publisher.Mono;
 
 /**
@@ -14,8 +15,14 @@ import reactor.core.publisher.Mono;
 @Configuration
 public class GatewayRateLimitConfig {
 
-    /** 默认限流器：每秒补充 10 个令牌，桶容量 20 */
+    /**
+     * 默认限流器：每秒补充 10 个令牌，桶容量 20。
+     *
+     * <p>@Primary：Spring Cloud Gateway 自动配置的 RequestRateLimiterGatewayFilterFactory 按类型注入 单个
+     * RateLimiter，须有默认主选（路由内再用 @Qualifier 显式指定各限流器）。
+     */
     @Bean
+    @Primary
     public RedisRateLimiter redisRateLimiter() {
         return new RedisRateLimiter(10, 20);
     }
