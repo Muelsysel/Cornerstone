@@ -12,6 +12,8 @@ import com.cornerstone.system.constant.BusinessType;
 import com.cornerstone.system.domain.entity.SysUser;
 import com.cornerstone.system.exception.SystemErrorCode;
 import com.cornerstone.system.service.SysUserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /** 用户管理接口。 GET /system/user/{userId} 实现 cornerstone-api 的 SystemUserClient 契约。 */
+@Tag(name = "用户管理")
 @RestController
 @RequestMapping("/system/user")
 public class SysUserController {
@@ -38,6 +41,7 @@ public class SysUserController {
     }
 
     /** 分页查询用户（权限演示：需 system:user:list） */
+    @Operation(summary = "分页查询用户")
     @GetMapping("/page")
     @PreAuthorize("hasAuthority('system:user:list')")
     public Result<Page<SysUser>> page(
@@ -49,6 +53,7 @@ public class SysUserController {
     }
 
     /** 按 ID 查询用户基础信息：SystemUserClient 契约 */
+    @Operation(summary = "查询用户基础信息", description = "实现 cornerstone-api SystemUserClient 契约")
     @GetMapping("/{userId}")
     public Result<UserDTO> getById(@PathVariable(name = "userId") Long userId) {
         SysUser user = userService.getById(userId);
@@ -64,6 +69,7 @@ public class SysUserController {
     }
 
     /** 查询登录用户信息及权限（供前端/网关获取当前用户能力）。仅允许查询本人，防 IDOR 越权。 */
+    @Operation(summary = "查询本人信息", description = "仅允许查询自己，跨用户返回 403（防 IDOR）")
     @GetMapping("/info")
     @PreAuthorize("isAuthenticated()")
     public Result<Map<String, Object>> info(@RequestParam(name = "userId") Long userId) {
@@ -82,6 +88,7 @@ public class SysUserController {
     }
 
     /** 新增用户 */
+    @Operation(summary = "新增用户")
     @PostMapping
     @OperLog(title = "用户管理", businessType = BusinessType.INSERT)
     @PreAuthorize("hasAuthority('system:user:add')")
@@ -90,6 +97,7 @@ public class SysUserController {
     }
 
     /** 编辑用户 */
+    @Operation(summary = "编辑用户")
     @PutMapping
     @OperLog(title = "用户管理", businessType = BusinessType.UPDATE)
     @PreAuthorize("hasAuthority('system:user:edit')")
@@ -98,6 +106,7 @@ public class SysUserController {
     }
 
     /** 删除用户（逻辑删除） */
+    @Operation(summary = "删除用户")
     @DeleteMapping("/{userId}")
     @OperLog(title = "用户管理", businessType = BusinessType.DELETE)
     @PreAuthorize("hasAuthority('system:user:remove')")
@@ -107,6 +116,7 @@ public class SysUserController {
     }
 
     /** 启用/停用 */
+    @Operation(summary = "启用/停用用户")
     @PutMapping("/{userId}/status")
     @OperLog(title = "用户管理", businessType = BusinessType.UPDATE)
     @PreAuthorize("hasAuthority('system:user:edit')")
@@ -118,6 +128,7 @@ public class SysUserController {
     }
 
     /** 重置密码 */
+    @Operation(summary = "重置用户密码")
     @PutMapping("/{userId}/password")
     @OperLog(title = "用户管理", businessType = BusinessType.UPDATE)
     @PreAuthorize("hasAuthority('system:user:edit')")
@@ -129,6 +140,7 @@ public class SysUserController {
     }
 
     /** 分配角色（全量覆盖：先清后插） */
+    @Operation(summary = "分配用户角色", description = "全量覆盖：先清后插")
     @PutMapping("/{userId}/roles")
     @OperLog(title = "用户管理", businessType = BusinessType.UPDATE)
     @PreAuthorize("hasAuthority('system:user:edit')")
@@ -139,6 +151,7 @@ public class SysUserController {
     }
 
     /** 查询用户已分配的角色 ID（分配弹窗回显） */
+    @Operation(summary = "查询用户已分配角色 ID")
     @GetMapping("/{userId}/roles")
     @PreAuthorize("hasAuthority('system:user:list')")
     public Result<Map<String, Object>> userRoles(@PathVariable(name = "userId") Long userId) {

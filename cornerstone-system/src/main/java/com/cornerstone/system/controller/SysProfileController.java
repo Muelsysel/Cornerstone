@@ -10,6 +10,8 @@ import com.cornerstone.system.constant.BusinessType;
 import com.cornerstone.system.domain.entity.SysUser;
 import com.cornerstone.system.exception.SystemErrorCode;
 import com.cornerstone.system.service.SysUserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p>当前用户取自 {@link UserContextHolder}（网关透传头）。修改密码验证旧密码（BCrypt）后更新， 不要求管理员权限——任何已登录用户可自助改密。
  */
+@Tag(name = "个人中心")
 @RestController
 @RequestMapping("/system/user/profile")
 public class SysProfileController {
@@ -37,6 +40,7 @@ public class SysProfileController {
     }
 
     /** 当前登录用户信息 */
+    @Operation(summary = "查询当前用户信息")
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public Result<SysUser> profile() {
@@ -44,6 +48,7 @@ public class SysProfileController {
     }
 
     /** 修改当前用户密码：验证旧密码后更新 */
+    @Operation(summary = "修改当前用户密码", description = "验证旧密码（BCrypt）后更新，任意已登录用户可自助改密")
     @PutMapping("/password")
     @PreAuthorize("isAuthenticated()")
     @OperLog(title = "个人中心", businessType = BusinessType.UPDATE)

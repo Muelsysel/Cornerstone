@@ -6,6 +6,8 @@ import com.cornerstone.system.annotation.OperLog;
 import com.cornerstone.system.constant.BusinessType;
 import com.cornerstone.system.domain.entity.SysConfig;
 import com.cornerstone.system.service.SysConfigService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /** 参数管理接口。 */
+@Tag(name = "参数管理")
 @RestController
 @RequestMapping("/system/config")
 public class SysConfigController {
@@ -31,6 +34,7 @@ public class SysConfigController {
     }
 
     /** 参数分页查询 */
+    @Operation(summary = "分页查询参数")
     @GetMapping("/page")
     @PreAuthorize("hasAuthority('system:config:list')")
     public Result<Page<SysConfig>> page(
@@ -44,6 +48,7 @@ public class SysConfigController {
     }
 
     /** 按键名查参数值（读缓存） */
+    @Operation(summary = "按键名查询参数值", description = "读 Redis 缓存，未命中回源并回填")
     @GetMapping("/value/{configKey}")
     @PreAuthorize("isAuthenticated()")
     public Result<Map<String, String>> valueByKey(
@@ -54,6 +59,7 @@ public class SysConfigController {
     }
 
     /** 新增参数 */
+    @Operation(summary = "新增参数")
     @PostMapping
     @OperLog(title = "参数管理", businessType = BusinessType.INSERT)
     @PreAuthorize("hasAuthority('system:config:add')")
@@ -62,6 +68,7 @@ public class SysConfigController {
     }
 
     /** 编辑参数 */
+    @Operation(summary = "编辑参数")
     @PutMapping
     @OperLog(title = "参数管理", businessType = BusinessType.UPDATE)
     @PreAuthorize("hasAuthority('system:config:edit')")
@@ -70,6 +77,7 @@ public class SysConfigController {
     }
 
     /** 删除参数 */
+    @Operation(summary = "删除参数")
     @DeleteMapping("/{configId}")
     @OperLog(title = "参数管理", businessType = BusinessType.DELETE)
     @PreAuthorize("hasAuthority('system:config:remove')")

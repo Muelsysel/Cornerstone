@@ -5,6 +5,8 @@ import com.cornerstone.system.annotation.OperLog;
 import com.cornerstone.system.constant.BusinessType;
 import com.cornerstone.system.domain.entity.SysMenu;
 import com.cornerstone.system.service.SysMenuService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /** 菜单管理接口。 */
+@Tag(name = "菜单管理")
 @RestController
 @RequestMapping("/system/menu")
 public class SysMenuController {
@@ -29,6 +32,7 @@ public class SysMenuController {
     }
 
     /** 菜单树查询 */
+    @Operation(summary = "菜单树查询", description = "支持菜单名模糊与状态过滤")
     @GetMapping("/tree")
     @PreAuthorize("hasAuthority('system:menu:list')")
     public Result<List<SysMenu>> tree(
@@ -38,6 +42,7 @@ public class SysMenuController {
     }
 
     /** 新增菜单 */
+    @Operation(summary = "新增菜单")
     @PostMapping
     @OperLog(title = "菜单管理", businessType = BusinessType.INSERT)
     @PreAuthorize("hasAuthority('system:menu:add')")
@@ -46,6 +51,7 @@ public class SysMenuController {
     }
 
     /** 编辑菜单 */
+    @Operation(summary = "编辑菜单", description = "父节点不能选自己或自身子节点（防成环）")
     @PutMapping
     @OperLog(title = "菜单管理", businessType = BusinessType.UPDATE)
     @PreAuthorize("hasAuthority('system:menu:edit')")
@@ -54,6 +60,7 @@ public class SysMenuController {
     }
 
     /** 删除菜单 */
+    @Operation(summary = "删除菜单")
     @DeleteMapping("/{menuId}")
     @OperLog(title = "菜单管理", businessType = BusinessType.DELETE)
     @PreAuthorize("hasAuthority('system:menu:remove')")

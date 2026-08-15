@@ -6,6 +6,8 @@ import com.cornerstone.system.annotation.OperLog;
 import com.cornerstone.system.constant.BusinessType;
 import com.cornerstone.system.domain.entity.SysRole;
 import com.cornerstone.system.service.SysRoleService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /** 角色管理接口。 */
+@Tag(name = "角色管理")
 @RestController
 @RequestMapping("/system/role")
 public class SysRoleController {
@@ -32,6 +35,7 @@ public class SysRoleController {
     }
 
     /** 分页查询角色 */
+    @Operation(summary = "分页查询角色")
     @GetMapping("/page")
     @PreAuthorize("hasAuthority('system:role:list')")
     public Result<Page<SysRole>> page(
@@ -43,6 +47,7 @@ public class SysRoleController {
     }
 
     /** 角色列表 */
+    @Operation(summary = "角色列表", description = "下拉/分配弹窗用，返回全部角色")
     @GetMapping("/list")
     @PreAuthorize("hasAuthority('system:role:list')")
     public Result<List<SysRole>> list() {
@@ -50,6 +55,7 @@ public class SysRoleController {
     }
 
     /** 新增角色 */
+    @Operation(summary = "新增角色")
     @PostMapping
     @OperLog(title = "角色管理", businessType = BusinessType.INSERT)
     @PreAuthorize("hasAuthority('system:role:add')")
@@ -58,6 +64,7 @@ public class SysRoleController {
     }
 
     /** 编辑角色 */
+    @Operation(summary = "编辑角色")
     @PutMapping
     @OperLog(title = "角色管理", businessType = BusinessType.UPDATE)
     @PreAuthorize("hasAuthority('system:role:edit')")
@@ -66,6 +73,7 @@ public class SysRoleController {
     }
 
     /** 删除角色 */
+    @Operation(summary = "删除角色")
     @DeleteMapping("/{roleId}")
     @OperLog(title = "角色管理", businessType = BusinessType.DELETE)
     @PreAuthorize("hasAuthority('system:role:remove')")
@@ -75,6 +83,7 @@ public class SysRoleController {
     }
 
     /** 分配菜单权限 */
+    @Operation(summary = "分配角色菜单权限", description = "全量覆盖")
     @PutMapping("/{roleId}/menus")
     @OperLog(title = "角色管理", businessType = BusinessType.UPDATE)
     @PreAuthorize("hasAuthority('system:role:edit')")
@@ -85,6 +94,7 @@ public class SysRoleController {
     }
 
     /** 查询角色拥有的菜单ID */
+    @Operation(summary = "查询角色菜单 ID", description = "权限回显用")
     @GetMapping("/{roleId}/menus")
     @PreAuthorize("hasAuthority('system:role:list')")
     public Result<Map<String, Object>> roleMenu(@PathVariable(name = "roleId") Long roleId) {
@@ -94,6 +104,7 @@ public class SysRoleController {
     }
 
     /** 查询角色自定义数据范围的部门ID集合（dataScope=2 时回显） */
+    @Operation(summary = "查询角色数据范围部门 ID")
     @GetMapping("/{roleId}/depts")
     @PreAuthorize("hasAuthority('system:role:list')")
     public Result<List<Long>> roleDepts(@PathVariable(name = "roleId") Long roleId) {

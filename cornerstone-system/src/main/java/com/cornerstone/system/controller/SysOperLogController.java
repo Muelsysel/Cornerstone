@@ -6,6 +6,8 @@ import com.cornerstone.system.annotation.OperLog;
 import com.cornerstone.system.constant.BusinessType;
 import com.cornerstone.system.domain.entity.SysOperLog;
 import com.cornerstone.system.service.SysOperLogService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /** 操作日志接口。 */
+@Tag(name = "操作日志")
 @RestController
 @RequestMapping("/system/operlog")
 public class SysOperLogController {
@@ -26,6 +29,7 @@ public class SysOperLogController {
     }
 
     /** 操作日志分页查询 */
+    @Operation(summary = "分页查询操作日志")
     @GetMapping("/page")
     @PreAuthorize("hasAuthority('system:log:list')")
     public Result<Page<SysOperLog>> page(
@@ -38,6 +42,7 @@ public class SysOperLogController {
     }
 
     /** 删除单条操作日志 */
+    @Operation(summary = "删除操作日志")
     @DeleteMapping("/{operId}")
     @OperLog(title = "操作日志", businessType = BusinessType.DELETE)
     @PreAuthorize("hasAuthority('system:log:remove')")
@@ -47,6 +52,7 @@ public class SysOperLogController {
     }
 
     /** 清空操作日志 */
+    @Operation(summary = "清空操作日志", description = "全表清空，不可恢复")
     @DeleteMapping("/clean")
     @OperLog(title = "操作日志", businessType = BusinessType.CLEAN)
     @PreAuthorize("hasAuthority('system:log:remove')")

@@ -7,6 +7,8 @@ import com.cornerstone.system.constant.BusinessType;
 import com.cornerstone.system.domain.entity.SysDictData;
 import com.cornerstone.system.domain.entity.SysDictType;
 import com.cornerstone.system.service.SysDictService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /** 字典管理接口（类型 + 数据）。 */
+@Tag(name = "字典管理")
 @RestController
 @RequestMapping("/system/dict")
 public class SysDictController {
@@ -33,6 +36,7 @@ public class SysDictController {
     // ---------------- 字典类型 ----------------
 
     /** 字典类型分页查询 */
+    @Operation(summary = "分页查询字典类型")
     @GetMapping("/type/page")
     @PreAuthorize("hasAuthority('system:dict:list')")
     public Result<Page<SysDictType>> pageType(
@@ -45,6 +49,7 @@ public class SysDictController {
     }
 
     /** 新增字典类型 */
+    @Operation(summary = "新增字典类型")
     @PostMapping("/type")
     @OperLog(title = "字典管理", businessType = BusinessType.INSERT)
     @PreAuthorize("hasAuthority('system:dict:add')")
@@ -53,6 +58,7 @@ public class SysDictController {
     }
 
     /** 编辑字典类型 */
+    @Operation(summary = "编辑字典类型")
     @PutMapping("/type")
     @OperLog(title = "字典管理", businessType = BusinessType.UPDATE)
     @PreAuthorize("hasAuthority('system:dict:edit')")
@@ -61,6 +67,7 @@ public class SysDictController {
     }
 
     /** 删除字典类型（含数据） */
+    @Operation(summary = "删除字典类型", description = "级联删除该类型下全部数据项")
     @DeleteMapping("/type/{typeId}")
     @OperLog(title = "字典管理", businessType = BusinessType.DELETE)
     @PreAuthorize("hasAuthority('system:dict:remove')")
@@ -72,6 +79,7 @@ public class SysDictController {
     // ---------------- 字典数据 ----------------
 
     /** 按类型查字典数据（读缓存） */
+    @Operation(summary = "按类型查询字典数据", description = "读 Redis 缓存，仅返回启用项")
     @GetMapping("/data/type/{dictType}")
     @PreAuthorize("isAuthenticated()")
     public Result<List<SysDictData>> dataByType(@PathVariable(name = "dictType") String dictType) {
@@ -79,6 +87,7 @@ public class SysDictController {
     }
 
     /** 字典数据分页查询 */
+    @Operation(summary = "分页查询字典数据")
     @GetMapping("/data/page")
     @PreAuthorize("hasAuthority('system:dict:list')")
     public Result<Page<SysDictData>> pageData(
@@ -91,6 +100,7 @@ public class SysDictController {
     }
 
     /** 新增字典数据 */
+    @Operation(summary = "新增字典数据")
     @PostMapping("/data")
     @OperLog(title = "字典管理", businessType = BusinessType.INSERT)
     @PreAuthorize("hasAuthority('system:dict:add')")
@@ -99,6 +109,7 @@ public class SysDictController {
     }
 
     /** 编辑字典数据 */
+    @Operation(summary = "编辑字典数据")
     @PutMapping("/data")
     @OperLog(title = "字典管理", businessType = BusinessType.UPDATE)
     @PreAuthorize("hasAuthority('system:dict:edit')")
@@ -107,6 +118,7 @@ public class SysDictController {
     }
 
     /** 删除字典数据 */
+    @Operation(summary = "删除字典数据")
     @DeleteMapping("/data/{dataId}")
     @OperLog(title = "字典管理", businessType = BusinessType.DELETE)
     @PreAuthorize("hasAuthority('system:dict:remove')")

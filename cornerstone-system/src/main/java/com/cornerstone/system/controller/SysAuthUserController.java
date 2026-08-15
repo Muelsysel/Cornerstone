@@ -7,6 +7,8 @@ import com.cornerstone.api.dto.UserAuthDTO;
 import com.cornerstone.common.core.Result;
 import com.cornerstone.system.service.AuthUserSupportService;
 import com.cornerstone.system.service.SysLoginLogService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
  * LoginLogClient} 契约（POST /system/auth/login-log）接收登录日志落库。 服务间内部接口：网关白名单不含 /system/** 已隔离外部， 另由
  * {@code InternalTokenFilter} 校验共享内部令牌（见 ADR-0007）。
  */
+@Tag(name = "认证支持（内部）")
 @RestController
 @RequestMapping("/system/auth")
 public class SysAuthUserController {
@@ -35,12 +38,14 @@ public class SysAuthUserController {
     }
 
     /** 按用户名查询认证所需用户信息（含 BCrypt 密码哈希与角色权限）。 */
+    @Operation(summary = "按用户名查询认证信息", description = "服务间内部接口（InternalTokenFilter 保护），响应含密码哈希")
     @GetMapping("/user/{username}")
     public Result<UserAuthDTO> findByUsername(@PathVariable("username") String username) {
         return Result.success(supportService.findByUsername(username));
     }
 
     /** 记录登录日志（认证中心登录成功后/失败时投递）。status：0 成功 / 1 失败。 */
+    @Operation(summary = "记录登录日志", description = "服务间内部接口（InternalTokenFilter 保护）")
     @PostMapping("/login-log")
     public Result<Void> record(@RequestBody LoginLogDTO dto) {
         loginLogService.record(

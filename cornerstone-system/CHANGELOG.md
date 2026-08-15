@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.24] - 2026-08-16
+
+- docs(api): 全部 10 个 controller 补 OpenAPI `@Tag`/`@Operation`（用户/角色/菜单/部门/字典/参数/操作日志/登录日志/个人中心/认证支持），Swagger UI 分组与端点描述完整（对齐 demo 活模板）
+
+**测试方法**：`mvn test -pl cornerstone-system`（120 用例）。
+
 ## [1.2.23] - 2026-08-16
 
 - refactor(contract): 分页 controller 参数变量名统一为 `pageNum`/`pageSize`（此前 `@RequestParam(name="pageNum") long current` 变量名与 HTTP 参数名不一致，易误读为契约分裂）；`SystemExtensionTest` 分页用例升级为参数透传断言（dict/type、config、operlog、loginlog 四个 page 端点锁定 `pageNum&pageSize` 契约，与 user 页一致）

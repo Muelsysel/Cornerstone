@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.0.10] - 2026-08-16
+
+- docs(api): LoginController 补 OpenAPI `@Tag`/`@Operation`（登录/退出端点描述完整，对齐 demo 活模板）
+
+**测试方法**：`mvn test -pl cornerstone-auth`（15 用例）。
+
 ## [1.0.9] - 2026-08-15
 
 - docs: CONTEXT.md 登录流程补锁定语义（ADR-0009 引用 + 剩余秒数提示）
