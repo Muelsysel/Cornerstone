@@ -151,6 +151,8 @@ export interface OperLogQuery {
   pageSize: number
   title?: string
   operName?: string
+  /** 操作状态：0 成功 / 1 失败 */
+  status?: number
 }
 
 export interface LoginLog {
