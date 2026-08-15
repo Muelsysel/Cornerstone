@@ -3,6 +3,12 @@
 > 项目级版本里程碑与仓库级变更记录。模块级细节见各模块 `CHANGELOG.md`
 > （common/api/gateway/auth/system/demo/web）。所有 AI 都是文档维护者（AGENTS.md「文档维护义务」）。
 
+## [1.5.7] - 2026-08-15（性能与测试深化）
+
+- perf: V10 查询/排序索引（system 7 个 + demo create_time）；README 性能指标章节
+- test: SysConfig/SysDict 缓存一致性 15 用例、user store 3 用例、路由守卫 4 用例（后端 ~120 用例、前端 22 用例）
+- fix(web): 429 限流友好提示、操作日志状态筛选、businessType 映射对齐后端枚举
+
 ## [1.5.6] - 2026-08-15（安全加固）
 
 - feat(安全): 登录失败账号锁定（Redis 计数，5 次/5 分钟）——与网关限流组成双层防爆破，后端审查 P0/P1 全部闭环
