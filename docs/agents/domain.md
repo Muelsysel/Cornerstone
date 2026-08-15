@@ -30,9 +30,15 @@ Cornerstone is a multi-context repo (`CONTEXT-MAP.md` at the root):
 ├── cornerstone-auth/
 │   ├── CONTEXT.md
 │   └── docs/adr/
-└── cornerstone-system/
-    ├── CONTEXT.md
-    └── docs/adr/
+├── cornerstone-system/
+│   ├── CONTEXT.md
+│   └── docs/adr/
+├── cornerstone-demo/
+│   ├── CONTEXT.md                     ← new-module live template
+│   └── docs/adr/
+└── cornerstone-web/
+    ├── CONTEXT.md                     ← frontend (non-Maven module)
+    └── README.md                      ← frontend design & deployment
 ```
 
 ## Use the glossary's vocabulary
