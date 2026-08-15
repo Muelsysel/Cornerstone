@@ -12,6 +12,15 @@ spring:
   jackson:
     time-zone: GMT+8
 
+# Feign 超时（登录依赖 system 查询用户信息）：连接 3s / 读取 10s，
+# 避免 system 无响应时登录请求长时间挂起（Spring Cloud 默认读取 60s 过长）
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 3000
+        readTimeout: 10000
+
 # Actuator：克制暴露，仅 health/info
 management:
   endpoints:
