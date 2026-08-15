@@ -55,6 +55,15 @@ $env:JAVA_HOME = "C:\Dev\Lang\JAVA\JAVA17"
 
 ## 第三步：演示认证链路（已实测）
 
+一键验证（服务已启动时）：
+
+```powershell
+# 复用正在运行的服务（如 scripts/start-all.ps1 启动的），自动断言 5 项链路
+powershell -ExecutionPolicy Bypass -File scripts/verify-chain.ps1 -UseRunning
+```
+
+手动演示：
+
 ```bash
 # 1. 拿令牌（client_credentials，Basic Auth 客户端凭证，经网关转发）
 TOKEN=$(curl -s -u "cornerstone-client:cornerstone-secret" -X POST \

@@ -1,16 +1,18 @@
-# Cornerstone end-to-end auth chain verification.
-# Usage: run `mvn -DskipTests package` first, then this script.
+﻿# Cornerstone end-to-end auth chain verification.
+# Usage:
+#   powershell -ExecutionPolicy Bypass -File scripts/verify-chain.ps1 -UseRunning
+#      复用已在运行的服务（如 scripts/start-all.ps1 启动的），直接跑链路断言；
+#   powershell -ExecutionPolicy Bypass -File scripts/verify-chain.ps1
+#      自行启动（需先 mvn -DskipTests package），验证后自动停止。
 # Requires docker dependencies up: `docker compose up -d`
 param(
     [string]$JavaHome = "C:\Dev\Lang\JAVA\JAVA17",
-    [int]$WaitSeconds = 120
+    [int]$WaitSeconds = 120,
+    [switch]$UseRunning
 )
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
-
-$java = Join-Path $JavaHome "bin\java.exe"
-if (-not (Test-Path $java)) { Write-Error "JDK not found: $java"; exit 1 }
 
 $services = @(
     @{ Name = "auth";    Port = 8081; Jar = "cornerstone-auth\target\cornerstone-auth-1.0.0-SNAPSHOT.jar" },
@@ -23,17 +25,30 @@ $procs = @()
 $logDir = Join-Path $env:TEMP "cornerstone-verify"
 New-Item -ItemType Directory -Force -Path $logDir | Out-Null
 
-foreach ($s in $services) {
-    if (-not (Test-Path $s.Jar)) {
-        Write-Error "Missing jar: $($s.Jar) (run 'mvn -DskipTests package' first)"
-        exit 1
+if ($UseRunning) {
+    foreach ($s in $services) {
+        $ready = [bool](Get-NetTCPConnection -LocalPort $s.Port -State Listen -ErrorAction SilentlyContinue)
+        if (-not $ready) {
+            Write-Error "UseRunning 模式要求 $($s.Name) :$($s.Port) 已在监听（请先执行 scripts/start-all.ps1）"
+            exit 1
+        }
+        Write-Host "UseRunning: 复用运行中的 $($s.Name) :$($s.Port)"
     }
-    $out = Join-Path $logDir "$($s.Name).log"
-    $err = Join-Path $logDir "$($s.Name).err"
-    $p = Start-Process -FilePath $java -ArgumentList @('-jar', (Resolve-Path $s.Jar)) `
-        -PassThru -WindowStyle Hidden -RedirectStandardOutput $out -RedirectStandardError $err
-    $procs += $p
-    Write-Host "Starting $($s.Name) (PID $($p.Id))"
+} else {
+    $java = Join-Path $JavaHome "bin\java.exe"
+    if (-not (Test-Path $java)) { Write-Error "JDK not found: $java"; exit 1 }
+    foreach ($s in $services) {
+        if (-not (Test-Path $s.Jar)) {
+            Write-Error "Missing jar: $($s.Jar) (run 'mvn -DskipTests package' first)"
+            exit 1
+        }
+        $out = Join-Path $logDir "$($s.Name).log"
+        $err = Join-Path $logDir "$($s.Name).err"
+        $p = Start-Process -FilePath $java -ArgumentList @('-jar', (Resolve-Path $s.Jar)) `
+            -PassThru -WindowStyle Hidden -RedirectStandardOutput $out -RedirectStandardError $err
+        $procs += $p
+        Write-Host "Starting $($s.Name) (PID $($p.Id))"
+    }
 }
 
 try {
@@ -95,8 +110,12 @@ try {
     }
 }
 finally {
-    foreach ($p in $procs) {
-        if (-not $p.HasExited) { Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue }
+    if ($UseRunning) {
+        Write-Host 'UseRunning 模式：服务保持运行（由 start-all 管理，可用 scripts/start-all.ps1 -Stop 停止）'
+    } else {
+        foreach ($p in $procs) {
+            if (-not $p.HasExited) { Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue }
+        }
+        Write-Host 'All service processes stopped'
     }
-    Write-Host 'All service processes stopped'
 }
