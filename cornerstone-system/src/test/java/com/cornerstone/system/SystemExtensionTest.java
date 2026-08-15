@@ -3,6 +3,8 @@ package com.cornerstone.system;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -13,10 +15,12 @@ import com.cornerstone.system.domain.entity.SysDictData;
 import com.cornerstone.system.domain.entity.SysDictType;
 import com.cornerstone.system.domain.entity.SysLoginLog;
 import com.cornerstone.system.domain.entity.SysOperLog;
+import com.cornerstone.system.domain.entity.SysUser;
 import com.cornerstone.system.service.SysConfigService;
 import com.cornerstone.system.service.SysDictService;
 import com.cornerstone.system.service.SysLoginLogService;
 import com.cornerstone.system.service.SysOperLogService;
+import com.cornerstone.system.service.SysUserService;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
@@ -45,10 +49,31 @@ class SystemExtensionTest {
     @MockBean private SysConfigService configService;
     @MockBean private SysOperLogService operLogService;
     @MockBean private SysLoginLogService loginLogService;
+    @MockBean private SysUserService userService;
 
     /** 拥有系统管理全部权限的 token */
     private static final List<String> ALL =
-            List.of("system:dict:list", "system:config:list", "system:log:list");
+            List.of(
+                    "system:user:list",
+                    "system:dict:list",
+                    "system:config:list",
+                    "system:log:list");
+
+    /** 分页参数契约：前端传 pageNum/pageSize，controller 必须原样透传（回归：曾误用 current/size 导致翻页失效） */
+    @Test
+    void userPage_shouldPassPaginationParamsToService() throws Exception {
+        when(userService.page(2L, 5L, null, null)).thenReturn(new Page<SysUser>(2, 5));
+
+        mockMvc.perform(
+                        get("/system/user/page")
+                                .param("pageNum", "2")
+                                .param("pageSize", "5")
+                                .header("Authorization", bearer()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+        verify(userService).page(2L, 5L, null, null);
+    }
 
     @Test
     void dictTypePage_shouldReturnOk() throws Exception {

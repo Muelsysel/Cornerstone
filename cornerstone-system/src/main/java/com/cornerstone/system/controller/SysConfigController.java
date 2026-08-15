@@ -34,8 +34,8 @@ public class SysConfigController {
     @GetMapping("/page")
     @PreAuthorize("hasAuthority('system:config:list')")
     public Result<Page<SysConfig>> page(
-            @RequestParam(name = "current", defaultValue = "1") long current,
-            @RequestParam(name = "size", defaultValue = "10") long size,
+            @RequestParam(name = "pageNum", defaultValue = "1") long current,
+            @RequestParam(name = "pageSize", defaultValue = "10") long size,
             @RequestParam(name = "configName", required = false) String configName,
             @RequestParam(name = "configKey", required = false) String configKey,
             @RequestParam(name = "configType", required = false) String configType) {

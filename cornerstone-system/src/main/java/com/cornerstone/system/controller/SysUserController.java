@@ -2,8 +2,11 @@ package com.cornerstone.system.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cornerstone.api.dto.UserDTO;
+import com.cornerstone.common.core.ErrorCode;
 import com.cornerstone.common.core.Result;
 import com.cornerstone.common.exception.BusinessException;
+import com.cornerstone.common.security.UserContext;
+import com.cornerstone.common.security.UserContextHolder;
 import com.cornerstone.system.annotation.OperLog;
 import com.cornerstone.system.constant.BusinessType;
 import com.cornerstone.system.domain.entity.SysUser;
@@ -38,8 +41,8 @@ public class SysUserController {
     @GetMapping("/page")
     @PreAuthorize("hasAuthority('system:user:list')")
     public Result<Page<SysUser>> page(
-            @RequestParam(name = "current", defaultValue = "1") long current,
-            @RequestParam(name = "size", defaultValue = "10") long size,
+            @RequestParam(name = "pageNum", defaultValue = "1") long current,
+            @RequestParam(name = "pageSize", defaultValue = "10") long size,
             @RequestParam(name = "username", required = false) String username,
             @RequestParam(name = "status", required = false) String status) {
         return Result.success(userService.page(current, size, username, status));
@@ -60,10 +63,15 @@ public class SysUserController {
         return Result.success(dto);
     }
 
-    /** 查询登录用户信息及权限（供前端/网关获取当前用户能力） */
+    /** 查询登录用户信息及权限（供前端/网关获取当前用户能力）。仅允许查询本人，防 IDOR 越权。 */
     @GetMapping("/info")
     @PreAuthorize("isAuthenticated()")
     public Result<Map<String, Object>> info(@RequestParam(name = "userId") Long userId) {
+        UserContext ctx = UserContextHolder.get();
+        if (ctx == null || ctx.getUserId() == null || !ctx.getUserId().equals(userId)) {
+            // 非本人：拒绝（返回业务 403，不泄露是否存在）
+            throw new BusinessException(ErrorCode.FORBIDDEN, "只能查询本人信息");
+        }
         SysUser user = userService.getById(userId);
         if (user == null) {
             throw new BusinessException(SystemErrorCode.USER_NOT_FOUND);

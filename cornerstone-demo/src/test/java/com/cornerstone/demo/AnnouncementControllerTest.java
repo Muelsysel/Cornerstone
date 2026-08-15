@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -101,5 +102,29 @@ class AnnouncementControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code", not(200)))
                 .andExpect(jsonPath("$.message", containsString("标题")));
+    }
+
+    /** 编辑契约：PUT /demo/announcement/{id}（回归：曾用无 id 路径导致编辑 404） */
+    @Test
+    void updateDraftReturns200WithTokenAndPermission() throws Exception {
+        String token = TestJwtIssuer.tokenWithScope(EDIT_PERMISSION);
+        // 种子 id=2 为草稿，可编辑
+        mockMvc.perform(
+                        put("/demo/announcement/2")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"title\":\"更新后的标题\",\"content\":\"新内容\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+    }
+
+    @Test
+    void protectedUpdateReturns403WithoutToken() throws Exception {
+        // PUT /{id} 命中 demo 公开白名单单段通配，方法级 @PreAuthorize 拒绝映射为 403
+        mockMvc.perform(
+                        put("/demo/announcement/2")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"title\":\"未认证更新\"}"))
+                .andExpect(status().isForbidden());
     }
 }

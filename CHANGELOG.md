@@ -3,6 +3,13 @@
 > 项目级版本里程碑与仓库级变更记录。模块级细节见各模块 `CHANGELOG.md`
 > （common/api/gateway/auth/system/demo/web）。所有 AI 都是文档维护者（AGENTS.md「文档维护义务」）。
 
+## [1.5.8] - 2026-08-15（核心契约修复）
+
+- fix: **system 全部分页失效**——前端传 pageNum/pageSize 而后端误用 current/size（6 个列表翻页/换页数失效），统一为 pageNum/pageSize，补分页参数断言用例
+- fix: **公告编辑失效**——前端 PUT /demo/announcement（无 id）与后端 PUT /{id} 不匹配（编辑 404），补 update 契约用例
+- fix: 用户新增并发唯一性兜底（DuplicateKeyException → 业务错误）；/system/user/info IDOR 修复（仅限本人）
+- fix(隐私): 公告公开分页/详情游客只看已发布（防草稿泄露）
+
 ## [1.5.7] - 2026-08-15（性能与测试深化）
 
 - perf: V10 查询/排序索引（system 7 个 + demo create_time）；README 性能指标章节

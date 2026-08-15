@@ -29,8 +29,8 @@ public class SysOperLogController {
     @GetMapping("/page")
     @PreAuthorize("hasAuthority('system:log:list')")
     public Result<Page<SysOperLog>> page(
-            @RequestParam(name = "current", defaultValue = "1") long current,
-            @RequestParam(name = "size", defaultValue = "10") long size,
+            @RequestParam(name = "pageNum", defaultValue = "1") long current,
+            @RequestParam(name = "pageSize", defaultValue = "10") long size,
             @RequestParam(name = "title", required = false) String title,
             @RequestParam(name = "operName", required = false) String operName,
             @RequestParam(name = "status", required = false) String status) {

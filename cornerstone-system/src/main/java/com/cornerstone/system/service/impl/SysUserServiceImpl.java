@@ -10,6 +10,7 @@ import com.cornerstone.system.domain.mapper.SysUserRoleMapper;
 import com.cornerstone.system.exception.SystemErrorCode;
 import com.cornerstone.system.service.SysUserService;
 import java.util.List;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +44,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public SysUser add(SysUser user) {
         long exists =
                 this.count(
@@ -54,7 +56,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
         // 未指定密码时使用默认密码
         String rawPassword = hasText(user.getPassword()) ? user.getPassword() : "123456";
         user.setPassword(passwordEncoder.encode(rawPassword));
-        this.save(user);
+        try {
+            this.save(user);
+        } catch (DuplicateKeyException e) {
+            // 并发同用户名：唯一索引兜底，转为业务错误而非裸 500
+            throw new BusinessException(SystemErrorCode.USERNAME_EXISTS);
+        }
         return user;
     }
 

@@ -31,7 +31,7 @@ export function createAnnouncement(data: Partial<Announcement>): Promise<unknown
 }
 
 export function updateAnnouncement(data: Partial<Announcement>): Promise<unknown> {
-  return request({ url: '/demo/announcement', method: 'put', data })
+  return request({ url: `/demo/announcement/${data.id}`, method: 'put', data })
 }
 
 export function deleteAnnouncement(id: number): Promise<unknown> {
