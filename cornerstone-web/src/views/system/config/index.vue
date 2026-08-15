@@ -70,7 +70,7 @@
           <el-input v-model="form.configKey" :disabled="isEdit" maxlength="100" placeholder="如：sys.user.initPassword" />
         </el-form-item>
         <el-form-item label="参数键值" prop="configValue">
-          <el-input v-model="form.configValue" maxlength="500" placeholder="参数键值" />
+          <el-input v-model="form.configValue" type="textarea" :rows="3" maxlength="500" show-word-limit placeholder="参数键值" />
         </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="form.remark" type="textarea" :rows="2" maxlength="500" show-word-limit placeholder="备注" />
