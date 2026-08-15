@@ -83,6 +83,9 @@ service.interceptors.response.use(
       }
     } else if (status === 403) {
       text = '无权限访问'
+    } else if (status === 429) {
+      // 网关限流（RequestRateLimiter）拒绝：提示友好，不视为系统错误
+      text = '请求过于频繁，请稍后再试'
     }
     ElMessage.error(text)
     return Promise.reject(error)

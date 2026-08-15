@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.1.8] - 2026-08-15
+
+- test: `SysConfigServiceImplTest` 8 用例（缓存命中/回源回填/null 不写缓存/更新清旧 key/删除清缓存——固化缓存一致性修复）
+
+**测试方法**：`mvn test -pl cornerstone-system`（CornerstoneDataPermissionHandlerTest / SysAuthUserControllerTest / SystemSecurityTest / SystemExtensionTest / DataScopeServiceTest / OperLogAspectTest / AuthUserSupportServiceTest / SysUserServiceImplTest / SysRoleServiceImplTest / SysConfigServiceImplTest）。
+
 ## [1.1.7] - 2026-08-15
 
 - test: `SysRoleServiceImplTest` 8 用例（角色唯一性/数据范围自定义部门维护/内置角色保护/菜单分配/空列表仅删除）
