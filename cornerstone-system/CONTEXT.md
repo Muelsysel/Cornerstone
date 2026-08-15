@@ -45,7 +45,7 @@
 | **登录日志**（LoginLog） | 登录成功/失败记录，`SysLoginLogService.record()` 供 auth 登录流程经 `LoginLogClient` 契约投递后落库。 |
 | **权限标识**（Permission） | 字符串形式的权限点，如 `system:user:list`，供 `@PreAuthorize("hasAuthority(...)")` 使用。 |
 | **认证支持**（AuthSupport） | `/system/auth/**` 内部接口：按用户名提供认证信息（密码哈希+角色+权限），供 `cornerstone-auth` 登录换 JWT；v1 简化匿名（网关白名单不含 /system/** 已隔离），生产需服务间认证。 |
-| **数据范围**（DataScope） | 角色级行级数据权限：1全部 2自定义 3本部门及以下 4本部门 5仅本人。经 `CornerstoneDataPermissionHandler`（MyBatis-Plus `DataPermissionInterceptor` 的回调）对 `sys_user` 查询自动追加条件，范围取用户所有角色中最严格者。 |
+| **数据范围**（DataScope） | 角色级行级数据权限：1全部 2自定义 3本部门及以下 4本部门 5仅本人。经 `CornerstoneDataPermissionHandler`（MyBatis-Plus `DataPermissionInterceptor` 的回调）对 `sys_user` 查询自动追加条件，范围取用户所有角色中最严格者。**fail-closed**：无部门归属用户按「本部门/本部门及以下」范围时返回不可能条件（`dept_id=-1`），不越权看全部；JWT 携带 `deptId` claim，网关透传 `X-Cornerstone-Dept-Id`。 |
 | **资源服务器** | 校验 JWT、拒绝未认证请求的安全角色（本模块与 auth/gateway 共用公钥）。 |
 | **审计字段** | `create_by/create_time/update_by/update_time` 由 `MyMetaObjectHandler` 自动填充。 |
 
