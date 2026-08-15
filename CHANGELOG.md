@@ -3,6 +3,11 @@
 > 项目级版本里程碑与仓库级变更记录。模块级细节见各模块 `CHANGELOG.md`
 > （common/api/gateway/auth/system/demo/web）。所有 AI 都是文档维护者（AGENTS.md「文档维护义务」）。
 
+## [1.5.9] - 2026-08-15（测试全覆盖补强）
+
+- test: 服务层/控制器/过滤器/工具单测 41 用例——菜单/部门服务（树组装、ancestors 解析、子节点删除保护）、登录/操作日志服务（状态映射、分页条件、删除清空）、个人中心控制器（旧密码校验、仅更新密码字段）、登录服务降级路径（Redis 不可用、日志投递失败、锁定计数 TTL 时机）、审计字段填充（匿名回退 system）、内部令牌过滤器、网关访问日志、用户上下文过滤器、前端树摊平工具
+- docs(web): 修正契约注释（User.status 取值、auth 登录端点就绪、公告下线状态 PUBLISHED→OFFLINE）
+
 ## [1.5.8] - 2026-08-15（核心契约修复）
 
 - fix: **system 全部分页失效**——前端传 pageNum/pageSize 而后端误用 current/size（6 个列表翻页/换页数失效），统一为 pageNum/pageSize，补分页参数断言用例
