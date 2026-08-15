@@ -32,7 +32,7 @@
         <!-- 保守升级策略：保持 Boot 3.2 / Cloud 2023.0 代际，取各线最终补丁（含安全修复） -->
         <spring-boot.version>3.2.12</spring-boot.version>
         <spring-cloud.version>2023.0.6</spring-cloud.version>
-        <spring-cloud-alibaba.version>2023.0.3.4</spring-cloud-alibaba.version>
+        <spring-cloud-alibaba.version>2025.1.0.0</spring-cloud-alibaba.version>
         <mybatis-plus.version>3.5.17</mybatis-plus.version>
         <springdoc.version>2.3.0</springdoc.version>
         <lombok.version>1.18.46</lombok.version>
