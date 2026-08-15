@@ -55,12 +55,28 @@
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item command="dashboard">首页</el-dropdown-item>
+              <el-dropdown-item command="profile">个人资料</el-dropdown-item>
               <el-dropdown-item command="password">修改密码</el-dropdown-item>
               <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
       </el-header>
+
+      <!-- 个人资料弹窗 -->
+      <el-dialog v-model="profileVisible" title="个人资料" width="420px" destroy-on-close>
+        <el-descriptions :column="1" border>
+          <el-descriptions-item label="用户名">{{ profile?.username || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="昵称">{{ profile?.nickname || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="手机号">{{ profile?.phone || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="邮箱">{{ profile?.email || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="角色">{{ rolesText }}</el-descriptions-item>
+          <el-descriptions-item label="权限点">{{ permissionsCount }}</el-descriptions-item>
+        </el-descriptions>
+        <template #footer>
+          <el-button @click="profileVisible = false">关闭</el-button>
+        </template>
+      </el-dialog>
 
       <!-- 修改密码弹窗 -->
       <el-dialog v-model="pwdVisible" title="修改密码" width="420px" destroy-on-close>
@@ -96,7 +112,8 @@ import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 import { routes } from '@/router'
 import { hasPermission } from '@/utils/permission'
-import { updatePassword } from '@/api/system'
+import { getProfile, updatePassword } from '@/api/system'
+import type { User } from '@/types/system'
 
 const route = useRoute()
 const router = useRouter()
@@ -142,8 +159,28 @@ async function onCommand(command: string) {
     router.push('/login')
   } else if (command === 'dashboard') {
     router.push('/dashboard')
+  } else if (command === 'profile') {
+    openProfile()
   } else if (command === 'password') {
     openPasswordDialog()
+  }
+}
+
+// ---------------- 个人资料 ----------------
+const profileVisible = ref(false)
+const profile = ref<User | null>(null)
+const rolesText = computed(() => {
+  const roles = userStore.user?.roles || []
+  return roles.length ? roles.join(' / ') : '无角色信息'
+})
+const permissionsCount = computed(() => userStore.permissions?.length || 0)
+
+async function openProfile() {
+  profileVisible.value = true
+  try {
+    profile.value = await getProfile()
+  } catch {
+    profile.value = null
   }
 }
 

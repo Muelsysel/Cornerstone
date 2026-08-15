@@ -65,6 +65,11 @@ export function resetUserPassword(userId: number, password: string): Promise<unk
 
 // ---------------------------------- 个人中心 ----------------------------------
 
+/** 当前登录用户完整资料（个人资料弹窗） */
+export function getProfile(): Promise<User> {
+  return request({ url: '/system/user/profile', method: 'get' })
+}
+
 export function updatePassword(data: {
   oldPassword: string
   newPassword: string
