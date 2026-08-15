@@ -5,6 +5,7 @@ import com.cornerstone.common.security.UserContextFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -28,14 +29,14 @@ import org.springframework.security.web.access.intercept.AuthorizationFilter;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    /** 公开端点白名单：公告查询、Springdoc 文档与 Actuator 健康检查无需登录 */
-    private static final String[] PUBLIC_PATHS = {
-        "/demo/announcement/page/**",
-        "/demo/announcement/*",
-        "/v3/api-docs/**",
-        "/swagger-ui/**",
-        "/swagger-ui.html",
-        "/actuator/**"
+    /** 公开读端点：公告分页/详情仅 GET 放行（写操作需认证 + 方法级权限，双保险） */
+    private static final String[] PUBLIC_GET_PATHS = {
+        "/demo/announcement/page/**", "/demo/announcement/*"
+    };
+
+    /** 其他公开路径：Springdoc 文档与 Actuator 健康检查无需登录 */
+    private static final String[] PUBLIC_OTHER_PATHS = {
+        "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/actuator/**"
     };
 
     private final UserContextFilter userContextFilter;
@@ -51,7 +52,9 @@ public class SecurityConfig {
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
                         auth ->
-                                auth.requestMatchers(PUBLIC_PATHS)
+                                auth.requestMatchers(HttpMethod.GET, PUBLIC_GET_PATHS)
+                                        .permitAll()
+                                        .requestMatchers(PUBLIC_OTHER_PATHS)
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated())

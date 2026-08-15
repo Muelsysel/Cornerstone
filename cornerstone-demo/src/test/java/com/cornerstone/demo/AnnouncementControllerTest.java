@@ -17,7 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 /**
- * 公告管理 MockMvc 集成测试（H2 跑 Flyway，不依赖 MySQL）。 覆盖：公开接口免登录、受保护接口未认证 401、带权访问 200、非法状态流转业务异常、无权限 403。
+ * 公告管理 MockMvc 集成测试（H2 跑 Flyway，不依赖 MySQL）。 覆盖：公开读接口免登录、受保护接口未认证 401、带权访问 200、非法状态流转业务异常、无权限 403。
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -119,12 +119,12 @@ class AnnouncementControllerTest {
     }
 
     @Test
-    void protectedUpdateReturns403WithoutToken() throws Exception {
-        // PUT /{id} 命中 demo 公开白名单单段通配，方法级 @PreAuthorize 拒绝映射为 403
+    void protectedUpdateReturns401WithoutToken() throws Exception {
+        // 公开白名单仅放行 GET；PUT 写操作在 URL 层即要求认证（无 token → 401）
         mockMvc.perform(
                         put("/demo/announcement/2")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{\"title\":\"未认证更新\"}"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 }
