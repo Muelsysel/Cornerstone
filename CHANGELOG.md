@@ -9,7 +9,7 @@
 - fix(security): **数据权限 fail-open 修复**——scope 3/4 下无部门归属用户此前可见全部数据，现返回 `dept_id=-1` 不可能条件；菜单父节点存在性校验（防悬空节点）；停用账号禁止登录
 - fix(contract): 用户页移除后端不存在的 phone/email 字段、加部门树选择器；RBAC 全部可写字符串/枚举字段补校验（ValidationUtils）
 - fix(data): **JWT 补 deptId claim + 网关透传 Dept-Id 头**——数据权限「本部门/本部门及以下」端到端修复（此前 deptId 不达下游，scope 3/4 用户 fail-closed 后看不到任何数据）
-- test: 后端 246→**267 用例**（common 35 + gateway 21 + auth 19 + system 165 + demo 27）、前端 34、e2e 34→**38**；verify-chain 多轮稳定 PASS
+- test: 后端 246→**268 用例**（common 35 + gateway 21 + auth 19 + system 166 + demo 27）、前端 34、e2e 34→**38**；verify-chain 多轮稳定 PASS
 
 ## [1.5.28] - 2026-08-16（安全加固 + 输入校验收官）
 
