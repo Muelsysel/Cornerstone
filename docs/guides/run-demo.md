@@ -58,10 +58,17 @@ $env:JAVA_HOME = "C:\Dev\Lang\JAVA\JAVA17"
 一键验证（服务已启动时）：
 
 ```powershell
-# 复用正在运行的服务（如 scripts/start-all.ps1 启动的），自动断言 23 项契约：
-# 前端容器可达/令牌签发/公开与受保护端点/游客分页隐私（含状态绕过）/无效令牌/分页参数穿透/菜单与部门树/登录日志审计/公告增改与发布下线/游客详情隐私/IDOR 双向/登录锁定/数据权限/密码绑定
+# 复用正在运行的服务（如 scripts/start-all.ps1 启动的），自动断言 25 项契约：
+# 前端容器可达/令牌签发/公开与受保护端点/游客分页隐私（含状态绕过）/无效令牌/分页参数穿透/菜单与部门树/登录日志审计/公告增改与发布下线/游客详情隐私/IDOR 双向/登录锁定/网关限流/数据权限/密码绑定/密码策略
 powershell -ExecutionPolicy Bypass -File scripts/verify-chain.ps1 -UseRunning
 ```
+
+> **运维提示**：verify-chain 创建的测试用户/公告走**逻辑删除**（`deleted=1`，业务不可见、物理保留）。长期运行后物理表会累积残留，可用以下 SQL 物理清理（仅删测试残留，保留种子数据）：
+> ```sql
+> USE cornerstone_demo; DELETE FROM announcement WHERE deleted=1 OR id>1;
+> USE cornerstone_system; DELETE FROM sys_user WHERE deleted=1;
+> DELETE FROM sys_user_role WHERE user_id NOT IN (SELECT id FROM sys_user);
+> ```
 
 手动演示：
 
