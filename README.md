@@ -176,6 +176,7 @@ curl -u "cornerstone-client:cornerstone-secret" -X POST \
 
 欢迎 PR！请先阅读 [AGENTS.md](AGENTS.md) 与 `skills/cornerstone-dev/SKILL.md`，遵循
 **导航 → 开发 → 测试 → 文档同步 → 提交** 的流程；提交信息格式 `<type>(<scope>): <中文描述>`。
+参见 [CONTRIBUTING.md](CONTRIBUTING.md) 与 [行为准则](CODE_OF_CONDUCT.md)。
 
 ## 📄 许可证
 

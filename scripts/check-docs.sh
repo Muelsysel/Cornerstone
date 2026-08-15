@@ -73,6 +73,7 @@ check "前端 nginx 配置" "cornerstone-web/nginx.conf"
 # 7. 仓库级文档与工具
 check "根 CHANGELOG" "CHANGELOG.md"
 check "贡献指南" "CONTRIBUTING.md"
+check "行为准则" "CODE_OF_CONDUCT.md"
 check "许可证" "LICENSE"
 check "一键启动脚本" "scripts/start-all.ps1"
 check "端到端指南" "docs/guides/run-demo.md"
