@@ -178,6 +178,37 @@ class SystemExtensionTest {
         return signed.serialize();
     }
 
+    @Test
+    void entityIdJsonContractUsesFrontendFieldNames() throws Exception {
+        // 回归：主键 JSON 字段名必须对齐前端（operId/infoId/configId/dictId/dictCode），
+        // 曾因缺 @JsonProperty 映射，前端删除日志/字典时取到 null id → 请求失败
+        com.cornerstone.system.domain.entity.SysOperLog log =
+                new com.cornerstone.system.domain.entity.SysOperLog();
+        log.setId(7L);
+        org.mockito.Mockito.when(
+                        operLogService.page(
+                                eq(1L),
+                                eq(10L),
+                                org.mockito.ArgumentMatchers.nullable(String.class),
+                                org.mockito.ArgumentMatchers.nullable(String.class),
+                                org.mockito.ArgumentMatchers.nullable(String.class)))
+                .thenReturn(pageWith(log));
+        mockMvc.perform(
+                        get("/system/operlog/page")
+                                .param("pageNum", "1")
+                                .param("pageSize", "10")
+                                .header("Authorization", bearer()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.records[0].operId").value(7));
+    }
+
+    private <T> Page<T> pageWith(T record) {
+        Page<T> page = new Page<>(1, 10);
+        page.setRecords(java.util.List.of(record));
+        page.setTotal(1);
+        return page;
+    }
+
     private PrivateKey readPrivateKey() throws Exception {
         try (InputStream in = getClass().getResourceAsStream("/keys/test-private.pem")) {
             String pem = new String(in.readAllBytes(), StandardCharsets.UTF_8);

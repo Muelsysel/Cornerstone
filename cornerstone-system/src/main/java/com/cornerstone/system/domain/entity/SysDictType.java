@@ -14,8 +14,9 @@ public class SysDictType extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-    /** 字典主键 */
+    /** 字典主键（JSON 契约对齐前端 dictId） */
     @TableId(type = IdType.AUTO)
+    @com.fasterxml.jackson.annotation.JsonProperty("dictId")
     private Long id;
 
     /** 字典名称 */

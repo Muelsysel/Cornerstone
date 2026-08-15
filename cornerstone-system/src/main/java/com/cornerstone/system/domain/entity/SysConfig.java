@@ -14,8 +14,9 @@ public class SysConfig extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-    /** 参数主键 */
+    /** 参数主键（JSON 契约对齐前端 configId） */
     @TableId(type = IdType.AUTO)
+    @com.fasterxml.jackson.annotation.JsonProperty("configId")
     private Long id;
 
     /** 参数名称 */

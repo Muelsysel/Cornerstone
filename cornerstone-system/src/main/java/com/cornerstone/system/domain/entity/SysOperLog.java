@@ -14,8 +14,9 @@ public class SysOperLog implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /** 日志主键 */
+    /** 日志主键（JSON 契约对齐前端 operId） */
     @TableId(type = IdType.AUTO)
+    @com.fasterxml.jackson.annotation.JsonProperty("operId")
     private Long id;
 
     /** 模块标题 */

@@ -14,8 +14,9 @@ public class SysLoginLog implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /** 访问ID */
+    /** 访问ID（JSON 契约对齐前端 infoId） */
     @TableId(type = IdType.AUTO)
+    @com.fasterxml.jackson.annotation.JsonProperty("infoId")
     private Long id;
 
     /** 用户账号 */
