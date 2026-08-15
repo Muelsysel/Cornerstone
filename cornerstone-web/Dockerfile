@@ -2,7 +2,7 @@
 # 构建镜像：docker compose build frontend  （或 docker build -t cornerstone-web ./cornerstone-web）
 
 # ---- 阶段 1：构建 ----
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci

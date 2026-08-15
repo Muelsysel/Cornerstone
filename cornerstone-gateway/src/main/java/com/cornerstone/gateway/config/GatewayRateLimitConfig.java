@@ -20,6 +20,12 @@ public class GatewayRateLimitConfig {
         return new RedisRateLimiter(10, 20);
     }
 
+    /** 登录接口限流器：每秒 5 个令牌、桶 10（比默认更严，缓解账号密码定向爆破） */
+    @Bean
+    public RedisRateLimiter loginRateLimiter() {
+        return new RedisRateLimiter(5, 10);
+    }
+
     /** 按客户端 IP 限流（IPv4/IPv6 原文） */
     @Bean
     public KeyResolver ipKeyResolver() {

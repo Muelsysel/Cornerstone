@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.0] - 2026-08-15
+
+- feat: 登录接口独立限流——`/auth/login` 专用路由（声明于 /auth/** 之前）按 IP 每秒 5 令牌/桶 10，缓解账号密码定向爆破；其余路由维持 10/s + burst 20
+
+**测试方法**：`mvn test -pl cornerstone-gateway`（TokenAuthGlobalFilter 单测、上下文装配）。
+
 ## [1.1.1] - 2026-08-15
 
 - refactor: RSA 公钥解析改用 common `RsaKeyUtils`（与 auth/system/demo 统一）

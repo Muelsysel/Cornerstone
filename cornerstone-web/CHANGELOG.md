@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.4.0] - 2026-08-15（构建工具升级）
+
+- build: Vite 5 → **7**、@vitejs/plugin-vue 5 → 6（需 Node ≥ 20.19/22.12），`npm audit` 归零（修复 esbuild dev server 漏洞）；构建产物体积持平（主包 gzip ≈ 130KB）；Dockerfile/CI 构建节点同步 node 22
+
+**测试方法**：`npm run build`（vue-tsc 类型检查 + vite 构建，须通过）；`npm test`（vitest 单测）；`docker compose up --build frontend` 后访问 http://localhost:8088 验证页面与 API 反代。
+
 ## [1.3.1] - 2026-08-15（体验细节）
 
 - feat: 全局错误捕获（app.config.errorHandler，渲染错误可定位不静默）；登录表单 autocomplete（浏览器密码管理器友好）；首页欢迎语加当前日期；index.html 补 description/theme-color meta

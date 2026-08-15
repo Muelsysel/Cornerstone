@@ -13,16 +13,37 @@ import org.springframework.context.annotation.Configuration;
 public class GatewayRouteConfig {
 
     private final RedisRateLimiter redisRateLimiter;
+    private final RedisRateLimiter loginRateLimiter;
     private final KeyResolver ipKeyResolver;
 
-    public GatewayRouteConfig(RedisRateLimiter redisRateLimiter, KeyResolver ipKeyResolver) {
+    public GatewayRouteConfig(
+            RedisRateLimiter redisRateLimiter,
+            RedisRateLimiter loginRateLimiter,
+            KeyResolver ipKeyResolver) {
         this.redisRateLimiter = redisRateLimiter;
+        this.loginRateLimiter = loginRateLimiter;
         this.ipKeyResolver = ipKeyResolver;
     }
 
     @Bean
     public RouteLocator cornerstoneRoutes(RouteLocatorBuilder builder) {
         return builder.routes()
+                // 认证中心登录接口：独立更严限流（每秒 5/桶 10，防账号爆破）。
+                // 注意：必须声明在 /auth/** 之前，否则被通用认证路由吞掉。
+                .route(
+                        "auth-login",
+                        r ->
+                                r.path("/auth/login")
+                                        .filters(
+                                                f ->
+                                                        f.rewritePath("/auth/(?<seg>.*)", "/${seg}")
+                                                                .requestRateLimiter(
+                                                                        c ->
+                                                                                c.setRateLimiter(
+                                                                                                loginRateLimiter)
+                                                                                        .setKeyResolver(
+                                                                                                ipKeyResolver)))
+                                        .uri("lb://" + ServiceConstants.AUTH_SERVICE))
                 // 认证中心：端点本身无 /auth 前缀（/oauth2/token），故剥离前缀转发
                 .route(
                         "auth",
