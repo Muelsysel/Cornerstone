@@ -52,7 +52,8 @@ public class SysProfileController {
     @PutMapping("/password")
     @PreAuthorize("isAuthenticated()")
     @OperLog(title = "个人中心", businessType = BusinessType.UPDATE)
-    public Result<Void> updatePassword(@RequestBody PasswordUpdateRequest request) {
+    public Result<Void> updatePassword(
+            @jakarta.validation.Valid @RequestBody PasswordUpdateRequest request) {
         Long userId = requireUserId();
         SysUser user = userService.getById(userId);
         if (user == null || !passwordEncoder.matches(request.oldPassword(), user.getPassword())) {
@@ -77,5 +78,10 @@ public class SysProfileController {
     /** 修改密码请求体 */
     public record PasswordUpdateRequest(
             @NotBlank(message = "旧密码不能为空") String oldPassword,
-            @NotBlank(message = "新密码不能为空") String newPassword) {}
+            @NotBlank(message = "新密码不能为空")
+                    @jakarta.validation.constraints.Size(
+                            min = 6,
+                            max = 72,
+                            message = "新密码长度需在 6-72 个字符之间")
+                    String newPassword) {}
 }
