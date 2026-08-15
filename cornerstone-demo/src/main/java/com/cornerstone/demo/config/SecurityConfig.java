@@ -1,10 +1,7 @@
 package com.cornerstone.demo.config;
 
+import com.cornerstone.common.security.RsaKeyUtils;
 import com.cornerstone.common.security.UserContextFilter;
-import java.security.KeyFactory;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -78,20 +75,9 @@ public class SecurityConfig {
         return jwtConverter;
     }
 
-    /** 校验 JWT 用 RSA 公钥：解析 PKCS8 PEM（与 gateway/auth/system 共用同一公钥） */
+    /** 校验 JWT 用 RSA 公钥：解析 PEM（与 gateway/auth/system 共用同一公钥，解析逻辑统一走 common 工具） */
     @Bean
-    public JwtDecoder jwtDecoder(@Value("${cornerstone.security.public-key}") String publicKeyPem)
-            throws Exception {
-        String base64 =
-                publicKeyPem
-                        .replace("-----BEGIN PUBLIC KEY-----", "")
-                        .replace("-----END PUBLIC KEY-----", "")
-                        .replaceAll("\\s", "");
-        byte[] keyBytes = Base64.getDecoder().decode(base64);
-        RSAPublicKey publicKey =
-                (RSAPublicKey)
-                        KeyFactory.getInstance("RSA")
-                                .generatePublic(new X509EncodedKeySpec(keyBytes));
-        return NimbusJwtDecoder.withPublicKey(publicKey).build();
+    public JwtDecoder jwtDecoder(@Value("${cornerstone.security.public-key}") String publicKeyPem) {
+        return NimbusJwtDecoder.withPublicKey(RsaKeyUtils.parsePublicKey(publicKeyPem)).build();
     }
 }

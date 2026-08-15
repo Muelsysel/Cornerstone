@@ -2,6 +2,10 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.0.3] - 2026-08-15
+
+- refactor: RSA 密钥对加载改用 common `RsaKeyUtils`（私钥 PKCS8/公钥 SPKI，与 gateway/system/demo 统一）
+
 ## [1.0.2] - 2026-08-15
 
 - feat: JWT issuer 配置化（`cornerstone.auth.issuer`，默认 http://localhost:8081；多环境无需改代码）

@@ -2,6 +2,13 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.1.1] - 2026-08-15
+
+- fix: 参数缓存一致性——`SysConfigServiceImpl.update` 先清旧 key 缓存再写新值（configKey 可变更），null 值不写缓存（避免读到过期旧值）
+- refactor: RSA 公钥解析改用 common `RsaKeyUtils`（与 gateway/auth/demo 统一）
+
+**测试方法**：`mvn test -pl cornerstone-system`（CornerstoneDataPermissionHandlerTest / SysAuthUserControllerTest / SystemSecurityTest / SystemExtensionTest / DataScopeServiceTest / OperLogAspectTest）。
+
 ## [1.1.0] - 2026-08-15
 
 - fix(安全): 操作日志脱敏——`OperLogAspect` 递归屏蔽 password/secret/token 字段（修改密码/用户管理不再把明文口令落库），补回归测试

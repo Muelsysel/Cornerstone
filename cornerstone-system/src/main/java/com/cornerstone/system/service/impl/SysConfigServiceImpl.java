@@ -64,21 +64,29 @@ public class SysConfigServiceImpl implements SysConfigService {
             throw new BusinessException(SystemErrorCode.CONFIG_KEY_EXISTS);
         }
         configMapper.insert(config);
-        jsonCache.setString(
-                String.format(CacheConstants.CONFIG_KEY, config.getConfigKey()),
-                config.getConfigValue());
+        // 仅非空值写缓存；空值由 getValueByKey 回源 DB，避免缓存污染
+        if (config.getConfigValue() != null) {
+            jsonCache.setString(
+                    String.format(CacheConstants.CONFIG_KEY, config.getConfigKey()),
+                    config.getConfigValue());
+        }
         return config;
     }
 
     @Override
     public SysConfig update(SysConfig config) {
-        if (configMapper.selectById(config.getId()) == null) {
+        SysConfig exist = configMapper.selectById(config.getId());
+        if (exist == null) {
             throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
         }
         configMapper.updateById(config);
-        jsonCache.setString(
-                String.format(CacheConstants.CONFIG_KEY, config.getConfigKey()),
-                config.getConfigValue());
+        // 缓存同步：configKey 可能被修改 → 先清旧 key 缓存，再写新值（null 值不写，避免读到过期旧值）
+        jsonCache.evict(String.format(CacheConstants.CONFIG_KEY, exist.getConfigKey()));
+        if (config.getConfigKey() != null && config.getConfigValue() != null) {
+            jsonCache.setString(
+                    String.format(CacheConstants.CONFIG_KEY, config.getConfigKey()),
+                    config.getConfigValue());
+        }
         return configMapper.selectById(config.getId());
     }
 

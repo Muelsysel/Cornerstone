@@ -1,10 +1,8 @@
 package com.cornerstone.gateway.config;
 
+import com.cornerstone.common.security.RsaKeyUtils;
 import java.io.InputStream;
-import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,13 +20,7 @@ public class JwtDecoderConfig {
             @Value("${cornerstone.gateway.jwt.public-key}") Resource publicKeyResource) {
         try (InputStream in = publicKeyResource.getInputStream()) {
             String pem = new String(in.readAllBytes());
-            String base64 = pem.replaceAll("-----[A-Z ]+-----", "").replaceAll("\\s", "");
-            RSAPublicKey publicKey =
-                    (RSAPublicKey)
-                            KeyFactory.getInstance("RSA")
-                                    .generatePublic(
-                                            new X509EncodedKeySpec(
-                                                    Base64.getDecoder().decode(base64)));
+            RSAPublicKey publicKey = RsaKeyUtils.parsePublicKey(pem);
             return NimbusReactiveJwtDecoder.withPublicKey(publicKey).build();
         } catch (Exception e) {
             throw new IllegalStateException("加载网关 JWT 公钥失败", e);

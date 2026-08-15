@@ -1,9 +1,6 @@
 package com.cornerstone.system.security;
 
-import java.security.KeyFactory;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
+import com.cornerstone.common.security.RsaKeyUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -85,21 +82,6 @@ public class ResourceServerConfig {
     @Bean
     @Primary
     public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withPublicKey(parseRsaPublicKey()).build();
-    }
-
-    private RSAPublicKey parseRsaPublicKey() {
-        try {
-            String pem =
-                    publicKeyPem
-                            .replace("-----BEGIN PUBLIC KEY-----", "")
-                            .replace("-----END PUBLIC KEY-----", "")
-                            .replaceAll("\\s+", "");
-            byte[] keyBytes = Base64.getDecoder().decode(pem);
-            X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-            return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(spec);
-        } catch (Exception e) {
-            throw new IllegalStateException("解析 RSA 公钥失败", e);
-        }
+        return NimbusJwtDecoder.withPublicKey(RsaKeyUtils.parsePublicKey(publicKeyPem)).build();
     }
 }

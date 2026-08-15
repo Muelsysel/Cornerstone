@@ -3,6 +3,13 @@
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 > 条目格式：`## [版本] - YYYY-MM-DD` → 变更类型（feat/fix/refactor/docs/test）+ 说明 + 涉及接口与测试。
 
+## [1.2.0] - 2026-08-15
+
+- feat: `RsaKeyUtils` 统一 RSA PEM 解析（公钥 SPKI/私钥 PKCS8，容忍头尾与换行），gateway/auth/system/demo 四处共用（消除重复实现，AGENTS 四处密钥一致约定落地）
+- test: RsaKeyUtilsTest（公/私钥带 PEM 头尾 round-trip、非法内容抛异常）
+
+**测试方法**：`mvn test -pl cornerstone-common`（Result 序列化契约、UserContext 解析、RsaKeyUtils）。
+
 ## [1.1.0] - 2026-08-15
 
 - feat: `JacksonTimeConfig` 统一 java.time 序列化格式（LocalDateTime → `yyyy-MM-dd HH:mm:ss`，附反序列化），前端时间列直接展示友好格式（前后端契约）

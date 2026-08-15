@@ -1,17 +1,14 @@
 package com.cornerstone.auth.config;
 
+import com.cornerstone.common.security.RsaKeyUtils;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import java.io.InputStream;
-import java.security.KeyFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -88,32 +85,13 @@ public class OAuth2JwtConfig {
         static RsaKeyPair load(Resource privRes, Resource pubRes) {
             try (InputStream privIn = privRes.getInputStream();
                     InputStream pubIn = pubRes.getInputStream()) {
-                RSAPrivateKey priv =
-                        (RSAPrivateKey)
-                                KeyFactory.getInstance("RSA")
-                                        .generatePrivate(
-                                                new PKCS8EncodedKeySpec(
-                                                        decodePem(
-                                                                new String(
-                                                                        privIn.readAllBytes()))));
-                RSAPublicKey pub =
-                        (RSAPublicKey)
-                                KeyFactory.getInstance("RSA")
-                                        .generatePublic(
-                                                new X509EncodedKeySpec(
-                                                        decodePem(
-                                                                new String(pubIn.readAllBytes()))));
+                RSAPrivateKey priv = RsaKeyUtils.parsePrivateKey(new String(privIn.readAllBytes()));
+                RSAPublicKey pub = RsaKeyUtils.parsePublicKey(new String(pubIn.readAllBytes()));
                 String kid = UUID.nameUUIDFromBytes(pub.getEncoded()).toString();
                 return new RsaKeyPair(priv, pub, kid);
             } catch (Exception e) {
                 throw new IllegalStateException("加载 RSA 密钥失败", e);
             }
-        }
-
-        /** 去掉 PEM 首尾与空白后 base64 解码 */
-        private static byte[] decodePem(String pem) {
-            String base64 = pem.replaceAll("-----[A-Z ]+-----", "").replaceAll("\\s", "");
-            return Base64.getDecoder().decode(base64);
         }
     }
 }
