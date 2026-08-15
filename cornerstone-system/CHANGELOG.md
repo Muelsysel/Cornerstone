@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.28] - 2026-08-16
+
+- fix(security): `SysUser.password` 由 `@JsonIgnore` 改为 `@JsonProperty(WRITE_ONLY)`——此前 `@JsonIgnore` 同时阻止**反序列化**，前端创建/编辑用户填写的初始密码永远到不了 service（静默落到默认 123456）；现写入可接收、响应序列化仍忽略（防哈希泄露）。`SystemSecurityTest` 新增 `createUser_shouldBindPasswordToService`（密码透传断言）+ `userPage_shouldNotExposePasswordHash`（分页不泄露哈希）
+
+**测试方法**：`mvn test -pl cornerstone-system`（125 用例）。
+
 ## [1.2.27] - 2026-08-16
 
 - fix(security): 用户新增/编辑/重置密码统一校验 ≤72 字符——此前无限制，可创建超长密码但登录侧 `@Size(72)` 拒绝 → 用户永远无法登录（契约缺口）；`SysUserServiceImplTest` 新增 `addRejectsOversizedPassword`/`resetPasswordRejectsOversizedPassword`

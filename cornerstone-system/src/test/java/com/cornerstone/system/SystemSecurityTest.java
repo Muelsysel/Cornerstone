@@ -3,11 +3,13 @@ package com.cornerstone.system;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cornerstone.system.domain.entity.SysUser;
+import com.cornerstone.system.service.SysOperLogService;
 import com.cornerstone.system.service.SysUserService;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -23,10 +25,12 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -39,6 +43,9 @@ class SystemSecurityTest {
     @Autowired private MockMvc mockMvc;
 
     @MockBean private SysUserService userService;
+
+    /** @OperLog 切面会写操作日志，mock 掉避免未建表（本测试类不依赖 MySQL/H2 表） */
+    @MockBean private SysOperLogService operLogService;
 
     @Test
     void withoutToken_shouldBeUnauthorized() throws Exception {
@@ -75,8 +82,56 @@ class SystemSecurityTest {
                 .andExpect(status().isForbidden());
     }
 
+    @Test
+    void createUser_shouldBindPasswordToService() throws Exception {
+        // 回归：password 字段曾用 @JsonIgnore（同时阻止反序列化），
+        // 前端填写的初始密码永远收不到 → 服务层落默认 123456。现为 WRITE_ONLY，必须透传到 service。
+        org.mockito.Mockito.when(userService.add(org.mockito.ArgumentMatchers.any()))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        String token = signToken(List.of("system:user:add"));
+        mockMvc.perform(
+                        post("/system/user")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        "{\"username\":\"newbie\",\"password\":\"init-pass-9\",\"status\":\"0\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+        ArgumentCaptor<SysUser> captor = ArgumentCaptor.forClass(SysUser.class);
+        org.mockito.Mockito.verify(userService).add(captor.capture());
+        // 核心断言：明文密码到达服务层（而非 null）
+        org.assertj.core.api.Assertions.assertThat(captor.getValue().getPassword())
+                .isEqualTo("init-pass-9");
+    }
+
+    @Test
+    void userPage_shouldNotExposePasswordHash() throws Exception {
+        // 序列化侧仍是 WRITE_ONLY：分页响应绝不包含密码哈希
+        SysUser row = new SysUser();
+        row.setId(1L);
+        row.setUsername("admin");
+        row.setPassword("$2a$10$should-not-leak");
+        Page<SysUser> page = new Page<>(1, 10);
+        page.setRecords(List.of(row));
+        page.setTotal(1);
+        whenUserPage(page);
+
+        String token = signToken(List.of("system:user:list"));
+        mockMvc.perform(get("/system/user/page").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.records[0].username").value("admin"))
+                .andExpect(jsonPath("$.data.records[0].password").doesNotExist());
+    }
+
     private void whenUserPage(Page<SysUser> page) {
-        org.mockito.Mockito.when(userService.page(anyLong(), anyLong(), anyString(), anyString()))
+        org.mockito.Mockito.when(
+                        userService.page(
+                                anyLong(),
+                                anyLong(),
+                                org.mockito.ArgumentMatchers.nullable(String.class),
+                                org.mockito.ArgumentMatchers.nullable(String.class)))
                 .thenReturn(page);
     }
 

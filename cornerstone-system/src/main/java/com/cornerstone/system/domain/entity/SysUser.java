@@ -25,8 +25,13 @@ public class SysUser extends BaseEntity {
     /** 用户昵称 */
     private String nickname;
 
-    /** 密码(BCrypt哈希)。@JsonIgnore：禁止序列化到任何响应（含分页列表），仅服务内部与认证支持接口使用 */
-    @com.fasterxml.jackson.annotation.JsonIgnore private String password;
+    /**
+     * 密码(BCrypt哈希)。WRITE_ONLY：请求可接收明文密码（新增/编辑时绑定）， 响应序列化时忽略（含分页列表，防哈希泄露）；仅服务内部与认证支持接口使用。
+     * 曾误用 @JsonIgnore——它同时阻止反序列化，导致前端填写的初始密码永远不生效（落到默认 123456）。
+     */
+    @com.fasterxml.jackson.annotation.JsonProperty(
+            access = com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY)
+    private String password;
 
     /** 部门ID */
     private Long deptId;
