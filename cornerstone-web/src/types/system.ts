@@ -129,6 +129,8 @@ export interface ConfigQuery {
   pageSize: number
   configKey?: string
   configName?: string
+  /** 系统内置：Y 是 / N 否 */
+  configType?: string
 }
 
 // ---------------------------------- 日志 ----------------------------------

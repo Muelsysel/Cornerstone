@@ -9,6 +9,12 @@
         <el-form-item label="参数名称">
           <el-input v-model="query.configName" placeholder="请输入参数名称" clearable />
         </el-form-item>
+        <el-form-item label="内置">
+          <el-select v-model="query.configType" placeholder="全部" clearable style="width: 110px">
+            <el-option label="系统" value="Y" />
+            <el-option label="自定义" value="N" />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="handleSearch">搜索</el-button>
           <el-button :icon="Refresh" @click="handleReset">重置</el-button>
@@ -148,6 +154,7 @@ function handleSearch() {
 function handleReset() {
   query.configKey = undefined
   query.configName = undefined
+  query.configType = undefined
   query.pageNum = 1
   loadData()
 }
