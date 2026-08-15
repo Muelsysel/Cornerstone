@@ -2,6 +2,16 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.3.0] - 2026-08-15（健壮性与一致性）
+
+- fix: 401 死循环——响应拦截器清会话（localStorage + store.resetSession）再跳登录页，避免与登录页守卫互相弹跳
+- fix: 分页每页条数变化时重置页码为 1（8 处分页，避免越界空页）
+- feat: 公告页操作按钮按后端权限点 `demo:announcement:edit` 控制（v-permission）；角色分配权限树加 loading
+- style: 主题变量收口——页面硬编码色（中性灰/危险红/品牌紫/深色背景）全部收敛到 `theme.css` 的 `--cs-*` 变量，页面零硬编码色
+- feat: 时间列展示统一——后端 Jackson 输出 `yyyy-MM-dd HH:mm:ss`（common 1.1.0），前端时间列自动友好，无需改前端
+
+**测试方法**：`npm run build`（vue-tsc 类型检查 + vite 构建，须通过）；`npm test`（vitest 单测）；`npm run dev` 本地联调；`docker compose up --build frontend` 后访问 http://localhost:8088 验证页面与 API 反代。
+
 ## [1.2.0] - 2026-08-15（前端单元测试地基）
 
 - test: 引入 Vitest + jsdom（`npm test`），首个单测 `src/utils/__tests__/permission.spec.ts` 覆盖 hasPermission/hasRole（admin 放行/权限点精确判断/未登录/多角色任一命中）

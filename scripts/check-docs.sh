@@ -63,6 +63,21 @@ fi
 # 5. 项目工作流技能
 check "项目技能" "skills/cornerstone-dev/SKILL.md"
 
+# 6. 前端模块文档（非 Maven 模块，单独检查）
+echo "== 前端与仓库级文档 =="
+check "前端 README" "cornerstone-web/README.md"
+check "前端 CHANGELOG" "cornerstone-web/CHANGELOG.md"
+check "前端 Dockerfile" "cornerstone-web/Dockerfile"
+check "前端 nginx 配置" "cornerstone-web/nginx.conf"
+
+# 7. 仓库级文档与工具
+check "根 CHANGELOG" "CHANGELOG.md"
+check "贡献指南" "CONTRIBUTING.md"
+check "许可证" "LICENSE"
+check "一键启动脚本" "scripts/start-all.ps1"
+check "端到端指南" "docs/guides/run-demo.md"
+check "验证脚本" "scripts/verify-chain.ps1"
+
 echo ""
 if [ "$fail" -eq 0 ]; then
   echo "PASS 文档完整性检查通过"
