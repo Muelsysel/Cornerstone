@@ -1,14 +1,16 @@
 <template>
   <el-container class="layout">
-    <!-- 侧边菜单：由路由表驱动 -->
-    <el-aside width="220px" class="layout-aside">
+    <!-- 侧边菜单：由路由表驱动；可折叠（窄屏/专注模式下让出内容区） -->
+    <el-aside :width="collapsed ? '64px' : '220px'" class="layout-aside">
       <div class="logo">
         <div class="logo-mark">C</div>
-        <span class="logo-name">Cornerstone</span>
+        <span v-if="!collapsed" class="logo-name">Cornerstone</span>
       </div>
       <el-menu
         :default-active="activeMenu"
         router
+        :collapse="collapsed"
+        :collapse-transition="false"
         class="layout-menu"
       >
         <template v-for="group in menuGroups" :key="group.name || group.items[0]?.path">
@@ -43,9 +45,12 @@
     </el-aside>
 
     <el-container>
-      <!-- 顶栏：当前页标题 + 用户下拉 -->
+      <!-- 顶栏：折叠开关 + 当前页标题 + 用户下拉 -->
       <el-header class="layout-header">
-        <div class="page-title">{{ currentTitle }}</div>
+        <div class="header-left">
+          <el-button class="collapse-btn" text :icon="collapsed ? Expand : Fold" @click="collapsed = !collapsed" />
+          <div class="page-title">{{ currentTitle }}</div>
+        </div>
         <el-dropdown trigger="click" @command="onCommand">
           <div class="user-info">
             <el-icon :size="16"><UserFilled /></el-icon>
@@ -108,6 +113,7 @@
 import { computed, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import { Expand, Fold } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { routes } from '@/router'
 import { hasPermission } from '@/utils/permission'
@@ -117,6 +123,9 @@ import type { User } from '@/types/system'
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+
+// 侧边栏折叠状态（窄屏/专注模式让出内容区）
+const collapsed = ref(false)
 
 // 从路由表扁平化用于菜单展示并按权限过滤；按 meta.group 分组（有分组归 el-sub-menu，无分组平级展示）。
 const menuRoutes = computed(() => {
@@ -238,6 +247,8 @@ async function submitPassword() {
   background: var(--cs-sider-bg);
   display: flex;
   flex-direction: column;
+  transition: width 0.25s ease;
+  overflow: hidden;
 }
 .logo {
   height: 60px;
@@ -312,6 +323,19 @@ async function submitPassword() {
   justify-content: space-between;
   height: 60px;
   padding: 0 20px;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.collapse-btn {
+  font-size: 18px;
+  color: var(--cs-text-secondary);
+}
+.collapse-btn:hover {
+  color: var(--cs-primary);
 }
 .page-title {
   display: flex;
