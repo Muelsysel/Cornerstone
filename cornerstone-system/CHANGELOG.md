@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.16] - 2026-08-15
+
+- fix: 删除菜单时清理 role_menu 关联（新增 `SysRoleMenuMapper.deleteRoleMenuByMenuId` + XML；此前删除菜单后角色权限关联留孤儿）；`SysMenuServiceImplTest` 补清理用例
+
+**测试方法**：`mvn test -pl cornerstone-system`（含 SysMenu 10 用例）。
+
 ## [1.2.15] - 2026-08-15
 
 - fix: 删除角色时补充清理 user_role 关联（新增 `SysUserRoleMapper.deleteUserRoleByRoleId` + XML；此前仅清理 role_menu/role_dept，user_role 留孤儿）

@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import com.cornerstone.common.exception.BusinessException;
 import com.cornerstone.system.domain.entity.SysMenu;
 import com.cornerstone.system.domain.mapper.SysMenuMapper;
+import com.cornerstone.system.domain.mapper.SysRoleMenuMapper;
 import com.cornerstone.system.exception.SystemErrorCode;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,11 +21,12 @@ import org.junit.jupiter.api.Test;
 class SysMenuServiceImplTest {
 
     private final SysMenuMapper menuMapper = mock(SysMenuMapper.class);
+    private final SysRoleMenuMapper roleMenuMapper = mock(SysRoleMenuMapper.class);
     private SysMenuServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        service = new SysMenuServiceImpl(menuMapper);
+        service = new SysMenuServiceImpl(menuMapper, roleMenuMapper);
     }
 
     private SysMenu menu(Long id, Long parentId, String name, Integer sort) {
@@ -150,11 +152,12 @@ class SysMenuServiceImplTest {
     }
 
     @Test
-    void deleteRemovesLeafMenu() {
+    void deleteRemovesLeafMenuAndCleansRoleMenu() {
         when(menuMapper.selectCount(any())).thenReturn(0L);
 
         service.delete(1L);
 
         verify(menuMapper).deleteById(1L);
+        verify(roleMenuMapper).deleteRoleMenuByMenuId(1L);
     }
 }

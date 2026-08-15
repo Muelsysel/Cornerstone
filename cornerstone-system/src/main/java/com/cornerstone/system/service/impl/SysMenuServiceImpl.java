@@ -4,20 +4,24 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cornerstone.common.exception.BusinessException;
 import com.cornerstone.system.domain.entity.SysMenu;
 import com.cornerstone.system.domain.mapper.SysMenuMapper;
+import com.cornerstone.system.domain.mapper.SysRoleMenuMapper;
 import com.cornerstone.system.exception.SystemErrorCode;
 import com.cornerstone.system.service.SysMenuService;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /** 菜单服务实现。 */
 @Service
 public class SysMenuServiceImpl implements SysMenuService {
 
     private final SysMenuMapper menuMapper;
+    private final SysRoleMenuMapper roleMenuMapper;
 
-    public SysMenuServiceImpl(SysMenuMapper menuMapper) {
+    public SysMenuServiceImpl(SysMenuMapper menuMapper, SysRoleMenuMapper roleMenuMapper) {
         this.menuMapper = menuMapper;
+        this.roleMenuMapper = roleMenuMapper;
     }
 
     @Override
@@ -75,6 +79,7 @@ public class SysMenuServiceImpl implements SysMenuService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void delete(Long menuId) {
         long children =
                 menuMapper.selectCount(
@@ -83,6 +88,8 @@ public class SysMenuServiceImpl implements SysMenuService {
             throw new BusinessException(SystemErrorCode.DELETE_WITH_CHILD_MENU);
         }
         menuMapper.deleteById(menuId);
+        // 清理角色-菜单关联，避免孤儿记录残留
+        roleMenuMapper.deleteRoleMenuByMenuId(menuId);
     }
 
     /** 平铺菜单组装成树 */

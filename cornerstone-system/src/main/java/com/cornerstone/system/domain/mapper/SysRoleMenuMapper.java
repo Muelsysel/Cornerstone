@@ -11,6 +11,9 @@ public interface SysRoleMenuMapper {
     /** 删除角色拥有的全部菜单 */
     int deleteRoleMenuByRoleId(Long roleId);
 
+    /** 删除某菜单被分配的全部角色关联（删除菜单时清理孤儿记录） */
+    int deleteRoleMenuByMenuId(Long menuId);
+
     /** 为角色批量分配菜单 */
     int batchInsertRoleMenu(@Param("roleId") Long roleId, @Param("menuIds") List<Long> menuIds);
 
