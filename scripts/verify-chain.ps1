@@ -102,6 +102,10 @@ try {
     $code = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 $pageUrl
     Assert 'Public endpoint no token 200' $code '200'
 
+    # 2b. 前端容器可访问（部署完整性：nginx 托管 + 反代网关）
+    $code = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 'http://localhost:8088/'
+    Assert 'Frontend container reachable 200' $code '200'
+
     # 3. Protected endpoint without token -> 401
     $code = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 'http://localhost:8080/system/user/1'
     Assert 'Protected no token 401' $code '401'
