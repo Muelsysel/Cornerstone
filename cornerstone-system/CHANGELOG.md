@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.8] - 2026-08-15
+
+- fix: `SysDeptServiceImpl.update` 补"父节点不能选自身子孙"校验（此前仅查自己，选子孙会成环 A→B→C→A 破坏树结构）；`SysDeptServiceImplTest` 补环检测用例
+
+**测试方法**：`mvn test -pl cornerstone-system`（含 SysDeptServiceImplTest 10 用例）。
+
 ## [1.2.7] - 2026-08-15
 
 - docs: CONTEXT.md 分页条目补 pageNum/pageSize 契约约定（1.5.8 回归修复的防复发记录）

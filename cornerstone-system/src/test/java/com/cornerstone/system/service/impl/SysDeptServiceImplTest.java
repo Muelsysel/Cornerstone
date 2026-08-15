@@ -103,6 +103,23 @@ class SysDeptServiceImplTest {
     }
 
     @Test
+    void updateRejectsOwnDescendantAsParent() {
+        // 树：1(根) → 2 → 3。把 1 的父节点改为 3（自己的子孙）会成环 → 拒绝
+        SysDept root = dept(1L, 0L, "总公司", "0", 1);
+        SysDept child = dept(2L, 1L, "研发部", "0,1", 1);
+        SysDept grandchild = dept(3L, 2L, "前端组", "0,1,2", 1);
+        when(deptMapper.selectById(1L)).thenReturn(root);
+        when(deptMapper.selectList(null)).thenReturn(List.of(root, child, grandchild));
+        SysDept d = dept(1L, 3L, "总公司", "0", 1);
+
+        assertThatThrownBy(() -> service.update(d))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getCode())
+                .isEqualTo(SystemErrorCode.INVALID_PARENT.getCode());
+        verify(deptMapper, never()).updateById(any(SysDept.class));
+    }
+
+    @Test
     void updateThrowsWhenDeptMissing() {
         SysDept d = dept(42L, 0L, "不存在", "0", 1);
         when(deptMapper.selectById(42L)).thenReturn(null);

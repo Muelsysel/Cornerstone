@@ -49,13 +49,34 @@ public class SysDeptServiceImpl implements SysDeptService {
         if (exist == null) {
             throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
         }
-        // 父节点不能选自己或自身子节点
-        if (Objects.equals(dept.getParentId(), dept.getId())) {
+        // 父节点不能选自己或自身子节点（选子节点会形成环：A→B→C→A）
+        Long newParent = dept.getParentId();
+        if (Objects.equals(newParent, dept.getId())
+                || (newParent != null
+                        && newParent != 0L
+                        && isDescendant(dept.getId(), newParent))) {
             throw new BusinessException(SystemErrorCode.INVALID_PARENT);
         }
         dept.setAncestors(resolveAncestors(dept.getParentId()));
         deptMapper.updateById(dept);
         return deptMapper.selectById(dept.getId());
+    }
+
+    /** candidateParentId 是否为 nodeId 的子孙节点（全量查询本地遍历，部门数量级小可接受） */
+    private boolean isDescendant(Long nodeId, Long candidateParentId) {
+        List<SysDept> all = deptMapper.selectList(null);
+        java.util.Set<Long> descendants = new java.util.HashSet<>();
+        collectDescendants(all, nodeId, descendants);
+        return descendants.contains(candidateParentId);
+    }
+
+    private void collectDescendants(
+            List<SysDept> all, Long parentId, java.util.Set<Long> descendants) {
+        for (SysDept dept : all) {
+            if (Objects.equals(dept.getParentId(), parentId) && descendants.add(dept.getId())) {
+                collectDescendants(all, dept.getId(), descendants);
+            }
+        }
     }
 
     @Override
