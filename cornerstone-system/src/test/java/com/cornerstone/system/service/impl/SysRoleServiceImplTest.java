@@ -62,6 +62,16 @@ class SysRoleServiceImplTest {
     }
 
     @Test
+    void addRejectsOversizedRoleName() {
+        // 回归：超长角色名曾触发 DB varchar(30) DataTruncation → 500；现业务层返回友好 400
+        when(service.count(any())).thenReturn(0L);
+        SysRole r = role(null, "ok-key", "1");
+        r.setRoleName("n".repeat(31));
+
+        assertThatThrownBy(() -> service.add(r)).isInstanceOf(BusinessException.class);
+    }
+
+    @Test
     void addWithCustomScopeInsertsDepts() {
         when(service.count(any())).thenReturn(0L);
         SysRole r = role(5L, "ops", "2");

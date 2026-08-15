@@ -55,6 +55,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
     @Override
     @Transactional(rollbackFor = Exception.class)
     public SysRole add(SysRole role) {
+        validateRoleLengths(role.getRoleName(), role.getRoleKey());
         long exists =
                 this.count(
                         new LambdaQueryWrapper<SysRole>()
@@ -79,6 +80,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
         if (exist == null) {
             throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
         }
+        validateRoleLengths(role.getRoleName(), role.getRoleKey());
         // 修改 roleKey 时校验唯一性（排除自己；并发撞唯一索引由 DuplicateKeyException 兜底）
         if (hasText(role.getRoleKey()) && !role.getRoleKey().equals(exist.getRoleKey())) {
             long exists =
@@ -167,5 +169,20 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
 
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    /**
+     * 角色名称/标识长度校验（与 DB 列一致：role_name varchar(30)、role_key varchar(50)）： 超长会触发 DataTruncation →
+     * 500，业务层先校验返回友好 400。
+     */
+    private void validateRoleLengths(String roleName, String roleKey) {
+        if (roleName != null && roleName.length() > 30) {
+            throw new BusinessException(
+                    com.cornerstone.common.core.ErrorCode.BAD_REQUEST, "角色名称不能超过 30 个字符");
+        }
+        if (roleKey != null && roleKey.length() > 50) {
+            throw new BusinessException(
+                    com.cornerstone.common.core.ErrorCode.BAD_REQUEST, "角色标识不能超过 50 个字符");
+        }
     }
 }
