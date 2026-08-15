@@ -9,6 +9,12 @@
         <el-form-item label="操作人">
           <el-input v-model="query.operName" placeholder="请输入操作人" clearable />
         </el-form-item>
+        <el-form-item label="状态">
+          <el-select v-model="query.status" placeholder="全部" clearable style="width: 110px">
+            <el-option label="成功" :value="0" />
+            <el-option label="失败" :value="1" />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="handleSearch">搜索</el-button>
           <el-button :icon="Refresh" @click="handleReset">重置</el-button>
@@ -142,6 +148,7 @@ function handleSearch() {
 function handleReset() {
   query.title = undefined
   query.operName = undefined
+  query.status = undefined
   query.pageNum = 1
   loadData()
 }
