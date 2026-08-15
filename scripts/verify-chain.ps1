@@ -229,6 +229,18 @@ try {
     }
     Assert 'Dept tree accessible (admin)' $deptOk 'OK'
 
+    # 6c2. 角色分页 roleKey 过滤契约：搜 roleKey=admin 必须命中 admin 角色（回归：前端搜索参数曾静默无效）
+    $roleKeyOk = 'FAIL'
+    $roleResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
+        'http://localhost:8080/system/role/page?pageNum=1&pageSize=20&roleKey=admin'
+    try {
+        $roleRecs = ($roleResp | ConvertFrom-Json).data.records
+        if ($roleRecs -is [array] -and ($roleRecs | Where-Object { $_.roleKey -eq 'admin' })) {
+            $roleKeyOk = 'OK'
+        }
+    } catch {}
+    Assert 'Role page roleKey filter works' $roleKeyOk 'OK'
+
     # 6d. 审计契约：登录日志含 admin 记录（登录成功已投递审计，回归防丢失）
     $logOk = 'FAIL'
     for ($attempt = 1; $attempt -le 2 -and $logOk -ne 'OK'; $attempt++) {
