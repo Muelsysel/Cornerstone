@@ -72,7 +72,10 @@ service.interceptors.response.use(
     const status: number | undefined = error?.response?.status
     const message: string | undefined = error?.response?.data?.message
     let text = message || error.message || '网络异常，请稍后重试'
-    if (status === 401) {
+    if (error?.code === 'ECONNABORTED' || error?.message?.includes('timeout')) {
+      // 请求超时：无响应体可读，给出友好提示（避免暴露 axios 英文原语）
+      text = '请求超时，请稍后重试'
+    } else if (status === 401) {
       // 登录接口的 HTTP 401 同理不视为会话失效
       if (isLoginUrl(error?.config?.url)) {
         text = message || '用户名或密码错误'

@@ -18,6 +18,7 @@ vi.mock('@/router', () => ({
 import service from '@/api/request'
 import { useUserStore } from '@/stores/user'
 import { TOKEN_KEY } from '@/utils/auth'
+import { ElMessage } from 'element-plus'
 
 // 401 登录失效死循环回归测试：
 // 响应拦截器收到 401（HTTP 或业务码）时必须清空会话（localStorage + store），
@@ -91,6 +92,24 @@ describe('request 拦截器 401 处理', () => {
     // 登录失败不是会话失效：不清理用户、不跳登录页
     expect(store.user).not.toBeNull()
     expect(replaceMock).not.toHaveBeenCalled()
+  })
+
+  it('请求超时：不清会话不跳转，提示友好中文', async () => {
+    const store = useUserStore()
+    store.$patch({
+      user: { userId: 1, username: 'admin', roles: ['admin'], permissions: [] },
+    })
+    const messageMock = vi.mocked(ElMessage.error)
+
+    await expect(
+      handlers[0].rejected({ code: 'ECONNABORTED', message: 'timeout of 15000ms exceeded' }),
+    ).rejects.toBeTruthy()
+
+    // 超时不是会话失效：不清理用户、不跳登录页
+    expect(store.user).not.toBeNull()
+    expect(replaceMock).not.toHaveBeenCalled()
+    // 提示中文友好文案，不暴露 axios 英文原语
+    expect(messageMock).toHaveBeenCalledWith('请求超时，请稍后重试')
   })
 })
 
