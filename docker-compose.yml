@@ -10,6 +10,13 @@ services:
       - "9848:9848"
     networks:
       - cornerstone-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8848/nacos/v1/console/health/readiness"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   mysql:
     image: mysql:8.0
@@ -25,6 +32,13 @@ services:
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     networks:
       - cornerstone-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pcornerstone"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   redis:
     image: redis:7
@@ -35,6 +49,12 @@ services:
       - cornerstone-redis-data:/data
     networks:
       - cornerstone-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
   # 前端：多阶段构建（node 构建 → nginx 托管），反代 /auth /system /demo 到宿主机网关
   # 构建：docker compose up --build frontend；访问 http://localhost:8088
