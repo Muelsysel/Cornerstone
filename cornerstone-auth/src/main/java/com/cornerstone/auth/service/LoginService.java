@@ -74,7 +74,7 @@ public class LoginService {
                 user.getRoles());
     }
 
-    /** 把一条登录日志投递 system 落库。日志记录失败不阻塞登录主流程（八荣八耻：不因日志故障阻塞登录）。 */
+    /** 把一条登录日志投递 system 落库。日志记录失败不阻塞登录主流程。 */
     private void recordLog(String username, String clientIp, String status, String msg) {
         try {
             LoginLogDTO dto = new LoginLogDTO();

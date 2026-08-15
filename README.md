@@ -35,7 +35,7 @@ Java 17 · Spring Boot 3.2 · Spring Cloud 2023.0 · Spring Cloud Alibaba (Nacos
 - **用户自助**：个人中心（个人信息 + 修改密码，旧密码验证）
 - **审计**：操作日志（@OperLog AOP + 详情查看）+ 登录日志（成功/失败自动记录）
 - **治理**：服务间内部令牌认证（ADR-0007）、actuator 健康检查、网关 Redis 限流、网关访问日志、CI（编译/测试/Spotless/文档校验）
-- **文档约束**：AGENTS.md（黄金法则 + 八荣八耻）、CONTEXT-MAP、7 条 ADR、项目技能 `skills/cornerstone-dev`
+- **文档约束**：AGENTS.md（黄金法则 + 文档维护义务）、CONTEXT-MAP、7 条 ADR、项目技能 `skills/cornerstone-dev`
 
 ## 快速开始
 
@@ -83,7 +83,7 @@ npm run dev     # http://localhost:5173，admin / admin123
 
 ## AI 协作指南
 
-1. **让 AI 读 `AGENTS.md`** —— 它是每个 AI 的入口，说明黄金法则、八荣八耻、文档导航
+1. **让 AI 读 `AGENTS.md`** —— 它是每个 AI 的入口，说明黄金法则、文档维护义务与文档导航
 2. **安装 `skills/cornerstone-dev`** —— 把 `skills/cornerstone-dev/` 安装到你的 AI 工具（Claude Code / Cursor / DSH / Codex），AI 加载后即按项目工作流开发
 3. **先导航后动工** —— 任何改动前：CONTEXT-MAP → 模块 CONTEXT → 相关 ADR
 

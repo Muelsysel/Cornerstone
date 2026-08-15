@@ -5,7 +5,7 @@ description: Cornerstone 项目开发工作流。当你在 Cornerstone 仓库（
 
 # Cornerstone 开发工作流
 
-Cornerstone 是**文档约束驱动**的 Spring Cloud 脚手架：文档是契约，先读后写。本技能是每个 AI 在本仓库工作的标准流程。与 `AGENTS.md` 的黄金法则和八荣八耻配套使用。
+Cornerstone 是**文档约束驱动**的 Spring Cloud 脚手架：文档是契约，先读后写。本技能是每个 AI 在本仓库工作的标准流程。与 `AGENTS.md` 的黄金法则和文档维护义务配套使用。
 
 ## 工作流（按序执行，每步有完成标准）
 
@@ -49,7 +49,7 @@ Cornerstone 是**文档约束驱动**的 Spring Cloud 脚手架：文档是契�
 - **审计列**：实体继承 `BaseEntity` 的表必须有 `create_by/update_by` 列（否则 MyBatis-Plus 全字段查询报 Unknown column）
 - **Mapper 双参数**：`@Param` 必加（父 POM 未开 `-parameters`，XML foreach 无法按名绑定）
 - **密码与密钥**：密码用 DelegatingPasswordEncoder（支持 {noop} 客户端密钥 + 无前缀 BCrypt 用户哈希）；RSA 密钥四处一致（auth 私钥 ↔ gateway/system/demo 公钥）
-- **前端**：`cornerstone-web/`（Vue3 + Element Plus），开发经 vite 代理到网关 8080，登录态存 localStorage，接口统一 Result 处理
+- **前端**：`cornerstone-web/`（Vue3 + Element Plus **按需引入**，unplugin 自动生成 `src/auto-imports.d.ts`/`src/components.d.ts` 需随源码提交），开发经 vite 代理到网关 8080，登录态存 localStorage，接口统一 Result 处理；设计语言（基石蓝 #4F46E5 / 石板深色侧边栏）集中于 `src/styles/theme.css`，改主题只动该文件，并同步 web README「前端设计」章节；生产经 nginx 容器（镜像 `cornerstone-frontend:latest`，8088）反代 /auth /system /demo 到网关；el-table 插槽 `row` 标注 `{ row: any }`（DefaultRow 逆变限制），树选择器用 `node-key` 而非 props.value
 
 ### 5. 验证（未验证不算完成）
 
