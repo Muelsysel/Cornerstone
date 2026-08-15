@@ -56,7 +56,7 @@
       </el-form>
 
       <div class="login-tip">
-        测试账号 admin / admin123 · 部署与启动见 cornerstone-web/README.md
+        测试账号 admin / admin123 · test / admin123（数据权限演示）· 部署见 cornerstone-web/README.md
       </div>
     </el-card>
   </div>
