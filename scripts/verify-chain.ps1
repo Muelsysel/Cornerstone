@@ -313,6 +313,33 @@ try {
     }
     Assert 'Data scope: test sees only self' $dsOk 'OK'
 
+    # 12. 密码绑定契约：创建用户携带自定义密码 → 该密码必须真实生效（回归：@JsonIgnore 曾致初始密码
+    #     永不到达 service，静默落默认 123456）；用自定义密码登录成功即证明绑定链路完整
+    $pwUser = "verify-pw-$ts"
+    $pwPass = 'VrfyP@ss!2026'
+    $pwCreated = $null
+    $pwOk = 'FAIL'
+    Write-JsonBody "{`"username`":`"$pwUser`",`"password`":`"$pwPass`",`"status`":`"0`"}"
+    $pwResp = curl.exe -s --max-time 20 -X POST 'http://localhost:8080/system/user' `
+        -H "Authorization: Bearer $adminToken" -H 'Content-Type: application/json' --data-binary "@$tmpJson"
+    try { $pwCreated = ($pwResp | ConvertFrom-Json).data.userId } catch {}
+    if ($pwCreated) {
+        # 用自定义密码登录（幂等重试）
+        $pwLoginCode = $null
+        for ($attempt = 1; $attempt -le 2 -and $pwLoginCode -ne 200; $attempt++) {
+            Write-JsonBody "{`"username`":`"$pwUser`",`"password`":`"$pwPass`"}"
+            $pwLogin = curl.exe -s --max-time 20 -X POST 'http://localhost:8080/auth/login' `
+                -H 'Content-Type: application/json' --data-binary "@$tmpJson"
+            try { $pwLoginCode = ($pwLogin | ConvertFrom-Json).code } catch {}
+            if ($pwLoginCode -ne 200 -and $attempt -lt 2) { Start-Sleep -Milliseconds 500 }
+        }
+        if ($pwLoginCode -eq 200) { $pwOk = 'OK' }
+        # 清理临时用户（删除接口幂等）
+        curl.exe -s -o NUL --max-time 20 -X DELETE "http://localhost:8080/system/user/$pwCreated" `
+            -H "Authorization: Bearer $adminToken"
+    }
+    Assert 'Password binding: custom init password works' $pwOk 'OK'
+
     if ($script:fail -eq 0) {
         Write-Host ''
         Write-Host '=== End-to-end verification PASSED ==='
