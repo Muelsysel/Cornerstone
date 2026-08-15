@@ -55,6 +55,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
         }
         // 未指定密码时使用默认密码
         String rawPassword = hasText(user.getPassword()) ? user.getPassword() : "123456";
+        validatePasswordLength(rawPassword);
         user.setPassword(passwordEncoder.encode(rawPassword));
         try {
             this.save(user);
@@ -87,6 +88,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
         if (!hasText(user.getPassword())) {
             user.setPassword(null);
         } else {
+            validatePasswordLength(user.getPassword());
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
         try {
@@ -129,6 +131,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
         }
         SysUser patch = new SysUser();
         patch.setId(userId);
+        validatePasswordLength(password);
         patch.setPassword(passwordEncoder.encode(password));
         this.updateById(patch);
     }
@@ -152,5 +155,15 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
 
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    /**
+     * 密码长度上限（与认证中心登录契约一致）：BCrypt 仅处理前 72 字节，超长会静默截断—— 若允许创建超长密码，登录时认证侧 @Size(72) 会直接拒绝，用户将永远无法登录。
+     */
+    private void validatePasswordLength(String password) {
+        if (password != null && password.length() > 72) {
+            throw new BusinessException(
+                    com.cornerstone.common.core.ErrorCode.BAD_REQUEST, "密码长度不能超过 72 个字符");
+        }
     }
 }

@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.27] - 2026-08-16
+
+- fix(security): 用户新增/编辑/重置密码统一校验 ≤72 字符——此前无限制，可创建超长密码但登录侧 `@Size(72)` 拒绝 → 用户永远无法登录（契约缺口）；`SysUserServiceImplTest` 新增 `addRejectsOversizedPassword`/`resetPasswordRejectsOversizedPassword`
+
+**测试方法**：`mvn test -pl cornerstone-system`（123 用例）。
+
 ## [1.2.26] - 2026-08-16
 
 - fix(bug): `changeStatus` 补用户存在性校验——此前对不存在 userId 静默成功（`updateById` 返回 0 被忽略），前端误报"启用成功"；现与 `resetPassword`/`assignRoles` 一致返回 USER_NOT_FOUND；`SysUserServiceImplTest` 新增 `changeStatusRejectsMissingUser` 回归用例

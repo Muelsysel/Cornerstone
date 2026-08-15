@@ -218,4 +218,25 @@ class SysUserServiceImplTest {
         verify(passwordEncoder).encode("temp-123");
         verify(service).updateById(argThat(u -> u.getId() == 8L && u.getPassword() != null));
     }
+
+    @Test
+    void addRejectsOversizedPassword() {
+        // 与认证登录契约一致（@Size 72）：超长密码会静默截断，登录必被拒 → 创建时即拒绝
+        when(userMapper.selectCount(any())).thenReturn(0L);
+        SysUser u = user(null, "longpw");
+        u.setPassword("p".repeat(73));
+
+        assertThatThrownBy(() -> service.add(u)).isInstanceOf(BusinessException.class);
+        verify(passwordEncoder, never()).encode(org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
+    void resetPasswordRejectsOversizedPassword() {
+        SysUser exist = user(8L, "bob");
+        doReturn(exist).when(service).getById(8L);
+
+        assertThatThrownBy(() -> service.resetPassword(8L, "p".repeat(73)))
+                .isInstanceOf(BusinessException.class);
+        verify(passwordEncoder, never()).encode(org.mockito.ArgumentMatchers.anyString());
+    }
 }
