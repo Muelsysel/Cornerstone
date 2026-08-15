@@ -242,6 +242,18 @@ try {
     }
     Assert 'Login log contains admin record (audit)' $logOk 'OK'
 
+    # 6e. 时间区间契约：登录日志按 beginTime（今天 00:00:00）过滤仍能查到 admin 记录（回归：日期过滤参数）
+    #     注意：URL 内空格必须编码为 %20（curl.exe 遇裸空格返回空响应）
+    $today = Get-Date -Format 'yyyy-MM-dd'
+    $rangeOk = 'FAIL'
+    $rangeResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
+        "http://localhost:8080/system/loginlog/page?pageNum=1&pageSize=20&username=admin&beginTime=$today%2000:00:00"
+    try {
+        $rangeRecs = ($rangeResp | ConvertFrom-Json).data.records
+        if ($rangeRecs -is [array] -and $rangeRecs.Count -gt 0) { $rangeOk = 'OK' }
+    } catch {}
+    Assert 'Login log date-range filter works' $rangeOk 'OK'
+
     # 7. 公告编辑契约：POST 创建草稿 -> PUT /{id} 更新（曾因 PUT 缺 id 路径 100% 失败）
     $ts = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
     $annTitle = "verify-chain-$ts"
