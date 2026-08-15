@@ -162,17 +162,14 @@ function handleDetail(row: OperLog) {
   detailVisible.value = true
 }
 
-// 业务类型枚举映射（后端 businessType 为数字）。未知值宽容显示为「其他」。
+// 业务类型枚举映射（对齐后端 BusinessType：0其他/1新增/2修改/3删除/8清空）。未知值宽容显示为「其他」。
 function businessTypeText(type: number | undefined): string {
   const map: Record<number, string> = {
+    0: '其他',
     1: '新增',
     2: '修改',
     3: '删除',
-    5: '导出',
-    6: '导入',
-    7: '强退',
     8: '清空',
-    9: '查询',
   }
   return type !== undefined && type in map ? map[type] : '其他'
 }
