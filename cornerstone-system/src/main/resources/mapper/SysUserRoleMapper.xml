@@ -7,6 +7,10 @@
         DELETE FROM sys_user_role WHERE user_id = #{userId}
     </delete>
 
+    <delete id="deleteUserRoleByRoleId">
+        DELETE FROM sys_user_role WHERE role_id = #{roleId}
+    </delete>
+
     <insert id="batchInsertUserRole">
         INSERT INTO sys_user_role (user_id, role_id) VALUES
         <foreach collection="roleIds" item="roleId" separator=",">

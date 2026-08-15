@@ -11,6 +11,9 @@ public interface SysUserRoleMapper {
     /** 删除用户拥有的全部角色 */
     int deleteUserRoleByUserId(Long userId);
 
+    /** 删除某角色被分配的全部用户关联（删除角色时清理孤儿记录） */
+    int deleteUserRoleByRoleId(Long roleId);
+
     /** 为用户批量分配角色 */
     int batchInsertUserRole(@Param("userId") Long userId, @Param("roleIds") List<Long> roleIds);
 

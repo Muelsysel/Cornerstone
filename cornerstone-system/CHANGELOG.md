@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.15] - 2026-08-15
+
+- fix: 删除角色时补充清理 user_role 关联（新增 `SysUserRoleMapper.deleteUserRoleByRoleId` + XML；此前仅清理 role_menu/role_dept，user_role 留孤儿）
+
+**测试方法**：`mvn test -pl cornerstone-system`（含 SysRole 12 用例）。
+
 ## [1.2.14] - 2026-08-15
 
 - fix: 删除用户时清理 user_role 关联、删除角色时清理 role_menu/role_dept 关联（此前只删主记录，关联表留孤儿记录）；两测试类各补删除清理用例

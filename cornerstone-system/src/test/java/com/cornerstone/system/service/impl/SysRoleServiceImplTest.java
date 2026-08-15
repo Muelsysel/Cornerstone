@@ -135,6 +135,7 @@ class SysRoleServiceImplTest {
         assertThatThrownBy(() -> service.delete(1L)).isInstanceOf(BusinessException.class);
         verify(roleMenuMapper, never()).deleteRoleMenuByRoleId(any());
         verify(roleDeptMapper, never()).deleteByRoleId(any());
+        verify(userRoleMapper, never()).deleteUserRoleByRoleId(any());
     }
 
     @Test
@@ -146,6 +147,7 @@ class SysRoleServiceImplTest {
         verify(service).removeById(3L);
         verify(roleMenuMapper).deleteRoleMenuByRoleId(3L);
         verify(roleDeptMapper).deleteByRoleId(3L);
+        verify(userRoleMapper).deleteUserRoleByRoleId(3L);
     }
 
     @Test

@@ -120,9 +120,10 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
             throw new BusinessException(SystemErrorCode.DELETE_BUILTIN_ROLE);
         }
         this.removeById(roleId);
-        // 清理角色-菜单/角色-部门关联，避免孤儿记录残留
+        // 清理角色-菜单/角色-部门/用户-角色关联，避免孤儿记录残留
         roleMenuMapper.deleteRoleMenuByRoleId(roleId);
         roleDeptMapper.deleteByRoleId(roleId);
+        userRoleMapper.deleteUserRoleByRoleId(roleId);
     }
 
     @Override
