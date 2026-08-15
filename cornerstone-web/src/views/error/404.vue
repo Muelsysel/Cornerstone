@@ -23,12 +23,12 @@ function goHome() {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #f0f2f5;
+  background: var(--cs-content-bg);
 }
 .error-code {
   font-size: 120px;
   font-weight: 700;
-  color: #409eff;
+  color: var(--cs-primary);
   line-height: 1;
 }
 .error-desc {

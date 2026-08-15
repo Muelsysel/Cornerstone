@@ -83,7 +83,7 @@ function go(path: string) {
   text-align: center;
 }
 .card-icon {
-  color: #409eff;
+  color: var(--cs-primary);
   margin-bottom: 8px;
 }
 .card-title {
