@@ -73,7 +73,7 @@ controller → service(业务规则) → mapper(MyBatis-Plus) → announcement �
    - 端口：`application.yml → server.port` 改为 838x。
    - 库名：`spring.datasource.url` 的 `cornerstone_demo` → `<新库>`；在基础设施初始化脚本中建库。
    - 服务名：`spring.application.name` → `cornerstone-<新模块>`。
-4. **写 Flyway 迁移**：删掉 demo 的 `V1/V2`，新建 `V1__baseline.sql`（建你的表）+ `V2__seed.sql`（种子数据）。表结构见 `docs/adr/0003`：纯 SQL、版本化、可回放。
+4. **写 Flyway 迁移**：删掉 demo 的迁移（`V1`–`V3`），新建 `V1__baseline.sql`（建你的表）+ `V2__seed.sql`（种子数据）+ 后续增量。表结构见 `docs/adr/0003`：纯 SQL、版本化、可回放。
 5. **实现实体/服务/接口**：照 demo 的 `domain/mapper/service/controller` 分包：
    - 实体继承 MyBatis-Plus 注解（`@TableId`/`@TableName`/`@TableLogic`/`@TableField(fill=...)`）。
    - 自定义错误码枚举：实现 `com.cornerstone.common.core.IErrorCode`，从 **1000 起** 编号，避免与内置码冲突。
@@ -100,6 +100,6 @@ cornerstone-demo/
     │   └── controller/              ← 公告接口（公开 + 受保护）
     └── resources/
         ├── application.yml
-        └── db/migration/            ← V1__baseline.sql / V2__seed.sql
+        └── db/migration/            ← V1__baseline.sql / V2__seed.sql / V3__author_column.sql
 └── src/test/                        ← MockMvc 集成测试（H2 跑 Flyway）
 ```
