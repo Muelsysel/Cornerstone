@@ -82,19 +82,19 @@ describe('request 拦截器令牌附加', () => {
 
   const requestHandlers = (
     service.interceptors.request as unknown as {
-      fulfilled: (config: { headers: Record<string, string> }) => unknown
-    }[]
+      handlers: { fulfilled: (config: { headers: Record<string, string> }) => unknown }[]
+    }
   ).handlers
 
   it('本地有令牌时附加 Authorization 头', () => {
     localStorage.setItem(TOKEN_KEY, 'jwt-token')
-    const config = { headers: {} }
+    const config: { headers: Record<string, string> } = { headers: {} }
     requestHandlers[0].fulfilled(config)
     expect(config.headers.Authorization).toBe('Bearer jwt-token')
   })
 
   it('无令牌时不附加 Authorization 头', () => {
-    const config = { headers: {} }
+    const config: { headers: Record<string, string> } = { headers: {} }
     requestHandlers[0].fulfilled(config)
     expect(config.headers.Authorization).toBeUndefined()
   })
