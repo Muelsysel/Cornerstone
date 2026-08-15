@@ -432,9 +432,14 @@ try {
             if ($pwLoginCode -ne 200 -and $attempt -lt 2) { Start-Sleep -Milliseconds 500 }
         }
         if ($pwLoginCode -eq 200) { $pwOk = 'OK' }
-        # 清理临时用户（删除接口幂等）
-        curl.exe -s -o NUL --max-time 20 -X DELETE "http://localhost:8080/system/user/$pwCreated" `
-            -H "Authorization: Bearer $adminToken"
+        # 清理临时用户（幂等重试：curl 偶发空响应时 DELETE 未执行会残留）
+        for ($attempt = 1; $attempt -le 2; $attempt++) {
+            $delCode = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 `
+                -X DELETE "http://localhost:8080/system/user/$pwCreated" `
+                -H "Authorization: Bearer $adminToken"
+            if ($delCode -eq '200') { break }
+            Start-Sleep -Milliseconds 500
+        }
     }
     Assert 'Password binding: custom init password works' $pwOk 'OK'
 
@@ -470,9 +475,14 @@ try {
             }
             if ($rpLoginCode -eq 200) { $rpOk = 'OK' }
         }
-        # 清理临时用户
-        curl.exe -s -o NUL --max-time 20 -X DELETE "http://localhost:8080/system/user/$rpId" `
-            -H "Authorization: Bearer $adminToken"
+        # 清理临时用户（幂等重试）
+        for ($attempt = 1; $attempt -le 2; $attempt++) {
+            $delCode = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 `
+                -X DELETE "http://localhost:8080/system/user/$rpId" `
+                -H "Authorization: Bearer $adminToken"
+            if ($delCode -eq '200') { break }
+            Start-Sleep -Milliseconds 500
+        }
     }
     Assert 'Password policy: short rejected + reset works' $rpOk 'OK'
 
