@@ -25,6 +25,11 @@ export function getAnnouncementPage(params: AnnouncementQuery): Promise<PageResu
   return request({ url: '/demo/announcement/page', method: 'get', params })
 }
 
+/** 公告详情（公开接口；游客仅可见已发布内容，非发布态返回不存在） */
+export function getAnnouncementDetail(id: number): Promise<Announcement> {
+  return request({ url: `/demo/announcement/${id}`, method: 'get' })
+}
+
 // 以下管理操作需要登录态（Authorization: Bearer token）。
 export function createAnnouncement(data: Partial<Announcement>): Promise<unknown> {
   return request({ url: '/demo/announcement', method: 'post', data })

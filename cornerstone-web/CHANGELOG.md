@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.4.27] - 2026-08-16
+
+- feat(ux): 公告管理页新增「查看」详情弹窗——复用公开 GET /{id} 接口展示正文全文（此前列表仅标题，内容截断不可读）；api 新增 `getAnnouncementDetail`
+
+**测试方法**：`npm test`（33 用例）+ `npm run build`。
+
 ## [1.4.26] - 2026-08-16
 
 - fix(security): 重置密码请求体化——`resetUserPassword` 由 query 参数改为 body（明文密码不再进 URL/访问日志/浏览器历史）

@@ -43,8 +43,9 @@
         <el-table-column prop="author" label="作者" width="120" />
         <el-table-column prop="createTime" label="创建时间" min-width="170" />
         <el-table-column prop="updateTime" label="更新时间" min-width="170" />
-        <el-table-column label="操作" width="220" fixed="right">
+        <el-table-column label="操作" width="280" fixed="right">
           <template #default="{ row }: { row: any }">
+            <el-button link type="info" @click="handleView(row)">查看</el-button>
             <!-- 草稿可发布；已发布可下线；已下线无流转按钮 -->
             <el-button
               v-if="row.status === 0"
@@ -102,6 +103,24 @@
         <el-button type="primary" :loading="submitting" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 详情弹窗（复用后端 GET /{id}，正文全文展示） -->
+    <el-dialog v-model="detailVisible" title="公告详情" width="560px">
+      <template v-if="detail">
+        <h3 class="detail-title">{{ detail.title }}</h3>
+        <div class="detail-meta">
+          <el-tag size="small" :type="announcementStatusTagType(detail.status)">
+            {{ announcementStatusText(detail.status) }}
+          </el-tag>
+          <span v-if="detail.author">作者：{{ detail.author }}</span>
+          <span v-if="detail.createTime">创建：{{ detail.createTime }}</span>
+        </div>
+        <div class="detail-content">{{ detail.content || '（无内容）' }}</div>
+      </template>
+      <template #footer>
+        <el-button @click="detailVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -112,6 +131,7 @@ import { Plus, Refresh, Search } from '@element-plus/icons-vue'
 import {
   createAnnouncement,
   deleteAnnouncement,
+  getAnnouncementDetail,
   getAnnouncementPage,
   offlineAnnouncement,
   publishAnnouncement,
@@ -135,6 +155,19 @@ const loading = ref(false)
 const submitting = ref(false)
 const list = ref<Announcement[]>([])
 const total = ref(0)
+
+// 详情弹窗状态
+const detailVisible = ref(false)
+const detail = ref<Announcement | null>(null)
+
+async function handleView(row: Announcement) {
+  try {
+    detail.value = await getAnnouncementDetail(row.id)
+    detailVisible.value = true
+  } catch {
+    // 详情加载失败（如游客态访问非发布内容）由请求拦截器提示，不打开弹窗
+  }
+}
 
 const query = reactive<AnnouncementQuery>({ pageNum: 1, pageSize: 10 })
 
@@ -279,5 +312,24 @@ onMounted(loadData)
 .pagination {
   margin-top: 16px;
   justify-content: flex-end;
+}
+.detail-title {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+.detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--cs-text-secondary);
+}
+.detail-content {
+  white-space: pre-wrap;
+  line-height: 1.7;
+  color: var(--cs-text);
+  max-height: 320px;
+  overflow-y: auto;
 }
 </style>
