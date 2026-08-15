@@ -8,7 +8,7 @@ Cornerstone 的前端管理后台，基于 **Vite + Vue 3 + Element Plus + Pinia
 
 | 类别 | 选型 |
 | --- | --- |
-| 构建工具 | Vite 5 |
+| 构建工具 | Vite 7 |
 | 框架 | Vue 3（`<script setup>` + TS） |
 | UI 组件库 | Element Plus（**按需引入**：unplugin-auto-import + unplugin-vue-components） |
 | 状态管理 | Pinia |
@@ -102,7 +102,7 @@ docker compose up --build frontend
 # 访问 http://localhost:8088 （页面 + API 均由 nginx 提供）
 ```
 
-- `Dockerfile`：`node:20-alpine` 构建 → `nginx:1.27-alpine` 托管
+- `Dockerfile`：`node:22-alpine` 构建 → `nginx:1.27-alpine` 托管
 - `nginx.conf`：SPA 路由回退 + `/auth /system /demo` 反代到 `host.docker.internal:8080`（宿主机网关；
   后端若容器化改为 `http://cornerstone-gateway:8080` 即可）
 - `docker-compose.yml`：`frontend` 服务（8088:80 + host-gateway）

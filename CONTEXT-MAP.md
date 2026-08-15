@@ -12,7 +12,7 @@
 | **认证链路**（Auth Chain） | gateway → auth → system 的请求认证通路：客户端经网关获取/校验令牌，凭据访问受保护资源。 |
 | **API 契约**（API Contract） | `cornerstone-api` 中定义的跨服务 Feign 接口，是服务间通信的契约文档。 |
 | **用户登录**（Login） | `cornerstone-auth` 的 `POST /auth/login`：用户名密码（BCrypt）校验后签发带角色与权限（scope）的 JWT；测试账号 admin/admin123。 |
-| **数据范围**（DataScope） | 角色级行级数据权限（1全部~5仅本人，见 ADR-0006）：`cornerstone-system` 经 `DataPermissionInterceptor` 对用户查询自动追加条件。 |
+| **数据范围**（DataScope） | 角色级行级数据权限（1全部~5仅本人，见 ADR-0006）：`cornerstone-system` 经 `CornerstoneDataPermissionHandler`（MyBatis-Plus 数据权限拦截器回调）对用户查询自动追加条件。 |
 | **权限点**（Permission） | 形如 `system:user:list` 的字符串权限标识，存于 JWT scope，供 `@PreAuthorize` 与前端 `v-permission` 使用。 |
 
 ## 模块地图

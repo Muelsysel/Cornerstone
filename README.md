@@ -29,7 +29,7 @@ Cornerstone 仓库里的文档不是摆设，而是每个 AI 必须遵守的**�
 - **黄金法则**（[AGENTS.md](AGENTS.md)）：动代码前必须完成文档导航（CONTEXT-MAP → 模块 CONTEXT → ADR）
 - **文档维护义务**：每个 AI 都是文档维护者——改代码必须同步该模块的 `CONTEXT.md`（职责/词汇表）与
   `CHANGELOG.md`（变更记录），并按"测试方法"全量验证后再提交
-- **决策留痕**：难逆决策写进 [ADR](docs/adr/)（当前 7 条），后来的 AI 不再重复踩坑
+- **决策留痕**：难逆决策写进 [ADR](docs/adr/)（当前 8 条），后来的 AI 不再重复踩坑
 - **可执行的技能**：`skills/cornerstone-dev` 是 AI 的强制工作流，装进 Claude Code / Cursor / DSH / Codex 即生效
 
 ## ✨ 特性
@@ -140,7 +140,7 @@ curl -u "cornerstone-client:cornerstone-secret" -X POST \
 | --- | --- |
 | 了解整个项目怎么运转 | [CONTEXT-MAP.md](CONTEXT-MAP.md)（模块地图 + 词汇表 + 测试总览） |
 | 在某个模块里开发 | 该模块的 `CONTEXT.md` + 相关 ADR |
-| 理解为什么这么设计 | [docs/adr/](docs/adr/)（7 条决策记录） |
+| 理解为什么这么设计 | [docs/adr/](docs/adr/)（8 条决策记录） |
 | 让 AI 按项目工作流开发 | `skills/cornerstone-dev/SKILL.md` |
 | 工程技能如何读这些文档 | [docs/agents/](docs/agents/) |
 | 一键跑通演示 | [docs/guides/run-demo.md](docs/guides/run-demo.md) |
