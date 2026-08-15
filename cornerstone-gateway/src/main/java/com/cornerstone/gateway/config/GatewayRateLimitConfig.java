@@ -36,6 +36,8 @@ public class GatewayRateLimitConfig {
             ConfigurationService configurationService) {
         RedisRateLimiter limiter = new RedisRateLimiter(template, script, configurationService);
         // RedisRateLimiter 按路由 id 从 getConfig() 加载速率（StatefulConfigurable 契约）
+        // default 兜底：路由 id 未显式预置时也生效（防漏配导致限流静默失效）
+        limiter.getConfig().put("default", config(10, 20));
         for (String route : new String[] {"auth", "system", "demo"}) {
             limiter.getConfig().put(route, config(10, 20));
         }
