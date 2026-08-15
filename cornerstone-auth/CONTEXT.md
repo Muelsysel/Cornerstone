@@ -21,6 +21,7 @@
 3. **登录锁定（ADR-0009）**：连续失败 ≥5 次锁定 5 分钟（Redis `login:fail:{username}` 计数），锁定期间即使密码正确也拒绝；锁定提示返回剩余秒数（Redis TTL），Redis 不可用降级为通用提示。
 3. 成功用 `JwtEncoder`（NimbusJwtEncoder，RS256）签发 JWT：
    - `sub`=userId、`username`、`roles`（角色集合）、`scope`（**权限集合**，供下游 `@PreAuthorize` 读 scope）；
+   - `deptId`（用户部门 ID，非空才携带；数据权限「本部门/本部门及以下」依赖，网关透传 `X-Cornerstone-Dept-Id`）；
    - `iss`=http://localhost:8081，有效期 12 小时。
 4. 返回 `LoginResponse{access_token, token_type:"Bearer", expires_in, userId, username, roles}`。
 5. **登录日志（v3）**：不论成功/失败，`LoginService` 经 `LoginLogClient`（Feign，`POST /system/auth/login-log`）把登录日志投递 system 落库；成功 `status=0`「登录成功」，失败 `status=1`「用户名或密码错误」（用户不存在时用请求中的用户名）。投递失败 try-catch 吞掉并 warn，绝不影响登录主流程。
