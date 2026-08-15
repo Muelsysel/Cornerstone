@@ -127,4 +127,28 @@ class AnnouncementControllerTest {
                                 .content("{\"title\":\"未认证更新\"}"))
                 .andExpect(status().isUnauthorized());
     }
+
+    /** 发布契约：POST /{id}/publish（种子 id=2 为草稿，可发布；@Transactional 回滚避免污染共享数据） */
+    @Test
+    @org.springframework.transaction.annotation.Transactional
+    void publishReturns200WithTokenAndPermission() throws Exception {
+        String token = TestJwtIssuer.tokenWithScope(EDIT_PERMISSION);
+        mockMvc.perform(
+                        post("/demo/announcement/2/publish")
+                                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+    }
+
+    /** 下线契约：POST /{id}/offline（种子 id=1 为已发布，可下线；@Transactional 回滚） */
+    @Test
+    @org.springframework.transaction.annotation.Transactional
+    void offlineReturns200WithTokenAndPermission() throws Exception {
+        String token = TestJwtIssuer.tokenWithScope(EDIT_PERMISSION);
+        mockMvc.perform(
+                        post("/demo/announcement/1/offline")
+                                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+    }
 }

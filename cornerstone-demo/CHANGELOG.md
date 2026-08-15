@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.0.10] - 2026-08-15
+
+- test: `AnnouncementControllerTest` 补发布/下线契约用例（POST /{id}/publish、POST /{id}/offline 带权 200；@Transactional 回滚防污染共享种子数据）
+
+**测试方法**：`mvn test -pl cornerstone-demo`（23 用例）。
+
 ## [1.0.9] - 2026-08-15（安全收紧）
 
 - fix(security): 公开白名单仅放行 GET 公告读接口——此前 `/demo/announcement/*` 匹配所有 HTTP 方法（写操作虽方法级 @PreAuthorize 兜底，但 URL 层即应拒绝）；无 token 写操作响应由 403 变为 401（更符合未认证语义），对应测试同步
