@@ -60,7 +60,7 @@
           />
         </el-form-item>
         <el-form-item label="部门名称" prop="deptName">
-          <el-input v-model="form.deptName" placeholder="部门名称" />
+          <el-input v-model="form.deptName" maxlength="50" placeholder="部门名称" />
         </el-form-item>
         <el-form-item label="显示顺序" prop="sort">
           <el-input-number v-model="form.sort" :min="0" :max="999" />

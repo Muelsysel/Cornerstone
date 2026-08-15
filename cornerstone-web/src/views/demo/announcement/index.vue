@@ -92,10 +92,10 @@
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-width="70px">
         <el-form-item label="标题" prop="title">
-          <el-input v-model="form.title" placeholder="公告标题" />
+          <el-input v-model="form.title" maxlength="100" placeholder="公告标题" />
         </el-form-item>
         <el-form-item label="内容" prop="content">
-          <el-input v-model="form.content" type="textarea" :rows="5" placeholder="公告正文" />
+          <el-input v-model="form.content" type="textarea" :rows="5" maxlength="20000" placeholder="公告正文" />
         </el-form-item>
       </el-form>
       <template #footer>

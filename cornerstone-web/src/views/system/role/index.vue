@@ -73,10 +73,10 @@
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-width="90px">
         <el-form-item label="角色名称" prop="roleName">
-          <el-input v-model="form.roleName" placeholder="如：系统管理员" />
+          <el-input v-model="form.roleName" maxlength="30" placeholder="如：系统管理员" />
         </el-form-item>
         <el-form-item label="权限字符" prop="roleKey">
-          <el-input v-model="form.roleKey" placeholder="如：admin" />
+          <el-input v-model="form.roleKey" maxlength="50" placeholder="如：admin" />
         </el-form-item>
         <el-form-item label="显示顺序" prop="sort">
           <el-input-number v-model="form.sort" :min="0" :max="999" />
