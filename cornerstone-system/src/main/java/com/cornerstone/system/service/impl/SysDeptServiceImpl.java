@@ -59,7 +59,24 @@ public class SysDeptServiceImpl implements SysDeptService {
         }
         dept.setAncestors(resolveAncestors(dept.getParentId()));
         deptMapper.updateById(dept);
+        // 移动部门后级联更新子孙的 ancestors（否则子孙路径指向旧位置，数据不一致）
+        cascadeUpdateDescendantAncestors(dept.getId(), dept.getAncestors());
         return deptMapper.selectById(dept.getId());
+    }
+
+    /** 递归更新某节点所有子孙的 ancestors：子节点 ancestors = 新父 ancestors + "," + 父 id */
+    private void cascadeUpdateDescendantAncestors(Long parentId, String parentAncestors) {
+        List<SysDept> children =
+                deptMapper.selectList(
+                        new LambdaQueryWrapper<SysDept>().eq(SysDept::getParentId, parentId));
+        for (SysDept child : children) {
+            String childAncestors = parentAncestors + "," + parentId;
+            SysDept patch = new SysDept();
+            patch.setId(child.getId());
+            patch.setAncestors(childAncestors);
+            deptMapper.updateById(patch);
+            cascadeUpdateDescendantAncestors(child.getId(), childAncestors);
+        }
     }
 
     /** candidateParentId 是否为 nodeId 的子孙节点（全量查询本地遍历，部门数量级小可接受） */
