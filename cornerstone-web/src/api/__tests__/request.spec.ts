@@ -111,6 +111,26 @@ describe('request 拦截器 401 处理', () => {
     // 提示中文友好文案，不暴露 axios 英文原语
     expect(messageMock).toHaveBeenCalledWith('请求超时，请稍后重试')
   })
+
+  it('HTTP 500：提示友好中文，不清会话不跳转', async () => {
+    const store = useUserStore()
+    store.$patch({
+      user: { userId: 1, username: 'admin', roles: ['admin'], permissions: [] },
+    })
+    const messageMock = vi.mocked(ElMessage.error)
+
+    await expect(
+      handlers[0].rejected({
+        response: { status: 500, data: {} },
+        message: 'Request failed with status code 500',
+      }),
+    ).rejects.toBeTruthy()
+
+    // 服务端异常不是会话失效
+    expect(store.user).not.toBeNull()
+    expect(replaceMock).not.toHaveBeenCalled()
+    expect(messageMock).toHaveBeenCalledWith('服务器开小差了，请稍后重试')
+  })
 })
 
 // 请求拦截器：携带 Bearer 令牌
