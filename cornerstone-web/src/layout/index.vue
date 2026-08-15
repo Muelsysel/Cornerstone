@@ -173,7 +173,10 @@ function openPasswordDialog() {
 }
 
 async function submitPassword() {
-  await pwdFormRef.value?.validate()
+  if (!pwdFormRef.value) return
+  // 校验失败静默返回（不产生 unhandled rejection）
+  const valid = await pwdFormRef.value.validate().catch(() => false)
+  if (!valid) return
   pwdSaving.value = true
   try {
     await updatePassword({ oldPassword: pwdForm.oldPassword, newPassword: pwdForm.newPassword })

@@ -55,6 +55,16 @@ if (-not $NoDeps) {
     }
 }
 
+# ---------- 依赖模块安装（common/api）----------
+# spring-boot:run 单模块用本地仓库的依赖 jar：common/api 有新改动时须先 install，
+# 否则服务启动报 ClassNotFoundException（如 RsaKeyUtils）。
+Write-Host "安装依赖模块 cornerstone-common / cornerstone-api（-DskipTests）..."
+& $MavenCmd -q install -pl cornerstone-common,cornerstone-api -DskipTests
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "依赖模块安装失败（exit $LASTEXITCODE），请检查 Maven/源码"
+    exit 1
+}
+
 # ---------- 后端 4 服务并行启动 ----------
 $modules = @('cornerstone-auth', 'cornerstone-system', 'cornerstone-demo', 'cornerstone-gateway')
 $procs = @()
