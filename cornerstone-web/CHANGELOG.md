@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.4.12] - 2026-08-15（测试补充）
+
+- test: `src/router/__tests__/guard.spec.ts`——路由守卫（未登录跳转/登录回首页/无权限 403/放行）；前端单测 22 用例
+
+**测试方法**：`npm run build`（vue-tsc 类型检查 + vite 构建，须通过）；`npm test`（vitest 单测，22 用例）。
+
 ## [1.4.11] - 2026-08-15（测试补充）
 
 - test: `src/stores/__tests__/user.spec.ts`——user store 登录/重置会话/退出容错；前端单测 18 用例
