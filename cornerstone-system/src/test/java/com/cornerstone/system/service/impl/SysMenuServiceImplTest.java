@@ -89,6 +89,35 @@ class SysMenuServiceImplTest {
     }
 
     @Test
+    void addRejectsOversizedMenuName() {
+        // 回归：超长菜单名曾触发 DB varchar(50) DataTruncation → 500；现业务层返回友好 400
+        SysMenu m = menu(null, 0L, "n".repeat(51), 1);
+
+        assertThatThrownBy(() -> service.add(m)).isInstanceOf(BusinessException.class);
+        verify(menuMapper, never()).insert(any(SysMenu.class));
+    }
+
+    @Test
+    void addRejectsOversizedComponent() {
+        // 回归：超长组件路径曾触发 DB varchar(255) DataTruncation → 500
+        SysMenu m = menu(null, 0L, "菜单", 1);
+        m.setComponent("c".repeat(256));
+
+        assertThatThrownBy(() -> service.add(m)).isInstanceOf(BusinessException.class);
+        verify(menuMapper, never()).insert(any(SysMenu.class));
+    }
+
+    @Test
+    void addRejectsOversizedPerms() {
+        // 回归：超长权限标识曾触发 DB varchar(100) DataTruncation → 500
+        SysMenu m = menu(null, 0L, "菜单", 1);
+        m.setPerms("p".repeat(101));
+
+        assertThatThrownBy(() -> service.add(m)).isInstanceOf(BusinessException.class);
+        verify(menuMapper, never()).insert(any(SysMenu.class));
+    }
+
+    @Test
     void addKeepsProvidedParentId() {
         SysMenu m = menu(null, 5L, "子菜单", 1);
         when(menuMapper.insert(m)).thenReturn(1);

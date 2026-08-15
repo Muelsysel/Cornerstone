@@ -3,6 +3,12 @@
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 > 条目格式：`## [版本] - YYYY-MM-DD` → 变更类型（feat/fix/refactor/docs/test）+ 说明 + 涉及接口与测试。
 
+## [1.2.8] - 2026-08-16
+
+- feat(util): 新增 `ValidationUtils`（`maxLength`/`required`）——字段长度上限与 DB 列定义对齐的统一校验入口，超长抛 400 友好错误（替代各服务重复的 if/throw 样板）；`ValidationUtilsTest` 4 用例（null/边界放行、超长/空白拒绝）
+
+**测试方法**：`mvn test -pl cornerstone-common`（28 用例）。
+
 ## [1.2.7] - 2026-08-16
 
 - fix(deps): 补 `spring-boot-starter-validation`（Hibernate Validator 实现）——此前全仓库仅有 `jakarta.validation-api`（注解类）无实现，所有 `@Valid`/`@Validated`/`@Size`/`@NotBlank` **静默失效**；现经 common 传递到所有服务，参数校验真正生效（auth `LoginRequest` 长度上限、demo `Announcement` 校验等）

@@ -3,6 +3,7 @@ package com.cornerstone.system.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cornerstone.common.exception.BusinessException;
+import com.cornerstone.common.util.ValidationUtils;
 import com.cornerstone.system.constant.CacheConstants;
 import com.cornerstone.system.domain.entity.SysConfig;
 import com.cornerstone.system.domain.mapper.SysConfigMapper;
@@ -59,6 +60,7 @@ public class SysConfigServiceImpl implements SysConfigService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public SysConfig add(SysConfig config) {
+        validate(config);
         long exists =
                 configMapper.selectCount(
                         new LambdaQueryWrapper<SysConfig>()
@@ -84,6 +86,7 @@ public class SysConfigServiceImpl implements SysConfigService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public SysConfig update(SysConfig config) {
+        validate(config);
         SysConfig exist = configMapper.selectById(config.getId());
         if (exist == null) {
             throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
@@ -125,5 +128,16 @@ public class SysConfigServiceImpl implements SysConfigService {
 
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    /**
+     * 字段长度校验（与 DB 列一致：config_name/config_key varchar(100)、config_value/remark varchar(500)）：超长会触发
+     * DataTruncation → 500，业务层先校验返回友好 400。
+     */
+    private void validate(SysConfig config) {
+        ValidationUtils.maxLength(config.getConfigName(), 100, "参数名称");
+        ValidationUtils.maxLength(config.getConfigKey(), 100, "参数键名");
+        ValidationUtils.maxLength(config.getConfigValue(), 500, "参数键值");
+        ValidationUtils.maxLength(config.getRemark(), 500, "备注");
     }
 }

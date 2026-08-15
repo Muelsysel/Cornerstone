@@ -528,6 +528,17 @@ try {
     } catch {}
     Assert 'Oper log masks passwords (no plaintext leak)' $maskOk 'OK'
 
+    # 16. 字段上限契约：超长参数键值（DB varchar(500)）必须返回友好 400，而非 DataTruncation 500
+    #     （同一 ValidationUtils 机制覆盖 config/dict/menu/dept/role 全部可写字段，此处取 config 为代表）
+    $cfgKey = "verify-chain-$ts"
+    $longValue = 'v' * 501
+    Write-JsonBody "{`"configName`":`"长度校验`",`"configKey`":`"$cfgKey`",`"configValue`":`"$longValue`"}"
+    $cfgResp = curl.exe -s --max-time 20 -X POST 'http://localhost:8080/system/config' `
+        -H "Authorization: Bearer $adminToken" -H 'Content-Type: application/json' --data-binary "@$tmpJson"
+    $cfgCode = $null
+    try { $cfgCode = ($cfgResp | ConvertFrom-Json).code } catch {}
+    Assert 'Oversized config value rejected with 400 (not 500)' $(if ($cfgCode -eq 400) { 'OK' } else { 'FAIL' }) 'OK'
+
     if ($script:fail -eq 0) {
         Write-Host ''
         Write-Host '=== End-to-end verification PASSED ==='

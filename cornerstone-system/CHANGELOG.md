@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.39] - 2026-08-16
+
+- fix(bug): **RBAC 全部可写字符串字段补长度校验**（防 DB DataTruncation → 500）——参数（configName/configKey ≤100、configValue/remark ≤500）、字典（dictName/dictType/dictLabel/dictValue ≤100、remark ≤500）、菜单（menuName ≤50、path ≤200、component ≤255、perms/icon ≤100）、部门（leader/phone ≤30、email ≤50）、角色（remark ≤500）；新增 `ValidationUtils.maxLength` 统一入口（common），5 个 ServiceImplTest 共新增 11 个用例锁定
+
+**测试方法**：`mvn test -pl cornerstone-system`（143 用例）。
+
 ## [1.2.38] - 2026-08-16
 
 - fix(security): `changeStatus` 校验状态合法性（仅 0/1）——此前可传任意值污染 DB char(1) 列；`SysUserServiceImplTest` 新增 `changeStatusRejectsInvalidStatusValue`

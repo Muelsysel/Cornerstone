@@ -2,6 +2,7 @@ package com.cornerstone.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cornerstone.common.exception.BusinessException;
+import com.cornerstone.common.util.ValidationUtils;
 import com.cornerstone.system.domain.entity.SysDept;
 import com.cornerstone.system.domain.mapper.SysDeptMapper;
 import com.cornerstone.system.exception.SystemErrorCode;
@@ -37,7 +38,7 @@ public class SysDeptServiceImpl implements SysDeptService {
 
     @Override
     public SysDept add(SysDept dept) {
-        validateDeptNameLength(dept.getDeptName());
+        validate(dept);
         if (dept.getParentId() == null) {
             dept.setParentId(0L);
         }
@@ -52,7 +53,7 @@ public class SysDeptServiceImpl implements SysDeptService {
         if (exist == null) {
             throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
         }
-        validateDeptNameLength(dept.getDeptName());
+        validate(dept);
         // 父节点不能选自己或自身子节点（选子节点会形成环：A→B→C→A）
         Long newParent = dept.getParentId();
         if (Objects.equals(newParent, dept.getId())
@@ -144,11 +145,14 @@ public class SysDeptServiceImpl implements SysDeptService {
         return value != null && !value.isBlank();
     }
 
-    /** 部门名长度上限（与 DB varchar(50) 一致）：防 DataTruncation → 500。 */
-    private void validateDeptNameLength(String deptName) {
-        if (deptName != null && deptName.length() > 50) {
-            throw new BusinessException(
-                    com.cornerstone.common.core.ErrorCode.BAD_REQUEST, "部门名称不能超过 50 个字符");
-        }
+    /**
+     * 部门字段长度校验（与 DB 列一致：dept_name varchar(50)、leader/phone varchar(30)、email varchar(50)）：超长会触发
+     * DataTruncation → 500，业务层先校验返回友好 400。
+     */
+    private void validate(SysDept dept) {
+        ValidationUtils.maxLength(dept.getDeptName(), 50, "部门名称");
+        ValidationUtils.maxLength(dept.getLeader(), 30, "负责人");
+        ValidationUtils.maxLength(dept.getPhone(), 30, "联系电话");
+        ValidationUtils.maxLength(dept.getEmail(), 50, "邮箱");
     }
 }

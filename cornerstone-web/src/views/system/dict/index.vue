@@ -74,7 +74,7 @@
           <el-input v-model="form.dictName" maxlength="100" placeholder="字典名称" />
         </el-form-item>
         <el-form-item label="字典类型" prop="dictType">
-          <el-input v-model="form.dictType" :disabled="isEdit" placeholder="如：sys_normal_disable" />
+          <el-input v-model="form.dictType" :disabled="isEdit" maxlength="100" placeholder="如：sys_normal_disable" />
         </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="form.status">
@@ -83,7 +83,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注">
-          <el-input v-model="form.remark" type="textarea" :rows="2" placeholder="备注" />
+          <el-input v-model="form.remark" type="textarea" :rows="2" maxlength="500" show-word-limit placeholder="备注" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -150,7 +150,7 @@
           <el-input v-model="dataForm.dictLabel" maxlength="100" placeholder="显示标签" />
         </el-form-item>
         <el-form-item label="键值" prop="dictValue">
-          <el-input v-model="dataForm.dictValue" placeholder="存储键值" />
+          <el-input v-model="dataForm.dictValue" maxlength="100" placeholder="存储键值" />
         </el-form-item>
         <el-form-item label="排序">
           <el-input-number v-model="dataForm.sort" :min="0" :max="999" />
@@ -162,7 +162,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注">
-          <el-input v-model="dataForm.remark" type="textarea" :rows="2" placeholder="备注" />
+          <el-input v-model="dataForm.remark" type="textarea" :rows="2" maxlength="500" show-word-limit placeholder="备注" />
         </el-form-item>
       </el-form>
       <template #footer>

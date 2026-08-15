@@ -115,6 +115,34 @@ class SysConfigServiceImplTest {
     }
 
     @Test
+    void addRejectsOversizedConfigName() {
+        // 回归：超长参数名曾触发 DB varchar(100) DataTruncation → 500；现业务层返回友好 400
+        SysConfig c = config(null, "a", "v");
+        c.setConfigName("n".repeat(101));
+
+        assertThatThrownBy(() -> service.add(c)).isInstanceOf(BusinessException.class);
+        verify(configMapper, never()).insert(any(SysConfig.class));
+    }
+
+    @Test
+    void addRejectsOversizedConfigValue() {
+        // 回归：超长参数值曾触发 DB varchar(500) DataTruncation → 500
+        SysConfig c = config(null, "a", "v".repeat(501));
+
+        assertThatThrownBy(() -> service.add(c)).isInstanceOf(BusinessException.class);
+        verify(configMapper, never()).insert(any(SysConfig.class));
+    }
+
+    @Test
+    void updateRejectsOversizedConfigKey() {
+        SysConfig patch = config(1L, "k".repeat(101), "v");
+        patch.setConfigName("ok");
+
+        assertThatThrownBy(() -> service.update(patch)).isInstanceOf(BusinessException.class);
+        verify(configMapper, never()).updateById(any(SysConfig.class));
+    }
+
+    @Test
     void deleteEvictsCache() {
         when(configMapper.selectById(1L)).thenReturn(config(1L, "a", "v"));
         service.delete(1L);

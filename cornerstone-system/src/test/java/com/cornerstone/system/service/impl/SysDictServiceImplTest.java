@@ -71,6 +71,27 @@ class SysDictServiceImplTest {
     }
 
     @Test
+    void addTypeRejectsOversizedDictName() {
+        // 回归：超长字典名称曾触发 DB varchar(100) DataTruncation → 500；现业务层返回友好 400
+        SysDictType type = new SysDictType();
+        type.setDictName("n".repeat(101));
+        type.setDictType("ok");
+
+        assertThatThrownBy(() -> service.addType(type)).isInstanceOf(BusinessException.class);
+        verify(typeMapper, never()).insert(any(SysDictType.class));
+    }
+
+    @Test
+    void addDataRejectsOversizedDictValue() {
+        // 回归：超长字典键值曾触发 DB varchar(100) DataTruncation → 500
+        SysDictData d = data(null, "gender", "男");
+        d.setDictValue("v".repeat(101));
+
+        assertThatThrownBy(() -> service.addData(d)).isInstanceOf(BusinessException.class);
+        verify(dataMapper, never()).insert(any(SysDictData.class));
+    }
+
+    @Test
     void addTypeRejectsDuplicate() {
         when(typeMapper.selectCount(any())).thenReturn(1L);
         SysDictType type = new SysDictType();

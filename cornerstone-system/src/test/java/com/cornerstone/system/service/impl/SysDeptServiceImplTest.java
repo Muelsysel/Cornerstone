@@ -90,6 +90,26 @@ class SysDeptServiceImplTest {
     }
 
     @Test
+    void addRejectsOversizedLeader() {
+        // 回归：超长负责人曾触发 DB varchar(30) DataTruncation → 500
+        SysDept d = dept(null, 0L, "部门", null, 1);
+        d.setLeader("l".repeat(31));
+
+        assertThatThrownBy(() -> service.add(d)).isInstanceOf(BusinessException.class);
+        verify(deptMapper, never()).insert(any(SysDept.class));
+    }
+
+    @Test
+    void addRejectsOversizedEmail() {
+        // 回归：超长邮箱曾触发 DB varchar(50) DataTruncation → 500
+        SysDept d = dept(null, 0L, "部门", null, 1);
+        d.setEmail("e".repeat(51));
+
+        assertThatThrownBy(() -> service.add(d)).isInstanceOf(BusinessException.class);
+        verify(deptMapper, never()).insert(any(SysDept.class));
+    }
+
+    @Test
     void addUnderParentResolvesAncestorsChain() {
         SysDept parent = dept(5L, 1L, "研发部", "0,1", 1);
         SysDept d = dept(null, 5L, "测试组", null, 1);

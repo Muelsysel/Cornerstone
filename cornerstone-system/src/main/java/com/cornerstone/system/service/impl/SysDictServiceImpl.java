@@ -3,6 +3,7 @@ package com.cornerstone.system.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cornerstone.common.exception.BusinessException;
+import com.cornerstone.common.util.ValidationUtils;
 import com.cornerstone.system.constant.CacheConstants;
 import com.cornerstone.system.domain.entity.SysDictData;
 import com.cornerstone.system.domain.entity.SysDictType;
@@ -48,6 +49,7 @@ public class SysDictServiceImpl implements SysDictService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public SysDictType addType(SysDictType type) {
+        validateType(type);
         long exists =
                 typeMapper.selectCount(
                         new LambdaQueryWrapper<SysDictType>()
@@ -67,6 +69,7 @@ public class SysDictServiceImpl implements SysDictService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public SysDictType updateType(SysDictType type) {
+        validateType(type);
         SysDictType exist = typeMapper.selectById(type.getId());
         if (exist == null) {
             throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
@@ -141,6 +144,7 @@ public class SysDictServiceImpl implements SysDictService {
 
     @Override
     public SysDictData addData(SysDictData data) {
+        validateData(data);
         dataMapper.insert(data);
         jsonCache.evict(String.format(CacheConstants.DICT_KEY, data.getDictType()));
         return data;
@@ -148,6 +152,7 @@ public class SysDictServiceImpl implements SysDictService {
 
     @Override
     public SysDictData updateData(SysDictData data) {
+        validateData(data);
         SysDictData exist = dataMapper.selectById(data.getId());
         if (exist == null) {
             throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
@@ -172,5 +177,26 @@ public class SysDictServiceImpl implements SysDictService {
 
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    /**
+     * 字典类型字段长度校验（与 DB 列一致：dict_name/dict_type varchar(100)、remark varchar(500)）：超长会触发
+     * DataTruncation → 500，业务层先校验返回友好 400。
+     */
+    private void validateType(SysDictType type) {
+        ValidationUtils.maxLength(type.getDictName(), 100, "字典名称");
+        ValidationUtils.maxLength(type.getDictType(), 100, "字典类型");
+        ValidationUtils.maxLength(type.getRemark(), 500, "备注");
+    }
+
+    /**
+     * 字典数据字段长度校验（与 DB 列一致：dict_type/dict_label/dict_value varchar(100)、remark varchar(500)）：超长会触发
+     * DataTruncation → 500，业务层先校验返回友好 400。
+     */
+    private void validateData(SysDictData data) {
+        ValidationUtils.maxLength(data.getDictType(), 100, "字典类型");
+        ValidationUtils.maxLength(data.getDictLabel(), 100, "字典标签");
+        ValidationUtils.maxLength(data.getDictValue(), 100, "字典键值");
+        ValidationUtils.maxLength(data.getRemark(), 500, "备注");
     }
 }

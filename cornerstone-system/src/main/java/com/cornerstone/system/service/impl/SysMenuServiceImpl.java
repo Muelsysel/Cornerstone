@@ -2,6 +2,7 @@ package com.cornerstone.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cornerstone.common.exception.BusinessException;
+import com.cornerstone.common.util.ValidationUtils;
 import com.cornerstone.system.domain.entity.SysMenu;
 import com.cornerstone.system.domain.mapper.SysMenuMapper;
 import com.cornerstone.system.domain.mapper.SysRoleMenuMapper;
@@ -39,6 +40,7 @@ public class SysMenuServiceImpl implements SysMenuService {
 
     @Override
     public SysMenu add(SysMenu menu) {
+        validate(menu);
         if (menu.getParentId() == null) {
             menu.setParentId(0L);
         }
@@ -48,6 +50,7 @@ public class SysMenuServiceImpl implements SysMenuService {
 
     @Override
     public SysMenu update(SysMenu menu) {
+        validate(menu);
         SysMenu exist = menuMapper.selectById(menu.getId());
         if (exist == null) {
             throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
@@ -115,5 +118,17 @@ public class SysMenuServiceImpl implements SysMenuService {
 
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    /**
+     * 菜单字段长度校验（与 DB 列一致：menu_name varchar(50)、path varchar(200)、component varchar(255)、perms/icon
+     * varchar(100)）：超长会触发 DataTruncation → 500，业务层先校验返回友好 400。
+     */
+    private void validate(SysMenu menu) {
+        ValidationUtils.maxLength(menu.getMenuName(), 50, "菜单名称");
+        ValidationUtils.maxLength(menu.getPath(), 200, "路由地址");
+        ValidationUtils.maxLength(menu.getComponent(), 255, "组件路径");
+        ValidationUtils.maxLength(menu.getPerms(), 100, "权限标识");
+        ValidationUtils.maxLength(menu.getIcon(), 100, "菜单图标");
     }
 }

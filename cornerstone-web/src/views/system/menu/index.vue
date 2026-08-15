@@ -78,13 +78,13 @@
           <el-input v-model="form.menuName" maxlength="50" placeholder="菜单显示名称" />
         </el-form-item>
         <el-form-item label="路由路径" prop="path">
-          <el-input v-model="form.path" placeholder="如：system/user" />
+          <el-input v-model="form.path" maxlength="200" placeholder="如：system/user" />
         </el-form-item>
         <el-form-item label="组件路径" prop="component">
-          <el-input v-model="form.component" placeholder="如：system/user/index" />
+          <el-input v-model="form.component" maxlength="255" placeholder="如：system/user/index" />
         </el-form-item>
         <el-form-item label="权限标识" prop="perms">
-          <el-input v-model="form.perms" placeholder="如：system:user:list" />
+          <el-input v-model="form.perms" maxlength="100" placeholder="如：system:user:list" />
         </el-form-item>
         <el-form-item label="图标" prop="icon">
           <el-select v-model="form.icon" filterable clearable placeholder="选择或输入图标名" style="width: 100%">

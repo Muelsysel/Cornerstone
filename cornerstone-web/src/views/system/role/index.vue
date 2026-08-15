@@ -102,7 +102,7 @@
           </el-button>
         </el-form-item>
         <el-form-item label="备注">
-          <el-input v-model="form.remark" type="textarea" :rows="2" placeholder="备注" />
+          <el-input v-model="form.remark" type="textarea" :rows="2" maxlength="500" show-word-limit placeholder="备注" />
         </el-form-item>
       </el-form>
       <template #footer>

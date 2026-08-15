@@ -66,10 +66,10 @@
           <el-input-number v-model="form.sort" :min="0" :max="999" />
         </el-form-item>
         <el-form-item label="负责人" prop="leader">
-          <el-input v-model="form.leader" placeholder="负责人" />
+          <el-input v-model="form.leader" maxlength="30" placeholder="负责人" />
         </el-form-item>
         <el-form-item label="联系电话" prop="phone">
-          <el-input v-model="form.phone" placeholder="联系电话" />
+          <el-input v-model="form.phone" maxlength="30" placeholder="联系电话" />
         </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="form.status">
