@@ -10,9 +10,58 @@
     />
     <meta name="theme-color" content="#4f46e5" />
     <title>Cornerstone 管理后台</title>
+    <style>
+      /* 首屏加载占位：Vue 挂载前显示，避免白屏闪烁（#app 挂载后自动消失） */
+      #app-loading {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        background: #f8f9fc;
+        font-family: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      }
+      #app-loading .logo {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: #fff;
+        font-size: 24px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 24px rgba(79, 70, 229, 0.35);
+        animation: pulse 1.2s ease-in-out infinite;
+      }
+      #app-loading .text {
+        color: #6b7280;
+        font-size: 13px;
+        letter-spacing: 1px;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(0.92);
+          opacity: 0.75;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <div id="app-loading">
+        <div class="logo">C</div>
+        <div class="text">Cornerstone 加载中…</div>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
