@@ -107,9 +107,11 @@ docker compose up -d
 #   与本机路径不同时加参数：-JavaHome <jdk目录> -MavenCmd <mvn.cmd 路径>
 powershell -ExecutionPolicy Bypass -File scripts/start-all.ps1
 
-# 方式 B：手动（4 个终端，详见 docs/guides/run-demo.md）
-mvn -pl cornerstone-auth,cornerstone-system,cornerstone-demo spring-boot:run   # 终端 1
-mvn -pl cornerstone-gateway spring-boot:run                                    # 终端 2
+# 方式 B：手动（4 个终端，每个模块一个终端；spring-boot:run 为阻塞式，多模块须分开跑）
+mvn -pl cornerstone-auth spring-boot:run      # 终端 1（auth :8081）
+mvn -pl cornerstone-system spring-boot:run    # 终端 2（system :8082）
+mvn -pl cornerstone-demo spring-boot:run      # 终端 3（demo :8083）
+mvn -pl cornerstone-gateway spring-boot:run   # 终端 4（gateway :8080）
 ```
 
 ### 3. 启动前端

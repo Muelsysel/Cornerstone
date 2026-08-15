@@ -70,8 +70,10 @@ cornerstone-web/
 # 启动依赖（Nacos / MySQL / Redis）
 docker compose up -d
 
-# 启动 4 个服务（4 个终端）
-mvn -pl cornerstone-auth,cornerstone-system,cornerstone-demo spring-boot:run
+# 启动 4 个服务（4 个终端；spring-boot:run 为阻塞式，每个模块一个终端）
+mvn -pl cornerstone-auth spring-boot:run
+mvn -pl cornerstone-system spring-boot:run
+mvn -pl cornerstone-demo spring-boot:run
 mvn -pl cornerstone-gateway spring-boot:run
 ```
 
