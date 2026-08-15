@@ -43,6 +43,11 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
+        <!-- Redis Reactive：RequestRateLimiter 限流（基于 Redis） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
+        </dependency>
         <!-- 资源服务器：JWT 解码（NimbusReactiveJwtDecoder） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
