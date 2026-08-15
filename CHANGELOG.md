@@ -3,6 +3,13 @@
 > 项目级版本里程碑与仓库级变更记录。模块级细节见各模块 `CHANGELOG.md`
 > （common/api/gateway/auth/system/demo/web）。所有 AI 都是文档维护者（AGENTS.md「文档维护义务」）。
 
+## [1.5.29] - 2026-08-16（透传头防伪造 + 数据权限 fail-open 修复）
+
+- fix(security): **透传头防伪造**——网关转发附加 `X-Internal-Token`，服务端 `UserContextFilter` 仅采信携带有效令牌的 X-Cornerstone-* 身份头（直连服务端口伪造 roles=admin 等身份头现被忽略，fail-closed）；限流键支持受信反代（`ClientIpKeyResolver`，XFF 仅受信代理采信）
+- fix(security): **数据权限 fail-open 修复**——scope 3/4 下无部门归属用户此前可见全部数据，现返回 `dept_id=-1` 不可能条件；菜单父节点存在性校验（防悬空节点）；停用账号禁止登录
+- fix(contract): 用户页移除后端不存在的 phone/email 字段、加部门树选择器；RBAC 全部可写字符串/枚举字段补校验（ValidationUtils）
+- test: 后端 246→**252 用例**（common 33 + gateway 19 + auth 17 + system 156 + demo 27）、前端 34、e2e 33；verify-chain 3 连跑稳定 PASS
+
 ## [1.5.28] - 2026-08-16（安全加固 + 输入校验收官）
 
 - fix(security): **停用账号禁止登录**——`AuthUserSupportService.findByUsername` 过滤 `status='0'`（fail-closed，避免账号状态枚举）；verify-chain 新增「停用用户拒登」断言
