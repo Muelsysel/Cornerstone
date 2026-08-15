@@ -20,6 +20,9 @@ _Avoid_: 吞异常、返回 null
 当前请求用户上下文，由网关透传头（X-Cornerstone-*）解析。服务只信任透传头，禁止自行解析 JWT。
 _Avoid_: 在服务里解析令牌
 
+**UserContextFilter**:
+从透传头填充上下文（请求结束清理）。**防伪造**：配置 `cornerstone.internal-token` 后，携带透传头的请求须同时带有效 `X-Internal-Token`（网关转发时盖章）才被采信，否则按匿名处理（fail-closed，防直连服务端口伪造身份头）。
+
 ## Rules
 
 - **边界**：本模块只放"所有服务都会用的"基础设施。带业务语义的代码放对应服务模块。
