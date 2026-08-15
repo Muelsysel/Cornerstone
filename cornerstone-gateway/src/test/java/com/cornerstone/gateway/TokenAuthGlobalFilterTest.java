@@ -139,6 +139,23 @@ class TokenAuthGlobalFilterTest {
         assertThat(mutator.getMutatedHeaders().getFirst(UserContext.HEADER_ROLES)).isNull();
     }
 
+    /** 白名单路径携带有效令牌时同样重建透传头（公告管理等受保护操作依赖用户身份/审计） */
+    @Test
+    void whitelistPathWithValidTokenBuildsPassthroughHeaders() {
+        String token = issueToken(Map.of("username", "admin", "scope", List.of("read")));
+        MockServerWebExchange exchange =
+                MockServerWebExchange.from(
+                        MockServerHttpRequest.get("/demo/announcement/page")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token));
+        ServerWebExchangeMutator mutator = new ServerWebExchangeMutator();
+        filter().filter(exchange, mutator).block();
+
+        HttpHeaders forwarded = mutator.getMutatedHeaders();
+        // sub 为 client_id（非数字）→ Username 取 sub；JWT username 声明作为追加值
+        assertThat(forwarded.getFirst(UserContext.HEADER_USERNAME)).isEqualTo("cornerstone-client");
+        assertThat(forwarded.getFirst(UserContext.HEADER_ROLES)).isEqualTo("read");
+    }
+
     /** 有效令牌 + 外部伪造透传头：伪造值被剥除，透传头只来自 JWT 声明 */
     @Test
     void validTokenOverridesForgedPassthroughHeaders() {

@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.1.6] - 2026-08-15
+
+- fix: 公告管理权限点缺失——V9 迁移补 `demo:announcement:edit` 菜单/按钮权限点 + admin role_menu（此前 admin JWT scope 缺该权限导致公告增删改 403）
+
+**测试方法**：`mvn test -pl cornerstone-system`（CornerstoneDataPermissionHandlerTest / SysAuthUserControllerTest / SystemSecurityTest / SystemExtensionTest / DataScopeServiceTest / OperLogAspectTest / AuthUserSupportServiceTest / SysUserServiceImplTest）。
+
 ## [1.1.5] - 2026-08-15
 
 - feat: 操作/登录日志删除与清空——`DELETE /system/{operlog|loginlog}/{id}` 与 `/clean`（权限点 `system:log:remove`，V8 迁移补按钮权限点 + admin 关联）；BusinessType 补 CLEAN(8)

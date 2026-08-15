@@ -49,7 +49,17 @@ public class TokenAuthGlobalFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = stripPassthroughHeaders(exchange.getRequest());
         ServerWebExchange stripped = exchange.mutate().request(request).build();
         if (isWhitelisted(request.getPath().value())) {
-            return chain.filter(stripped);
+            // 白名单路径保持公开：无/无效 token 原样放行（下游服务自行裁决）；
+            // 但若携带有效 token，则同样重建透传上下文头——否则白名单内的受保护操作
+            // （如 demo 公告管理的 @PreAuthorize 接口）拿不到用户身份，审计/作者为空。
+            String token = extractBearerToken(request);
+            if (token == null) {
+                return chain.filter(stripped);
+            }
+            return jwtDecoder
+                    .decode(token)
+                    .flatMap(jwt -> chain.filter(forwardWithHeaders(stripped, jwt)))
+                    .onErrorResume(e -> chain.filter(stripped));
         }
 
         String token = extractBearerToken(request);
