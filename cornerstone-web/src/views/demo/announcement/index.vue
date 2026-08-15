@@ -116,6 +116,7 @@
             {{ announcementStatusText(detail.status) }}
           </el-tag>
           <span v-if="detail.author">作者：{{ detail.author }}</span>
+          <span v-if="detail.publishTime">发布：{{ detail.publishTime }}</span>
           <span v-if="detail.createTime">创建：{{ detail.createTime }}</span>
         </div>
         <div class="detail-content">{{ detail.content || '（无内容）' }}</div>

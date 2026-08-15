@@ -9,6 +9,7 @@ export interface Announcement {
   /** 发布状态（后端整数）：0 草稿 / 1 已发布 / 2 已下线 */
   status?: number
   author?: string
+  publishTime?: string
   createTime?: string
   updateTime?: string
 }
