@@ -8,6 +8,12 @@
 
 **测试方法**：`npm run build`（vue-tsc 类型检查 + vite 构建，须通过）；`npm test`（vitest 单测）；`docker compose up --build frontend` 后访问 http://localhost:8088 验证页面与 API 反代。
 
+## [1.3.3] - 2026-08-15（测试补充）
+
+- test: 新增 `src/utils/__tests__/auth.spec.ts`——JWT scope 解码（字符串/数组/缺失/非法）；单测总数 12
+
+**测试方法**：`npm run build`（vue-tsc 类型检查 + vite 构建，须通过）；`npm test`（vitest 单测，12 用例）。
+
 ## [1.3.2] - 2026-08-15（测试补充）
 
 - test: 新增 `src/api/__tests__/request.spec.ts`——401 登录失效死循环回归（HTTP/业务码 401 清会话+跳转、200 不清）；单测总数 8

@@ -3,6 +3,13 @@
 > 项目级版本里程碑与仓库级变更记录。模块级细节见各模块 `CHANGELOG.md`
 > （common/api/gateway/auth/system/demo/web）。所有 AI 都是文档维护者（AGENTS.md「文档维护义务」）。
 
+## [1.5.1] - 2026-08-15（工程优化续批）
+
+- fix(安全): 登录接口独立限流（/auth/login 5/s + burst 10）；限流 bean @Primary/@Qualifier 修复（Gateway 自动配置单 bean 需求），端到端 7 项链路实测通过
+- refactor: RSA 密钥解析抽公共 `RsaKeyUtils`（4 处统一，含单测）；参数缓存一致性修复（evict 旧 key + null 不写）
+- feat(web): Vite 7 升级（npm audit 归零）；登录页/布局窄屏响应式；全局错误捕获；JWT scope 解码与 401 死循环回归测试（前端单测 12 用例）
+- docs: 新增 ADR-0008（前后端分离 Nginx 容器化）；AGENTS/模块 CONTEXT 同步；根 CHANGELOG 建立
+
 ## [1.5.0] - 2026-08-15（工程优化批次）
 
 - docs: 重写根 README 为开源仓库风格（徽章/特性/架构图/快速开始/贡献）；新增 `CONTRIBUTING.md`
