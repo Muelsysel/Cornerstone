@@ -46,6 +46,7 @@ public class SysDictServiceImpl implements SysDictService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public SysDictType addType(SysDictType type) {
         long exists =
                 typeMapper.selectCount(
@@ -54,7 +55,12 @@ public class SysDictServiceImpl implements SysDictService {
         if (exists > 0) {
             throw new BusinessException(SystemErrorCode.DICT_TYPE_EXISTS);
         }
-        typeMapper.insert(type);
+        try {
+            typeMapper.insert(type);
+        } catch (DuplicateKeyException e) {
+            // 并发同类型：唯一索引兜底，转为业务错误而非裸 500
+            throw new BusinessException(SystemErrorCode.DICT_TYPE_EXISTS);
+        }
         return type;
     }
 

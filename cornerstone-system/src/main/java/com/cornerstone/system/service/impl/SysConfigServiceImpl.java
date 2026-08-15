@@ -57,6 +57,7 @@ public class SysConfigServiceImpl implements SysConfigService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public SysConfig add(SysConfig config) {
         long exists =
                 configMapper.selectCount(
@@ -65,7 +66,12 @@ public class SysConfigServiceImpl implements SysConfigService {
         if (exists > 0) {
             throw new BusinessException(SystemErrorCode.CONFIG_KEY_EXISTS);
         }
-        configMapper.insert(config);
+        try {
+            configMapper.insert(config);
+        } catch (DuplicateKeyException e) {
+            // 并发同 key：唯一索引兜底，转为业务错误而非裸 500
+            throw new BusinessException(SystemErrorCode.CONFIG_KEY_EXISTS);
+        }
         // 仅非空值写缓存；空值由 getValueByKey 回源 DB，避免缓存污染
         if (config.getConfigValue() != null) {
             jsonCache.setString(

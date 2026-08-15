@@ -60,7 +60,12 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
         if (exists > 0) {
             throw new BusinessException(SystemErrorCode.ROLE_KEY_EXISTS);
         }
-        this.save(role);
+        try {
+            this.save(role);
+        } catch (DuplicateKeyException e) {
+            // 并发同 roleKey：唯一索引兜底，转为业务错误而非裸 500
+            throw new BusinessException(SystemErrorCode.ROLE_KEY_EXISTS);
+        }
         saveDataScopeDepts(role);
         return role;
     }

@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.18] - 2026-08-15
+
+- fix: `SysConfigServiceImpl.add`/`SysDictServiceImpl.addType`/`SysRoleServiceImpl.add` 补并发 DuplicateKeyException 兜底（count 预检查 + 唯一索引双保险，与 user add 一致；并发同 key 转业务错误而非裸 500）
+
+**测试方法**：`mvn test -pl cornerstone-system`。
+
 ## [1.2.17] - 2026-08-15
 
 - fix: `SysDictServiceImpl.updateData` 修改 dictType 时新旧类型缓存都清除（此前只清新类型 key，旧类型缓存残留过期数据）；`SysDictServiceImplTest` 补用例
