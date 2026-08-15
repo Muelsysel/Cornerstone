@@ -58,7 +58,7 @@ controller → service(业务规则) → mapper(MyBatis-Plus) → sys_* 表
      └── cornerstone-common 契约
 ```
 
-- **分页**：MyBatis-Plus `Page` + `PaginationInnerInterceptor(MYSQL)`（`config/MybatisPlusConfig`）。
+- **分页**：MyBatis-Plus `Page` + `PaginationInnerInterceptor(MYSQL)`（`config/MybatisPlusConfig`，maxLimit=500）。**契约约定：查询参数一律 `pageNum`/`pageSize`**（前端统一命名，曾回归为 current/size 导致翻页失效，见根 CHANGELOG 1.5.8）；分页响应为 `{records,total,size,current,pages}`。
 - **审计**：`config/MyMetaObjectHandler` 实现 `MetaObjectHandler`，取 `UserContextHolder` 当前用户，匿名回退空串。
 - **逻辑删除**：`deleted` 字段 + MyBatis-Plus `logic-delete-config`（`application.yml`）。
 - **权限**：`security/ResourceServerConfig` 校验 JWT（RSA 公钥），`JwtAuthenticationConverter` 关闭前缀，从 `scope` 声明解析权限；方法级 `@PreAuthorize`。`/system/auth/**` 与 `/actuator/**` 在公开白名单放行（前者为服务间内部接口，后者为健康检查）。
