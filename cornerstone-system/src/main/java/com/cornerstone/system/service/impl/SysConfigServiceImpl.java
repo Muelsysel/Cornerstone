@@ -9,7 +9,9 @@ import com.cornerstone.system.domain.mapper.SysConfigMapper;
 import com.cornerstone.system.exception.SystemErrorCode;
 import com.cornerstone.system.service.SysConfigService;
 import com.cornerstone.system.util.JsonCache;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /** 参数配置服务实现。参数值缓存 key: cornerstone:config:{configKey}。 */
 @Service
@@ -74,12 +76,28 @@ public class SysConfigServiceImpl implements SysConfigService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public SysConfig update(SysConfig config) {
         SysConfig exist = configMapper.selectById(config.getId());
         if (exist == null) {
             throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
         }
-        configMapper.updateById(config);
+        // 修改 configKey 时校验唯一性（排除自己；并发撞唯一索引由 DuplicateKeyException 兜底）
+        if (hasText(config.getConfigKey()) && !config.getConfigKey().equals(exist.getConfigKey())) {
+            long exists =
+                    configMapper.selectCount(
+                            new LambdaQueryWrapper<SysConfig>()
+                                    .eq(SysConfig::getConfigKey, config.getConfigKey())
+                                    .ne(SysConfig::getId, config.getId()));
+            if (exists > 0) {
+                throw new BusinessException(SystemErrorCode.CONFIG_KEY_EXISTS);
+            }
+        }
+        try {
+            configMapper.updateById(config);
+        } catch (DuplicateKeyException e) {
+            throw new BusinessException(SystemErrorCode.CONFIG_KEY_EXISTS);
+        }
         // 缓存同步：configKey 可能被修改 → 先清旧 key 缓存，再写新值（null 值不写，避免读到过期旧值）
         jsonCache.evict(String.format(CacheConstants.CONFIG_KEY, exist.getConfigKey()));
         if (config.getConfigKey() != null && config.getConfigValue() != null) {

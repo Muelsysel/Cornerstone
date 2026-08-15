@@ -64,6 +64,8 @@ class SysConfigServiceImplTest {
     @Test
     void updateEvictsOldKeyAndWritesNewValue() {
         when(configMapper.selectById(1L)).thenReturn(config(1L, "old", "v1"));
+        // configKey 变更触发唯一性检查：无冲突
+        when(configMapper.selectCount(any())).thenReturn(0L);
 
         SysConfig patch = config(1L, "new", "v2");
         service.update(patch);
@@ -71,6 +73,17 @@ class SysConfigServiceImplTest {
         // 旧 key 缓存必须清除（key 可能被修改）
         verify(jsonCache).evict(key("old"));
         verify(jsonCache).setString(key("new"), "v2");
+    }
+
+    @Test
+    void updateRejectsDuplicateConfigKey() {
+        when(configMapper.selectById(1L)).thenReturn(config(1L, "old", "v1"));
+        when(configMapper.selectCount(any())).thenReturn(1L);
+
+        SysConfig patch = config(1L, "taken", "v2");
+
+        assertThatThrownBy(() -> service.update(patch)).isInstanceOf(BusinessException.class);
+        verify(configMapper, never()).updateById(any(SysConfig.class));
     }
 
     @Test

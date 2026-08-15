@@ -13,6 +13,7 @@ import com.cornerstone.system.exception.SystemErrorCode;
 import com.cornerstone.system.service.SysRoleService;
 import java.util.List;
 import java.util.Set;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,7 +72,22 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
         if (exist == null) {
             throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
         }
-        this.updateById(role);
+        // 修改 roleKey 时校验唯一性（排除自己；并发撞唯一索引由 DuplicateKeyException 兜底）
+        if (hasText(role.getRoleKey()) && !role.getRoleKey().equals(exist.getRoleKey())) {
+            long exists =
+                    this.count(
+                            new LambdaQueryWrapper<SysRole>()
+                                    .eq(SysRole::getRoleKey, role.getRoleKey())
+                                    .ne(SysRole::getId, role.getId()));
+            if (exists > 0) {
+                throw new BusinessException(SystemErrorCode.ROLE_KEY_EXISTS);
+            }
+        }
+        try {
+            this.updateById(role);
+        } catch (DuplicateKeyException e) {
+            throw new BusinessException(SystemErrorCode.ROLE_KEY_EXISTS);
+        }
         saveDataScopeDepts(role);
         return this.getById(role.getId());
     }

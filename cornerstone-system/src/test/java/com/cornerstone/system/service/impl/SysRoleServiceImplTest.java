@@ -91,6 +91,17 @@ class SysRoleServiceImplTest {
     }
 
     @Test
+    void updateRejectsDuplicateRoleKey() {
+        when(service.getById(7L)).thenReturn(role(7L, "op", "1"));
+        when(service.count(any())).thenReturn(1L);
+
+        SysRole r = role(7L, "taken", "1");
+
+        assertThatThrownBy(() -> service.update(r)).isInstanceOf(BusinessException.class);
+        verify(service, never()).updateById(any());
+    }
+
+    @Test
     void updateWithCustomScopeRebuildsDepts() {
         when(service.getById(7L)).thenReturn(role(7L, "op", "1"));
         when(service.updateById(any())).thenReturn(true);
