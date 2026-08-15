@@ -79,6 +79,21 @@ check "一键启动脚本" "scripts/start-all.ps1"
 check "端到端指南" "docs/guides/run-demo.md"
 check "验证脚本" "scripts/verify-chain.ps1"
 
+# 8. README / CONTRIBUTING 相对链接断链检查（文档约束：链接必须可点）
+echo "== 文档链接完整性 =="
+check_links() {
+  local file="$1"
+  # 提取 markdown 相对链接（排除 http/mailto/锚点），检查目标存在
+  grep -oP '(?<=\]\()[^)]+' "$file" | while read -r link; do
+    case "$link" in
+      http* | mailto:* | '#'*) continue ;;
+      *) [ -e "$link" ] || { echo "FAIL 断链: $file -> $link"; fail=1; } ;;
+    esac
+  done
+}
+check_links README.md
+check_links CONTRIBUTING.md
+
 echo ""
 if [ "$fail" -eq 0 ]; then
   echo "PASS 文档完整性检查通过"
