@@ -92,10 +92,20 @@ curl -s -X POST http://localhost:8080/auth/login \
 | 6 | 带 token 访问 system 用户分页（无权限点） | 403 | ✅ |
 | 7 | 无 token 直连 demo 公开接口 | 200 | ✅ |
 
+### v3 补充实测
+
+| # | 场景 | 期望 | 实测 |
+| --- | --- | --- | --- |
+| 8 | actuator 健康检查（4 服务） | 200 | ✅ |
+| 9 | 登录成功/失败写登录日志（sys_login_log） | 落库 | ✅ |
+| 10 | 直连 system /system/auth/** 无内部令牌 | 401 | ✅ |
+| 11 | 带内部令牌（auth Feign 自动附加） | 200 | ✅ |
+
 ## 常见问题
 
 - **服务注册不上 Nacos**：确认 Nacos 已启动（8848 可达），检查各服务 `spring.cloud.nacos.discovery.server-addr`
 - **401 一直失败**：确认 gateway/auth/system/demo 四处 RSA 密钥一致（auth 签发私钥 ↔ 其余三处公钥）
 - **Flyway 报错**：确认数据库已创建（`cornerstone_system` / `cornerstone_demo`），首次启动自动执行迁移
+- **登录 401/内部接口 401**：确认 auth/system 的 `cornerstone.internal-token` 一致（服务间调用校验）
 - **经网关 503**：确认 `cornerstone-gateway` 依赖含 `spring-cloud-starter-loadbalancer`（lb:// 解析必需）
 - **client_credentials 拿到 token 但访问 403**：这是预期行为——服务身份令牌（scope=read/write）没有业务权限点；用户级权限需 v2 授权码流程登录后获得
