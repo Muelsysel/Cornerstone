@@ -192,9 +192,19 @@ class SysUserServiceImplTest {
 
     @Test
     void changeStatusPatchesOnlyStatus() {
+        doReturn(user(7L, "alice")).when(service).getById(7L);
         service.changeStatus(7L, "1");
 
         verify(service).updateById(argThat(u -> u.getId() == 7L && "1".equals(u.getStatus())));
+    }
+
+    @Test
+    void changeStatusRejectsMissingUser() {
+        // 不 stub getById：真实实现返回 null → 抛不存在异常，避免对不存在用户静默成功
+        when(userMapper.selectById(9L)).thenReturn(null);
+        assertThatThrownBy(() -> service.changeStatus(9L, "1"))
+                .isInstanceOf(BusinessException.class);
+        verify(service, never()).updateById(any());
     }
 
     @Test

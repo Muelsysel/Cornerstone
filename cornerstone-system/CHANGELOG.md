@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.26] - 2026-08-16
+
+- fix(bug): `changeStatus` 补用户存在性校验——此前对不存在 userId 静默成功（`updateById` 返回 0 被忽略），前端误报"启用成功"；现与 `resetPassword`/`assignRoles` 一致返回 USER_NOT_FOUND；`SysUserServiceImplTest` 新增 `changeStatusRejectsMissingUser` 回归用例
+
+**测试方法**：`mvn test -pl cornerstone-system`（121 用例）。
+
 ## [1.2.25] - 2026-08-16
 
 - fix(data): 分页拦截器开启 `overflow`——pageNum 超出总页数时自动回退最后一页，消除越界空页（URL 直跳/并发删除场景；与前端删除回退双保险）

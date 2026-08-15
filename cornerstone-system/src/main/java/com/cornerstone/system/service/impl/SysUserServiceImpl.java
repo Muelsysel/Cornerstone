@@ -111,6 +111,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
 
     @Override
     public void changeStatus(Long userId, String status) {
+        // 与 resetPassword/assignRoles 一致：先校验存在，避免对不存在用户静默成功
+        if (this.getById(userId) == null) {
+            throw new BusinessException(SystemErrorCode.USER_NOT_FOUND);
+        }
         SysUser user = new SysUser();
         user.setId(userId);
         user.setStatus(status);
