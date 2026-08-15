@@ -486,6 +486,18 @@ try {
     }
     Assert 'Data scope: test sees only self' $dsOk 'OK'
 
+    # 11a2. 部门过滤契约：admin 按 deptId=200 筛用户 → 只返回 test（回归：前端搜索部门树选择器）
+    $deptFilterOk = 'FAIL'
+    $dfPage = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
+        'http://localhost:8080/system/user/page?pageNum=1&pageSize=50&deptId=200'
+    try {
+        $dfRecs = ($dfPage | ConvertFrom-Json).data.records
+        if ($dfRecs -is [array] -and $dfRecs.Count -eq 1 -and $dfRecs[0].username -eq 'test') {
+            $deptFilterOk = 'OK'
+        }
+    } catch {}
+    Assert 'User page dept filter works' $deptFilterOk 'OK'
+
     # 11b. deptId 契约：JWT 必须携带 deptId claim（回归：曾缺失 → 网关无法透传 → 数据权限
     #     「本部门/本部门及以下」失效）。test 用户 seed dept_id=200，解码 payload 断言
     $deptOk = 'FAIL'
