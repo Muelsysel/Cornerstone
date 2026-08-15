@@ -42,8 +42,9 @@ public class SysRoleController {
             @RequestParam(name = "pageNum", defaultValue = "1") long pageNum,
             @RequestParam(name = "pageSize", defaultValue = "10") long pageSize,
             @RequestParam(name = "roleName", required = false) String roleName,
+            @RequestParam(name = "roleKey", required = false) String roleKey,
             @RequestParam(name = "status", required = false) String status) {
-        return Result.success(roleService.page(pageNum, pageSize, roleName, status));
+        return Result.success(roleService.page(pageNum, pageSize, roleName, roleKey, status));
     }
 
     /** 角色列表 */

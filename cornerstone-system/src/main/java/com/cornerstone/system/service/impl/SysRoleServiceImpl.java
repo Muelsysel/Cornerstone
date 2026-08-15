@@ -42,10 +42,12 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
     }
 
     @Override
-    public Page<SysRole> page(long current, long size, String roleName, String status) {
+    public Page<SysRole> page(
+            long current, long size, String roleName, String roleKey, String status) {
         LambdaQueryWrapper<SysRole> wrapper =
                 new LambdaQueryWrapper<SysRole>()
                         .like(hasText(roleName), SysRole::getRoleName, roleName)
+                        .like(hasText(roleKey), SysRole::getRoleKey, roleKey)
                         .eq(hasText(status), SysRole::getStatus, status)
                         // 确定性排序：sort 可重复，按 id 升序兜底，保证翻页不重不漏
                         .orderByAsc(SysRole::getSort)

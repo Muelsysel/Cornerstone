@@ -8,8 +8,8 @@ import java.util.Set;
 /** 角色服务接口。 */
 public interface SysRoleService {
 
-    /** 分页查询角色 */
-    Page<SysRole> page(long current, long size, String roleName, String status);
+    /** 分页查询角色（roleKey 为权限字符模糊过滤） */
+    Page<SysRole> page(long current, long size, String roleName, String roleKey, String status);
 
     /** 按 ID 查询角色 */
     SysRole getById(Long roleId);

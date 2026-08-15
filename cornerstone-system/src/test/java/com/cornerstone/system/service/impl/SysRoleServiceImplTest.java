@@ -19,12 +19,24 @@ import com.cornerstone.system.domain.mapper.SysUserRoleMapper;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Set;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 /** 角色服务单测：唯一性校验、数据范围维护、内置角色保护、菜单分配委托。 */
 class SysRoleServiceImplTest {
+
+    @BeforeAll
+    static void initTableInfo() {
+        // 纯单测无 Spring 上下文：LambdaQueryWrapper 需要显式注册实体元数据
+        com.baomidou.mybatisplus.core.MybatisConfiguration configuration =
+                new com.baomidou.mybatisplus.core.MybatisConfiguration();
+        org.apache.ibatis.builder.MapperBuilderAssistant assistant =
+                new org.apache.ibatis.builder.MapperBuilderAssistant(configuration, "");
+        com.baomidou.mybatisplus.core.metadata.TableInfoHelper.initTableInfo(
+                assistant, SysRole.class);
+    }
 
     private final SysRoleMenuMapper roleMenuMapper = mock(SysRoleMenuMapper.class);
     private final SysUserRoleMapper userRoleMapper = mock(SysUserRoleMapper.class);
@@ -52,6 +64,24 @@ class SysRoleServiceImplTest {
         r.setRoleKey(key);
         r.setDataScope(scope);
         return r;
+    }
+
+    @Test
+    void pagePassesRoleKeyFilter() {
+        // 回归：角色分页的 roleKey（权限字符）模糊过滤——前端搜索框此前发送该参数但后端忽略
+        doReturn(new com.baomidou.mybatisplus.extension.plugins.pagination.Page<SysRole>())
+                .when(service)
+                .page(any(), any());
+        service.page(1, 10, null, "admin", null);
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        org.mockito.ArgumentCaptor<
+                        com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<SysRole>>
+                captor =
+                        org.mockito.ArgumentCaptor.forClass(
+                                com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper
+                                        .class);
+        verify(service).page(any(), captor.capture());
+        assertThat(captor.getValue().getSqlSegment()).contains("role_key");
     }
 
     @Test

@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.51] - 2026-08-16
+
+- fix(bug): 角色分页补 `roleKey` 模糊过滤——前端「权限字符」搜索框此前发送参数但后端忽略（静默无效）；`SysRoleServiceImplTest` 新增过滤条件断言
+
+**测试方法**：`mvn test -pl cornerstone-system`（164 用例）。
+
 ## [1.2.50] - 2026-08-16
 
 - test(security): `SystemSecurityTest` 补两个权限契约回归用例——`GET /system/user/{id}` 需 `system:user:list`（无权限 403）、`GET /system/config/value/{key}` 需 `system:config:list`
