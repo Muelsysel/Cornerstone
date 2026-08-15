@@ -3,6 +3,12 @@
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 > 条目格式：`## [版本] - YYYY-MM-DD` → 变更类型（feat/fix/refactor/docs/test）+ 说明 + 涉及接口与测试。
 
+## [1.2.3] - 2026-08-15
+
+- fix: `GlobalExceptionHandler` 补 `HttpMessageNotReadableException` 处理（请求体 JSON 格式错误此前走兜底 500，现正确返回 400 BAD_REQUEST）；`GlobalExceptionHandlerTest` 补用例
+
+**测试方法**：`mvn test -pl cornerstone-common`（含 GlobalExceptionHandlerTest 6 用例）。
+
 ## [1.2.2] - 2026-08-15
 
 - test: `UserContextFilterTest` 3 用例（透传头填充上下文、链内可见、请求结束清理、匿名不受影响）

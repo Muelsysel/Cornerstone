@@ -76,4 +76,14 @@ class GlobalExceptionHandlerTest {
 
         assertThat(result.getCode()).isEqualTo(ErrorCode.NOT_FOUND.getCode());
     }
+
+    @Test
+    void malformedJsonReturnsBadRequest() {
+        Result<Void> result =
+                handler.handleMessageNotReadable(
+                        new org.springframework.http.converter.HttpMessageNotReadableException(
+                                "JSON parse error: unexpected character"));
+
+        assertThat(result.getCode()).isEqualTo(ErrorCode.BAD_REQUEST.getCode());
+    }
 }

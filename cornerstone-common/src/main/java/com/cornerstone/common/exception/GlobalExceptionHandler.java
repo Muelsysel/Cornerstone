@@ -6,6 +6,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -46,6 +47,13 @@ public class GlobalExceptionHandler {
                         .map(v -> v.getMessage())
                         .orElse(ErrorCode.BAD_REQUEST.getMessage());
         return Result.fail(ErrorCode.BAD_REQUEST.getCode(), message);
+    }
+
+    /** 请求体 JSON 解析失败（格式错误）：客户端问题，返回 400 而非 500 */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Result<Void> handleMessageNotReadable(HttpMessageNotReadableException e) {
+        return Result.fail(ErrorCode.BAD_REQUEST);
     }
 
     /** 资源不存在 */
