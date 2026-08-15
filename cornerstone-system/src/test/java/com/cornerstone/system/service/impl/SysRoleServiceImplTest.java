@@ -18,6 +18,7 @@ import com.cornerstone.system.domain.mapper.SysRoleMenuMapper;
 import com.cornerstone.system.domain.mapper.SysUserRoleMapper;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -174,5 +175,17 @@ class SysRoleServiceImplTest {
     void getDeptIdsByRoleIdDelegates() {
         when(roleDeptMapper.selectDeptIdsByRoleId(3L)).thenReturn(List.of(100L));
         assertThat(service.getDeptIdsByRoleId(3L)).containsExactly(100L);
+    }
+
+    @Test
+    void getMenuIdsByRoleIdDelegates() {
+        when(roleMenuMapper.selectMenuIdsByRoleId(3L)).thenReturn(List.of(10L, 20L));
+        assertThat(service.getMenuIdsByRoleId(3L)).containsExactly(10L, 20L);
+    }
+
+    @Test
+    void getRoleKeysByUserIdDelegates() {
+        when(userRoleMapper.selectRoleKeysByUserId(5L)).thenReturn(Set.of("admin", "op"));
+        assertThat(service.getRoleKeysByUserId(5L)).containsExactlyInAnyOrder("admin", "op");
     }
 }
