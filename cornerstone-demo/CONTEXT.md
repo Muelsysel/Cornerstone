@@ -26,7 +26,7 @@
 | 端口 | 8083 |
 | 数据库 | `cornerstone_demo`（一服务一库）+ Flyway 版本化迁移 |
 | 注册 | Nacos `spring.cloud.nacos.discovery.server-addr=localhost:8848` |
-| 安全 | 资源服务器，RSA 公钥位于 `application.yml → cornerstone.security.public-key` |
+| 安全 | 资源服务器，RSA 公钥位于 `application.yml → cornerstone.security.public-key`；`cornerstone.internal-token`（与 gateway/auth/system 一致）供 `UserContextFilter` 校验透传头来源（防直连伪造身份头） |
 
 ## 词汇表
 
