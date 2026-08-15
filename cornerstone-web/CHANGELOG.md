@@ -2,6 +2,13 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.0] - 2026-08-15（前端单元测试地基）
+
+- test: 引入 Vitest + jsdom（`npm test`），首个单测 `src/utils/__tests__/permission.spec.ts` 覆盖 hasPermission/hasRole（admin 放行/权限点精确判断/未登录/多角色任一命中）
+- build: 新增 `vitest.config.ts`（与 vite.config.ts 同 @ 别名）；`npm run build` 类型检查覆盖测试文件
+
+**测试方法**：`npm run build`（vue-tsc 类型检查 + vite 构建，须通过）；`npm test`（vitest 单测）；`npm run dev` 本地联调；`docker compose up --build frontend` 后访问 http://localhost:8088 验证页面与 API 反代。
+
 ## [1.1.0] - 2026-08-15（前端风格升级 + 按需引入）
 
 - style: 统一设计语言（简洁 · 高级 · 非模板感）——品牌主色「基石蓝」深靛蓝 #4F46E5、石板深色侧边栏、深色登录页 + 品牌区、卡片/表格/弹窗细节统一；样式集中于 `src/styles/theme.css`（CSS 变量），与 README「前端设计」章节同步

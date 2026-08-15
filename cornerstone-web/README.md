@@ -125,8 +125,13 @@ docker compose up --build frontend
 npm run dev          # 开发服务器
 npm run build        # 类型检查 + 生产构建（输出 dist/）
 npm run preview      # 预览构建产物
+npm test             # 单元测试（Vitest，jsdom）
 npm run type-check   # 仅类型检查
 ```
+
+> 单元测试：`npm test`（Vitest）。工具函数单测放 `src/**/__tests__/*.spec.ts`；
+> store 涉及 localStorage，环境为 jsdom（见 `vitest.config.ts`）。
+> 修改前端逻辑后需 `npm test` + `npm run build` 均通过再推送（AGENTS.md「文档维护义务」）。
 
 ## 接口对接约定
 
