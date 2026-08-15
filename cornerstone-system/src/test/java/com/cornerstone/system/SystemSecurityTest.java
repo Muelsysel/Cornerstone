@@ -1,7 +1,6 @@
 package com.cornerstone.system;
 
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -44,7 +43,9 @@ class SystemSecurityTest {
 
     @MockBean private SysUserService userService;
 
-    /** @OperLog 切面会写操作日志，mock 掉避免未建表（本测试类不依赖 MySQL/H2 表） */
+    /**
+     * @OperLog 切面会写操作日志，mock 掉避免未建表（本测试类不依赖 MySQL/H2 表）
+     */
     @MockBean private SysOperLogService operLogService;
 
     @Test
