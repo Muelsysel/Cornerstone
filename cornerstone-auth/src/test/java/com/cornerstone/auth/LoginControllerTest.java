@@ -118,6 +118,13 @@ class LoginControllerTest {
         assertThat(dto.getStatus()).isEqualTo("1");
     }
 
+    @Test
+    void logout_shouldReturnSuccess() throws Exception {
+        mockMvc.perform(post("/logout"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+    }
+
     private UserAuthDTO adminUser() {
         UserAuthDTO dto = new UserAuthDTO();
         dto.setUserId(1L);
