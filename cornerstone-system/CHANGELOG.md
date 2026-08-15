@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.49] - 2026-08-16
+
+- fix(data): 操作日志参数/结果截断（20000 字符，TEXT 列上限内）——超大请求体曾写满 TEXT 触发 DataTruncation → 操作日志丢失；`operName`/`operUrl`/`operIp` 同步按列上限截断；`OperLogAspectTest` 新增截断用例
+
+**测试方法**：`mvn test -pl cornerstone-system`（161 用例）。
+
 ## [1.2.48] - 2026-08-16
 
 - fix(data): 登录日志落库截断到 DB 列上限（username 50 / ipaddr 128 / msg 255）——登录接口允许 64 字符用户名，日志列 varchar(50)，超长曾触发 DataTruncation 导致**审计记录丢失**（登录不阻塞但断档）；`SysLoginLogServiceImplTest` 新增截断用例

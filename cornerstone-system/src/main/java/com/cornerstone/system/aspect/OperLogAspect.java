@@ -46,7 +46,7 @@ public class OperLogAspect {
         try {
             result = point.proceed();
             record.setStatus(0);
-            record.setJsonResult(serializeMasked(result));
+            record.setJsonResult(truncate(serializeMasked(result), MAX_PARAM_CHARS));
             return result;
         } catch (Throwable t) {
             record.setStatus(1);
@@ -72,17 +72,20 @@ public class OperLogAspect {
         record.setTitle(operLog.title());
         record.setBusinessType(operLog.businessType().getCode());
         record.setRequestMethod(((MethodSignature) point.getSignature()).getMethod().getName());
-        record.setOperName(currentOperName());
-        record.setOperParam(serializeMasked(point.getArgs()));
+        record.setOperName(truncate(currentOperName(), 50));
+        record.setOperParam(truncate(serializeMasked(point.getArgs()), MAX_PARAM_CHARS));
         ServletRequestAttributes attrs =
                 (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attrs != null) {
             HttpServletRequest request = attrs.getRequest();
-            record.setOperUrl(request.getRequestURI());
+            record.setOperUrl(truncate(request.getRequestURI(), 255));
             record.setRequestMethod(request.getMethod());
-            record.setOperIp(clientIp(request));
+            record.setOperIp(truncate(clientIp(request), 128));
         }
     }
+
+    /** 参数字符上限：MySQL TEXT 列字节上限 64KB，UTF-8 中文 3 字节/字——20000 字符即使全中文（60000 字节）也不超限 */
+    private static final int MAX_PARAM_CHARS = 20000;
 
     private String currentOperName() {
         UserContext context = UserContextHolder.get();
@@ -160,9 +163,13 @@ public class OperLogAspect {
     }
 
     private String truncate(String message) {
-        if (message == null || message.length() <= 500) {
+        return truncate(message, 500);
+    }
+
+    private String truncate(String message, int max) {
+        if (message == null || message.length() <= max) {
             return message;
         }
-        return message.substring(0, 500);
+        return message.substring(0, max);
     }
 }

@@ -59,4 +59,39 @@ class OperLogAspectTest {
         assertThat(operParam).doesNotContain("old-pass", "new-pass").contains("***");
         assertThat(operParam).contains("admin");
     }
+
+    @Test
+    void truncatesOversizedOperParam() throws Throwable {
+        // 回归：超大请求体曾写满 TEXT 列触发 DataTruncation → 操作日志丢失；现截断到 20000 字符
+        SysOperLogService service = mock(SysOperLogService.class);
+        AtomicReference<SysOperLog> captured = new AtomicReference<>();
+        doAnswer(
+                        inv -> {
+                            captured.set(inv.getArgument(0));
+                            return null;
+                        })
+                .when(service)
+                .record(any(SysOperLog.class));
+
+        OperLogAspect aspect = new OperLogAspect(service, new ObjectMapper());
+
+        ProceedingJoinPoint point = mock(ProceedingJoinPoint.class);
+        MethodSignature signature = mock(MethodSignature.class);
+        Method method =
+                OperLogAspect.class.getMethod("around", ProceedingJoinPoint.class, OperLog.class);
+        when(signature.getMethod()).thenReturn(method);
+        when(signature.getDeclaringTypeName()).thenReturn(OperLogAspect.class.getName());
+        when(point.getSignature()).thenReturn(signature);
+        when(point.getArgs()).thenReturn(new Object[] {"x".repeat(30000)});
+        when(point.proceed()).thenReturn(null);
+
+        OperLog operLog = mock(OperLog.class);
+        when(operLog.title()).thenReturn("批量操作");
+        when(operLog.businessType()).thenReturn(BusinessType.INSERT);
+
+        aspect.around(point, operLog);
+
+        String operParam = captured.get().getOperParam();
+        assertThat(operParam.length()).isLessThanOrEqualTo(20000);
+    }
 }
