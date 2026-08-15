@@ -46,6 +46,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
     @Override
     @Transactional(rollbackFor = Exception.class)
     public SysUser add(SysUser user) {
+        validateUsernameLength(user.getUsername());
         long exists =
                 this.count(
                         new LambdaQueryWrapper<SysUser>()
@@ -73,7 +74,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
         if (exist == null) {
             throw new BusinessException(SystemErrorCode.USER_NOT_FOUND);
         }
-        // 修改用户名时校验唯一性（排除自己；并发撞唯一索引由 DuplicateKeyException 兜底）
+        // 修改用户名时校验长度与唯一性（排除自己；并发撞唯一索引由 DuplicateKeyException 兜底）
+        if (hasText(user.getUsername())) {
+            validateUsernameLength(user.getUsername());
+        }
         if (hasText(user.getUsername()) && !user.getUsername().equals(exist.getUsername())) {
             long exists =
                     this.count(
@@ -155,6 +159,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
 
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    /** 用户名长度上限（与 DB varchar(30) 一致）：超长会触发 DataTruncation → 500，业务层先校验返回友好 400。 */
+    private void validateUsernameLength(String username) {
+        if (username != null && username.length() > 30) {
+            throw new BusinessException(
+                    com.cornerstone.common.core.ErrorCode.BAD_REQUEST, "用户名长度不能超过 30 个字符");
+        }
     }
 
     /**

@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.34] - 2026-08-16
+
+- fix(bug): 用户名加长度上限（30 字符，与 DB varchar(30) 一致）——超长用户名曾触发 DataTruncation → 500；现业务层返回友好 400「用户名长度不能超过 30 个字符」；`SysUserServiceImplTest` 新增 `addRejectsOversizedUsername`
+
+**测试方法**：`mvn test -pl cornerstone-system`（128 用例）。
+
 ## [1.2.33] - 2026-08-16
 
 - fix(security): 密码契约统一 6-72——管理员重置密码补 `@Valid` + `@Size(6-72)`（此前仅 service 层 ≤72，无下限）；用户创建/更新/重置的 service 层校验补 <6 拒绝（弱密码防护）；`SysUserServiceImplTest` 新增 `addRejectsTooShortPassword`

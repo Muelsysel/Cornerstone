@@ -242,6 +242,17 @@ class SysUserServiceImplTest {
     }
 
     @Test
+    void addRejectsOversizedUsername() {
+        // 回归：超长用户名曾触发 DB varchar(30) DataTruncation → 500；现业务层返回友好 400
+        when(userMapper.selectCount(any())).thenReturn(0L);
+        SysUser u = user(null, "u".repeat(31));
+        u.setPassword("Passw0rd!");
+
+        assertThatThrownBy(() -> service.add(u)).isInstanceOf(BusinessException.class);
+        verify(passwordEncoder, never()).encode(org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
     void resetPasswordRejectsOversizedPassword() {
         SysUser exist = user(8L, "bob");
         doReturn(exist).when(service).getById(8L);
