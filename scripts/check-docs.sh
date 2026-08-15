@@ -60,6 +60,19 @@ else
   fail=1
 fi
 
+# 4b. 每个模块 CHANGELOG 必须含「测试方法」章节（文档维护义务的可机器校验部分）
+echo "== CHANGELOG 测试方法 =="
+for m in $modules; do
+  if [ -f "$m/CHANGELOG.md" ] && ! grep -q '测试方法' "$m/CHANGELOG.md"; then
+    echo "FAIL $m/CHANGELOG.md 缺「测试方法」章节"
+    fail=1
+  fi
+done
+if [ -f cornerstone-web/CHANGELOG.md ] && ! grep -q '测试方法' cornerstone-web/CHANGELOG.md; then
+  echo "FAIL cornerstone-web/CHANGELOG.md 缺「测试方法」章节"
+  fail=1
+fi
+
 # 5. 项目工作流技能
 check "项目技能" "skills/cornerstone-dev/SKILL.md"
 
