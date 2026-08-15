@@ -203,23 +203,30 @@ try {
     Assert 'Dept tree accessible (admin)' $deptOk 'OK'
 
     # 6d. 审计契约：登录日志含 admin 记录（登录成功已投递审计，回归防丢失）
-    $logResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
-        'http://localhost:8080/system/loginlog/page?pageNum=1&pageSize=20&username=admin'
     $logOk = 'FAIL'
-    try {
-        $logRecs = ($logResp | ConvertFrom-Json).data.records
-        if ($logRecs -is [array] -and $logRecs.Count -gt 0) { $logOk = 'OK' }
-    } catch {}
+    for ($attempt = 1; $attempt -le 2 -and $logOk -ne 'OK'; $attempt++) {
+        $logResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
+            'http://localhost:8080/system/loginlog/page?pageNum=1&pageSize=20&username=admin'
+        try {
+            $logRecs = ($logResp | ConvertFrom-Json).data.records
+            if ($logRecs -is [array] -and $logRecs.Count -gt 0) { $logOk = 'OK' }
+        } catch {}
+        if ($logOk -ne 'OK' -and $attempt -lt 2) { Start-Sleep -Milliseconds 500 }
+    }
     Assert 'Login log contains admin record (audit)' $logOk 'OK'
 
     # 7. 公告编辑契约：POST 创建草稿 -> PUT /{id} 更新（曾因 PUT 缺 id 路径 100% 失败）
     $ts = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
     $annTitle = "verify-chain-$ts"
     Write-JsonBody "{`"title`":`"$annTitle`",`"content`":`"auto-check`"}"
-    $annResp = curl.exe -s --max-time 20 -X POST 'http://localhost:8080/demo/announcement' `
-        -H "Authorization: Bearer $adminToken" -H 'Content-Type: application/json' --data-binary "@$tmpJson"
     $annCode = $null
-    try { $annCode = ($annResp | ConvertFrom-Json).code } catch {}
+    # 创建幂等重试：curl 偶发空响应时重试（title 唯一，重复创建无害——后续按 title 定位最新）
+    for ($attempt = 1; $attempt -le 2 -and $annCode -ne 200; $attempt++) {
+        $annResp = curl.exe -s --max-time 20 -X POST 'http://localhost:8080/demo/announcement' `
+            -H "Authorization: Bearer $adminToken" -H 'Content-Type: application/json' --data-binary "@$tmpJson"
+        try { $annCode = ($annResp | ConvertFrom-Json).code } catch {}
+        if ($annCode -ne 200 -and $attempt -lt 2) { Start-Sleep -Milliseconds 500 }
+    }
     Assert 'Create announcement (POST) 200' $(if ($annCode -eq 200) { 'OK' } else { 'FAIL' }) 'OK'
     $draftPage = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
         "http://localhost:8080/demo/announcement/page?pageNum=1&pageSize=20&title=$annTitle"
