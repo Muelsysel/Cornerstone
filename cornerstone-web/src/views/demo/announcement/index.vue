@@ -22,7 +22,9 @@
     <!-- 表格 -->
     <el-card shadow="never">
       <div class="table-toolbar">
-        <el-button type="primary" :icon="Plus" @click="handleCreate">新增公告</el-button>
+        <el-button v-permission="'demo:announcement:edit'" type="primary" :icon="Plus" @click="handleCreate">
+          新增公告
+        </el-button>
         <span class="tip">公开查询无需登录；新增/编辑/删除需要登录后的授权。</span>
       </div>
 
@@ -41,8 +43,8 @@
         <el-table-column prop="updateTime" label="更新时间" min-width="170" />
         <el-table-column label="操作" width="160" fixed="right">
           <template #default="{ row }: { row: any }">
-            <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
-            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+            <el-button v-permission="'demo:announcement:edit'" link type="primary" @click="handleEdit(row)">编辑</el-button>
+            <el-button v-permission="'demo:announcement:edit'" link type="danger" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -54,7 +56,7 @@
         :page-sizes="[10, 20, 50]"
         layout="total, sizes, prev, pager, next, jumper"
         class="pagination"
-        @size-change="loadData"
+        @size-change="handleSizeChange"
         @current-change="loadData"
       />
     </el-card>
@@ -115,6 +117,11 @@ const total = ref(0)
 
 const query = reactive<AnnouncementQuery>({ pageNum: 1, pageSize: 10 })
 
+/** 每页条数变化时回到第一页（避免停留在越界页码）。 */
+function handleSizeChange() {
+  query.pageNum = 1
+  loadData()
+}
 async function loadData() {
   loading.value = true
   try {

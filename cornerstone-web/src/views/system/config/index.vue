@@ -50,7 +50,7 @@
         :page-sizes="[10, 20, 50]"
         layout="total, sizes, prev, pager, next, jumper"
         class="pagination"
-        @size-change="loadData"
+        @size-change="handleSizeChange"
         @current-change="loadData"
       />
     </el-card>
@@ -106,6 +106,11 @@ const total = ref(0)
 
 const query = reactive<ConfigQuery>({ pageNum: 1, pageSize: 10 })
 
+/** 每页条数变化时回到第一页（避免停留在越界页码）。 */
+function handleSizeChange() {
+  query.pageNum = 1
+  loadData()
+}
 async function loadData() {
   loading.value = true
   try {

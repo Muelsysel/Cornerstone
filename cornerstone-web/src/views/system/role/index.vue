@@ -59,7 +59,7 @@
         :page-sizes="[10, 20, 50]"
         layout="total, sizes, prev, pager, next, jumper"
         class="pagination"
-        @size-change="loadData"
+        @size-change="handleSizeChange"
         @current-change="loadData"
       />
     </el-card>
@@ -101,6 +101,7 @@
     <el-dialog v-model="assignVisible" title="分配菜单权限" width="480px" destroy-on-close>
       <el-tree
         ref="menuTreeRef"
+        v-loading="treeLoading"
         :data="menuTree"
         node-key="menuId"
         show-checkbox
@@ -148,6 +149,11 @@ const total = ref(0)
 
 const query = reactive<RoleQuery>({ pageNum: 1, pageSize: 10 })
 
+/** 每页条数变化时回到第一页（避免停留在越界页码）。 */
+function handleSizeChange() {
+  query.pageNum = 1
+  loadData()
+}
 async function loadData() {
   loading.value = true
   try {
@@ -229,6 +235,7 @@ async function handleSubmit() {
 // ---------------- 分配权限 ----------------
 const assignVisible = ref(false)
 const assigning = ref(false)
+const treeLoading = ref(false)
 const menuTreeRef = ref<InstanceType<typeof ElTree>>()
 const menuTree = ref<Menu[]>([])
 let assignRoleId = 0
@@ -236,6 +243,7 @@ let assignRoleId = 0
 async function handleAssign(row: Role) {
   assignRoleId = row.roleId
   assignVisible.value = true
+  treeLoading.value = true
   try {
     menuTree.value = (await getMenuTree()) || []
     const { menuIds } = await getRoleMenus(row.roleId)
@@ -245,6 +253,8 @@ async function handleAssign(row: Role) {
     })
   } catch {
     menuTree.value = []
+  } finally {
+    treeLoading.value = false
   }
 }
 

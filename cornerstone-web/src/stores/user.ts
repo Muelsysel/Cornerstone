@@ -49,11 +49,16 @@ export const useUserStore = defineStore('user', () => {
     } catch {
       // 后端退出接口失败不阻断本地清理
     } finally {
-      clearAuth()
-      token.value = ''
-      user.value = null
+      resetSession()
     }
   }
 
-  return { token, user, isLoggedIn, roles, permissions, login, logout }
+  /** 纯本地清理会话（不发请求）：清 localStorage 与内存状态。登录失效（401）时调用。 */
+  function resetSession() {
+    clearAuth()
+    token.value = ''
+    user.value = null
+  }
+
+  return { token, user, isLoggedIn, roles, permissions, login, logout, resetSession }
 })

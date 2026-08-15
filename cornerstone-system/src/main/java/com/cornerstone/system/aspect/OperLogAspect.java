@@ -5,9 +5,14 @@ import com.cornerstone.common.security.UserContextHolder;
 import com.cornerstone.system.annotation.OperLog;
 import com.cornerstone.system.domain.entity.SysOperLog;
 import com.cornerstone.system.service.SysOperLogService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -41,7 +46,7 @@ public class OperLogAspect {
         try {
             result = point.proceed();
             record.setStatus(0);
-            record.setJsonResult(serialize(result));
+            record.setJsonResult(serializeMasked(result));
             return result;
         } catch (Throwable t) {
             record.setStatus(1);
@@ -68,7 +73,7 @@ public class OperLogAspect {
         record.setBusinessType(operLog.businessType().getCode());
         record.setRequestMethod(((MethodSignature) point.getSignature()).getMethod().getName());
         record.setOperName(currentOperName());
-        record.setOperParam(serialize(point.getArgs()));
+        record.setOperParam(serializeMasked(point.getArgs()));
         ServletRequestAttributes attrs =
                 (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attrs != null) {
@@ -100,6 +105,61 @@ public class OperLogAspect {
         } catch (Exception e) {
             return String.valueOf(value);
         }
+    }
+
+    /**
+     * 脱敏序列化：递归屏蔽敏感字段（password/secret/token 等）后再输出 JSON。
+     * 防止修改密码/用户管理/重置密码等操作把明文口令写入操作日志。
+     */
+    private String serializeMasked(Object value) {
+        try {
+            return objectMapper.writeValueAsString(maskSensitive(value));
+        } catch (Exception e) {
+            return String.valueOf(value);
+        }
+    }
+
+    private Object maskSensitive(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof String || value instanceof Number || value instanceof Boolean) {
+            return value;
+        }
+        if (value instanceof Map<?, ?> map) {
+            Map<String, Object> masked = new HashMap<>();
+            map.forEach(
+                    (k, v) -> {
+                        String key = String.valueOf(k);
+                        masked.put(key, isSensitiveKey(key) ? "***" : maskSensitive(v));
+                    });
+            return masked;
+        }
+        if (value instanceof Collection<?> collection) {
+            return collection.stream().map(this::maskSensitive).toList();
+        }
+        if (value.getClass().isArray()) {
+            List<?> list =
+                    java.util.stream.IntStream.range(0, java.lang.reflect.Array.getLength(value))
+                            .mapToObj(i -> java.lang.reflect.Array.get(value, i))
+                            .toList();
+            return maskSensitive(list);
+        }
+        // 普通 Bean：先转 Map 再递归脱敏；转换失败则原样返回
+        try {
+            return maskSensitive(
+                    objectMapper.convertValue(value, new TypeReference<Map<String, Object>>() {}));
+        } catch (Exception e) {
+            return value;
+        }
+    }
+
+    private static boolean isSensitiveKey(String key) {
+        String lower = key.toLowerCase();
+        return lower.contains("password")
+                || lower.contains("secret")
+                || lower.contains("token")
+                || lower.contains("credential");
     }
 
     private String truncate(String message) {

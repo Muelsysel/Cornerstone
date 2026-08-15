@@ -40,7 +40,14 @@ public final class UserContextHolder {
         }
         context.setUsername(headers.get(UserContext.HEADER_USERNAME));
         String deptId = headers.get(UserContext.HEADER_DEPT_ID);
-        context.setDeptId(deptId == null || deptId.isBlank() ? null : Long.valueOf(deptId.trim()));
+        if (deptId != null && !deptId.isBlank()) {
+            try {
+                context.setDeptId(Long.valueOf(deptId.trim()));
+            } catch (NumberFormatException e) {
+                // 伪造/异常格式的部门 ID 头：降级为 null，不因外部可控输入抛 500
+                context.setDeptId(null);
+            }
+        }
         String roles = headers.get(UserContext.HEADER_ROLES);
         if (roles != null && !roles.isBlank()) {
             context.setRoles(new HashSet<>(Arrays.asList(roles.split(","))));
