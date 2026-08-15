@@ -10,12 +10,17 @@ spring:
         server-addr: localhost:8848
         enabled: true
     gateway:
-      # 全局 CORS：v1 演示放开所有来源（TODO v2 按域名收紧）
+      # 全局 CORS：仅允许本地开发/演示来源（生产经 nginx 同源反代，不触发 CORS）。
+      # 收紧为白名单：与 allow-credentials: true 搭配时不能使用 '*' 通配来源。
       globalcors:
         cors-configurations:
           '[/**]':
-            allowed-origin-patterns: '*'
-            allowed-methods: '*'
+            allowed-origin-patterns:
+              - 'http://localhost:5173' # 前端 dev server
+              - 'http://127.0.0.1:5173'
+              - 'http://localhost:8088' # 前端 nginx 容器
+              - 'http://127.0.0.1:8088'
+            allowed-methods: GET,POST,PUT,DELETE,OPTIONS
             allowed-headers: '*'
             allow-credentials: true
 

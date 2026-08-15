@@ -38,4 +38,18 @@ class UserContextHolderTest {
     void returnsNullForEmptyHeaders() {
         assertNull(UserContextHolder.parse(Map.of()));
     }
+
+    @Test
+    void parsesInvalidDeptIdAsNull() {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(UserContext.HEADER_USER_ID, "1");
+        headers.put(UserContext.HEADER_DEPT_ID, "not-a-number");
+
+        UserContext context = UserContextHolder.parse(headers);
+
+        // 伪造/异常格式的部门 ID 头应降级为 null，不得抛异常
+        assertNotNull(context);
+        assertEquals(1L, context.getUserId());
+        assertNull(context.getDeptId());
+    }
 }

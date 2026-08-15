@@ -2,6 +2,16 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.1.0] - 2026-08-15
+
+- fix(安全): 操作日志脱敏——`OperLogAspect` 递归屏蔽 password/secret/token 字段（修改密码/用户管理不再把明文口令落库），补回归测试
+- fix: 角色保存事务上移（`SysRoleServiceImpl.add/update` 加 `@Transactional`，消除 self-invocation 失效导致的脏数据风险）
+- fix: 错误码枚举化——`SystemErrorCode` 补 1008-1012（内置用户/角色删除保护、子节点删除保护、旧密码错误），消除散落魔法码与 1003 冲突
+- fix: `InternalTokenFilter` 令牌比对改恒定时间比较（MessageDigest.isEqual）
+- test: `DataScopeServiceTest` 6 用例（最严格范围选取/匿名回退/自定义部门委托）
+
+**测试方法**：`mvn test -pl cornerstone-system`（CornerstoneDataPermissionHandlerTest / SysAuthUserControllerTest / SystemSecurityTest / SystemExtensionTest / DataScopeServiceTest / OperLogAspectTest）。
+
 ## [1.0.0] - 2026-08-15（初始）
 
 - feat: RBAC（用户/角色/菜单/部门 CRUD + 权限注解）；字典/参数（Redis 缓存）；操作日志（@OperLog AOP）；登录日志（record + 查询）；认证支持接口（AuthUserClient/LoginLogClient 契约，/system/auth/** 内部令牌保护）；个人中心（GET/PUT /system/user/profile）

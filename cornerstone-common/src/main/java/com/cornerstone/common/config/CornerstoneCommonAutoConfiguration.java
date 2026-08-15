@@ -14,12 +14,13 @@ import org.springframework.context.annotation.Import;
  *
  * <ul>
  *   <li>全局异常处理基于 Spring MVC（@RestControllerAdvice），Reactive（如网关）环境不适用；
- *   <li>UserContextFilter 是 Servlet Filter，Reactive 环境不注册。
+ *   <li>UserContextFilter 是 Servlet Filter，Reactive 环境不注册；
+ *   <li>Jackson 时间格式统一（LocalDateTime → yyyy-MM-dd HH:mm:ss）。
  * </ul>
  *
  * 通过 AutoConfiguration.imports 注册，Servlet 服务依赖 common 即自动生效，Reactive 服务自动跳过、无需 exclude。
  */
 @AutoConfiguration
 @ConditionalOnWebApplication(type = Type.SERVLET)
-@Import({GlobalExceptionHandler.class, UserContextFilter.class})
+@Import({GlobalExceptionHandler.class, UserContextFilter.class, JacksonTimeConfig.class})
 public class CornerstoneCommonAutoConfiguration {}

@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -29,8 +31,15 @@ public class InternalTokenFilter extends OncePerRequestFilter {
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         if (request.getRequestURI().startsWith(INTERNAL_PATH_PREFIX)) {
-            if (internalToken.isBlank()
-                    || !internalToken.equals(request.getHeader(INTERNAL_HEADER))) {
+            String presented = request.getHeader(INTERNAL_HEADER);
+            // 恒定时间比较，避免时序侧信道
+            boolean valid =
+                    !internalToken.isBlank()
+                            && presented != null
+                            && MessageDigest.isEqual(
+                                    internalToken.getBytes(StandardCharsets.UTF_8),
+                                    presented.getBytes(StandardCharsets.UTF_8));
+            if (!valid) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json;charset=UTF-8");
                 response.getWriter().write("{\"code\":401,\"message\":\"未认证或令牌无效\",\"data\":null}");

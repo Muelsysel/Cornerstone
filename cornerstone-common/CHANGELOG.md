@@ -3,6 +3,14 @@
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 > 条目格式：`## [版本] - YYYY-MM-DD` → 变更类型（feat/fix/refactor/docs/test）+ 说明 + 涉及接口与测试。
 
+## [1.1.0] - 2026-08-15
+
+- feat: `JacksonTimeConfig` 统一 java.time 序列化格式（LocalDateTime → `yyyy-MM-dd HH:mm:ss`，附反序列化），前端时间列直接展示友好格式（前后端契约）
+- fix: `UserContextHolder.parse` 对非法 deptId 透传头降级为 null（与 userId 一致，防外部可控输入抛 500）
+- test: 新增非法 deptId 解析用例
+
+**测试方法**：`mvn test -pl cornerstone-common`（Result 序列化契约、UserContext 解析）。
+
 ## [1.0.0] - 2026-08-15（初始）
 
 - feat: 统一返回 `Result<T>`（@JsonIgnore 排除 isSuccess 防契约污染）、错误码 `ErrorCode`/`IErrorCode`、业务异常 `BusinessException`、全局异常处理器（自动配置注册，`Type.SERVLET` 条件跳过 Reactive）

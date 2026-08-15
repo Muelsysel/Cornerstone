@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
@@ -35,8 +36,11 @@ public class LoginService {
     /** 签发的 access_token 有效期（12 小时） */
     public static final Duration TOKEN_TTL = Duration.ofHours(12);
 
-    private static final String ISSUER = "http://localhost:8081";
     private static final String TOKEN_TYPE_BEARER = "Bearer";
+
+    /** JWT issuer：多环境（生产域名）可经 cornerstone.auth.issuer 配置覆盖 */
+    @Value("${cornerstone.auth.issuer:http://localhost:8081}")
+    private String issuer;
 
     private final AuthUserClient authUserClient;
     private final LoginLogClient loginLogClient;
@@ -103,7 +107,7 @@ public class LoginService {
         Instant now = Instant.now();
         JwtClaimsSet claims =
                 JwtClaimsSet.builder()
-                        .issuer(ISSUER)
+                        .issuer(issuer)
                         .subject(String.valueOf(user.getUserId()))
                         .issuedAt(now)
                         .expiresAt(now.plus(TOKEN_TTL))
