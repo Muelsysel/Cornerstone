@@ -105,6 +105,11 @@ public class AnnouncementServiceImpl extends ServiceImpl<AnnouncementMapper, Ann
         if (!StringUtils.hasText(title)) {
             throw new BusinessException(DemoErrorCode.ANNOUNCEMENT_TITLE_REQUIRED);
         }
+        // 长度上限与 DB varchar(100) 一致：超长会触发 DataTruncation → 500，业务层先校验
+        if (title.length() > 100) {
+            throw new BusinessException(
+                    com.cornerstone.common.core.ErrorCode.BAD_REQUEST, "公告标题不能超过 100 个字符");
+        }
     }
 
     /**

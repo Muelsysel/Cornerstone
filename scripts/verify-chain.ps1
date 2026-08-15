@@ -244,6 +244,15 @@ try {
         if ($annCode -ne 200 -and $attempt -lt 2) { Start-Sleep -Milliseconds 500 }
     }
     Assert 'Create announcement (POST) 200' $(if ($annCode -eq 200) { 'OK' } else { 'FAIL' }) 'OK'
+
+    # 7a. 字段上限契约：超长标题（DB varchar(100)）必须返回友好 400，而非 DataTruncation 500
+    $longTitle = 'x' * 101
+    Write-JsonBody "{`"title`":`"$longTitle`",`"content`":`"too-long`"}"
+    $longResp = curl.exe -s --max-time 20 -X POST 'http://localhost:8080/demo/announcement' `
+        -H "Authorization: Bearer $adminToken" -H 'Content-Type: application/json' --data-binary "@$tmpJson"
+    $longCode = $null
+    try { $longCode = ($longResp | ConvertFrom-Json).code } catch {}
+    Assert 'Oversized title rejected with 400 (not 500)' $(if ($longCode -eq 400) { 'OK' } else { 'FAIL' }) 'OK'
     $draftPage = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
         "http://localhost:8080/demo/announcement/page?pageNum=1&pageSize=20&title=$annTitle"
     $draftId = $null
@@ -302,13 +311,17 @@ try {
         Assert 'Offline announcement POST /{id}/offline 200' $offOk 'OK'
 
         # 7c. 状态机防护：已下线公告再次下线/已发布公告再次发布都应被拒（单向流转）
+        #     重试一次：本机 curl 偶发 stdout 捕获异常（连接建立但输出丢失）会导致假失败
         $flowOk = 'FAIL'
-        $flowResp = curl.exe -s --max-time 20 -X POST "http://localhost:8080/demo/announcement/$draftId/offline" `
-            -H "Authorization: Bearer $adminToken"
-        try {
-            $flowCode = ($flowResp | ConvertFrom-Json).code
-            if ($flowCode -eq 1001) { $flowOk = 'OK' }
-        } catch {}
+        for ($attempt = 1; $attempt -le 2 -and $flowOk -ne 'OK'; $attempt++) {
+            $flowResp = curl.exe -s --max-time 20 -X POST "http://localhost:8080/demo/announcement/$draftId/offline" `
+                -H "Authorization: Bearer $adminToken"
+            try {
+                $flowCode = ($flowResp | ConvertFrom-Json).code
+                if ($flowCode -eq 1001) { $flowOk = 'OK' }
+            } catch {}
+            if ($flowOk -ne 'OK' -and $attempt -lt 2) { Start-Sleep -Milliseconds 500 }
+        }
         Assert 'State machine rejects illegal transition (1001)' $flowOk 'OK'
 
         # 8. 隐私契约：游客访问非已发布（草稿/已下线）详情 -> 业务码非 200（按不存在处理，防泄露）

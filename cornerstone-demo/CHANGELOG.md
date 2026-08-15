@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.0.18] - 2026-08-16
+
+- fix(bug): 公告标题加长度上限（100 字符，与 DB varchar(100) 对齐）——超长标题曾触发 DataTruncation → 500；现业务层返回友好 400「公告标题不能超过 100 个字符」；`AnnouncementServiceImplTest` 新增 `createRejectsOversizedTitle`
+
+**测试方法**：`mvn test -pl cornerstone-demo`（27 用例）。
+
 ## [1.0.17] - 2026-08-16
 
 - fix(bug): 公告内容加长度上限（20000 字符）——超长内容曾触发 MySQL TEXT DataTruncation → 500；现业务层返回友好 400「公告内容不能超过 20000 字符」；`AnnouncementServiceImplTest` 新增 `createRejectsOversizedContent`

@@ -91,6 +91,16 @@ class AnnouncementServiceImplTest {
     }
 
     @Test
+    void createRejectsOversizedTitle() {
+        // 回归：超长标题（DB varchar(100)）曾触发 DataTruncation → 500；现业务层返回友好 400
+        loginAs("admin");
+        Announcement a = announcement(null, null);
+        a.setTitle("x".repeat(101));
+        assertThatThrownBy(() -> service.create(a)).isInstanceOf(BusinessException.class);
+        verify(mapper, never()).insert(org.mockito.ArgumentMatchers.<Announcement>any());
+    }
+
+    @Test
     void createForcesDraftAndFillsAuthor() {
         loginAs("admin");
         Announcement a = announcement(null, null);
