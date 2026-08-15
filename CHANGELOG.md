@@ -3,6 +3,10 @@
 > 项目级版本里程碑与仓库级变更记录。模块级细节见各模块 `CHANGELOG.md`
 > （common/api/gateway/auth/system/demo/web）。所有 AI 都是文档维护者（AGENTS.md「文档维护义务」）。
 
+## [1.5.25] - 2026-08-15（端到端契约扩展）
+
+- feat(scripts): `verify-chain.ps1` 断言 20→21 项——新增游客分页隐私断言（公开分页只返回已发布公告）；update 补幂等重试；4 次连跑稳定 PASS
+
 ## [1.5.24] - 2026-08-15（端到端契约扩展）
 
 - feat(scripts): `verify-chain.ps1` 断言 19→20 项——新增前端容器可达断言（nginx 托管 + 反代网关部署完整性）；3 次连跑稳定 PASS

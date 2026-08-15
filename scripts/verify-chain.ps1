@@ -102,6 +102,21 @@ try {
     $code = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 $pageUrl
     Assert 'Public endpoint no token 200' $code '200'
 
+    # 2a. 游客分页隐私：公开分页只返回已发布公告（草稿/下线不可见）
+    $pubPage = curl.exe -s --max-time 20 'http://localhost:8080/demo/announcement/page?pageNum=1&pageSize=50'
+    $pubOk = 'FAIL'
+    try {
+        $recs = ($pubPage | ConvertFrom-Json).data.records
+        if ($recs -is [array]) {
+            $allPublished = $true
+            foreach ($rec in $recs) {
+                if ($rec.status -ne 1) { $allPublished = $false; break }
+            }
+            if ($allPublished) { $pubOk = 'OK' }
+        }
+    } catch {}
+    Assert 'Guest page only published announcements' $pubOk 'OK'
+
     # 2b. 前端容器可访问（部署完整性：nginx 托管 + 反代网关）
     $code = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 'http://localhost:8088/'
     Assert 'Frontend container reachable 200' $code '200'
@@ -170,10 +185,14 @@ try {
     try { $draftId = (($draftPage | ConvertFrom-Json).data.records | Where-Object { $_.title -eq $annTitle } | Select-Object -First 1).id } catch {}
     if ($draftId) {
         Write-JsonBody "{`"id`":$draftId,`"title`":`"$annTitle-2`",`"content`":`"updated`"}"
-        $updResp = curl.exe -s --max-time 20 -X PUT "http://localhost:8080/demo/announcement/$draftId" `
-            -H "Authorization: Bearer $adminToken" -H 'Content-Type: application/json' --data-binary "@$tmpJson"
         $updCode = $null
-        try { $updCode = ($updResp | ConvertFrom-Json).code } catch {}
+        # PUT 幂等：响应丢失（curl 偶发）时重试一次
+        for ($attempt = 1; $attempt -le 2 -and $updCode -ne 200; $attempt++) {
+            $updResp = curl.exe -s --max-time 20 -X PUT "http://localhost:8080/demo/announcement/$draftId" `
+                -H "Authorization: Bearer $adminToken" -H 'Content-Type: application/json' --data-binary "@$tmpJson"
+            try { $updCode = ($updResp | ConvertFrom-Json).code } catch {}
+            if ($updCode -ne 200 -and $attempt -lt 2) { Start-Sleep -Milliseconds 500 }
+        }
         Assert 'Update announcement PUT /{id} 200' $(if ($updCode -eq 200) { 'OK' } else { 'FAIL' }) 'OK'
 
         # 7b. 状态机契约：发布（草稿→已发布）→ 下线（已发布→已下线）
