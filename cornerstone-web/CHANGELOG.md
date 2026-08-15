@@ -27,6 +27,12 @@
 
 **测试方法**：`npm run build`（vue-tsc 类型检查 + vite 构建，须通过）；`npm test`（vitest 单测）；`docker compose up --build frontend` 后访问 http://localhost:8088 验证页面与 API 反代。
 
+## [1.3.4] - 2026-08-15（测试补充）
+
+- test: 请求拦截器 Bearer 令牌附加用例（有/无令牌两分支）；单测总数 14
+
+**测试方法**：`npm run build`（vue-tsc 类型检查 + vite 构建，须通过）；`npm test`（vitest 单测，14 用例）。
+
 ## [1.3.3] - 2026-08-15（测试补充）
 
 - test: 新增 `src/utils/__tests__/auth.spec.ts`——JWT scope 解码（字符串/数组/缺失/非法）；单测总数 12

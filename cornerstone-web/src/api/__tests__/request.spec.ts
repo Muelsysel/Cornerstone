@@ -17,6 +17,7 @@ vi.mock('@/router', () => ({
 
 import service from '@/api/request'
 import { useUserStore } from '@/stores/user'
+import { TOKEN_KEY } from '@/utils/auth'
 
 // 401 登录失效死循环回归测试：
 // 响应拦截器收到 401（HTTP 或业务码）时必须清空会话（localStorage + store），
@@ -72,5 +73,29 @@ describe('request 拦截器 401 处理', () => {
     expect(store.user).not.toBeNull()
     expect(replaceMock).not.toHaveBeenCalled()
     expect(result).toBeDefined()
+  })
+})
+
+// 请求拦截器：携带 Bearer 令牌
+describe('request 拦截器令牌附加', () => {
+  beforeEach(() => localStorage.clear())
+
+  const requestHandlers = (
+    service.interceptors.request as unknown as {
+      fulfilled: (config: { headers: Record<string, string> }) => unknown
+    }[]
+  ).handlers
+
+  it('本地有令牌时附加 Authorization 头', () => {
+    localStorage.setItem(TOKEN_KEY, 'jwt-token')
+    const config = { headers: {} }
+    requestHandlers[0].fulfilled(config)
+    expect(config.headers.Authorization).toBe('Bearer jwt-token')
+  })
+
+  it('无令牌时不附加 Authorization 头', () => {
+    const config = { headers: {} }
+    requestHandlers[0].fulfilled(config)
+    expect(config.headers.Authorization).toBeUndefined()
   })
 })
