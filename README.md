@@ -100,7 +100,10 @@ docker compose up -d
 ### 2. 启动后端服务
 
 ```bash
-# 方式 A：docker-compose 前端 + 本地 Java 服务（推荐，见 docs/guides/run-demo.md）
+# 方式 A：一键脚本（Windows，依赖检查 + 4 服务并行 + 前端，日志输出到 logs/）
+powershell -ExecutionPolicy Bypass -File scripts/start-all.ps1
+
+# 方式 B：手动（4 个终端，详见 docs/guides/run-demo.md）
 mvn -pl cornerstone-auth,cornerstone-system,cornerstone-demo spring-boot:run   # 终端 1
 mvn -pl cornerstone-gateway spring-boot:run                                    # 终端 2
 ```

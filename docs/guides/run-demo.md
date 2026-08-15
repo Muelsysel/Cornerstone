@@ -22,6 +22,20 @@ docker compose up -d
 
 ## 第二步：启动服务
 
+**方式 A：一键脚本（推荐，Windows）**
+
+```powershell
+# 启动依赖 + 后端 4 服务 + 前端 dev server（日志输出到 logs/）
+powershell -ExecutionPolicy Bypass -File scripts/start-all.ps1
+
+# 常用变体
+scripts/start-all.ps1 -NoFront     # 仅后端
+scripts/start-all.ps1 -FrontProd   # 前端用 docker 容器（http://localhost:8088）
+scripts/start-all.ps1 -Stop        # 停止由脚本启动的服务
+```
+
+**方式 B：手动 4 个终端**
+
 ```powershell
 # 终端 1（认证中心）
 $env:JAVA_HOME = "C:\Dev\Lang\JAVA\JAVA17"
