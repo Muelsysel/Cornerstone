@@ -8,6 +8,13 @@
 
 **测试方法**：`npm run build`（vue-tsc 类型检查 + vite 构建，须通过）；`npm test`（vitest 单测）；`docker compose up --build frontend` 后访问 http://localhost:8088 验证页面与 API 反代。
 
+## [1.3.2] - 2026-08-15（测试补充）
+
+- test: 新增 `src/api/__tests__/request.spec.ts`——401 登录失效死循环回归（HTTP/业务码 401 清会话+跳转、200 不清）；单测总数 8
+- fix: 修改密码表单校验失败静默返回（消除 unhandled rejection）
+
+**测试方法**：`npm run build`（vue-tsc 类型检查 + vite 构建，须通过）；`npm test`（vitest 单测，8 用例）。
+
 ## [1.3.1] - 2026-08-15（体验细节）
 
 - feat: 全局错误捕获（app.config.errorHandler，渲染错误可定位不静默）；登录表单 autocomplete（浏览器密码管理器友好）；首页欢迎语加当前日期；index.html 补 description/theme-color meta
