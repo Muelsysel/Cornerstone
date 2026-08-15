@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.11] - 2026-08-16
+
+- fix(security): **修复网关限流完全失效**——曾用 `new RedisRateLimiter(10, 20)` 构造（无 RedisTemplate/脚本注入），限流器空转（请求全放行、Redis 无 request_rate_limiter key）；改为「模板 + 脚本 + ConfigurationService」正确构造，速率按路由 id 预置 config map（auth-login 5/s+突发10，auth/system/demo 10/s+突发20）；实测登录 20 连发触发 9 次 429
+
+**测试方法**：`mvn test -pl cornerstone-gateway`（14 用例）+ 实测限流。
+
 ## [1.2.10] - 2026-08-16
 
 - test: `TokenAuthGlobalFilterTest` 新增白名单边界用例——`/auth` 精确放行、`/auth-extra` 与 `/demo-secret` 前缀不误匹配（防前缀越权）

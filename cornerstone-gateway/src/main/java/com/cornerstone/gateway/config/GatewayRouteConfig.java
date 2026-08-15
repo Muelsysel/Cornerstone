@@ -29,7 +29,7 @@ public class GatewayRouteConfig {
     @Bean
     public RouteLocator cornerstoneRoutes(RouteLocatorBuilder builder) {
         return builder.routes()
-                // 认证中心登录接口：独立更严限流（每秒 5/桶 10，防账号爆破）。
+                // 认证中心登录接口：独立更严限流（速率由 loginRateLimiter 按路由 id auth-login 配置，5/s+突发10）
                 // 注意：必须声明在 /auth/** 之前，否则被通用认证路由吞掉。
                 .route(
                         "auth-login",
