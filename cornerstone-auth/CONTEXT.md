@@ -18,6 +18,7 @@
 
 1. 调用 `cornerstone-api` 的 `AuthUserClient.findByUsername(username)`（Feign，`/system/auth/user/{username}`）从 system 获取 `UserAuthDTO`（含 BCrypt 密码哈希、角色、权限）。
 2. 用 `BCryptPasswordEncoder` 比对密码；用户不存在或密码错误 → 抛 `BusinessException(ErrorCode.UNAUTHORIZED, "用户名或密码错误")`。
+3. **登录锁定（ADR-0009）**：连续失败 ≥5 次锁定 5 分钟（Redis `login:fail:{username}` 计数），锁定期间即使密码正确也拒绝；锁定提示返回剩余秒数（Redis TTL），Redis 不可用降级为通用提示。
 3. 成功用 `JwtEncoder`（NimbusJwtEncoder，RS256）签发 JWT：
    - `sub`=userId、`username`、`roles`（角色集合）、`scope`（**权限集合**，供下游 `@PreAuthorize` 读 scope）；
    - `iss`=http://localhost:8081，有效期 12 小时。
