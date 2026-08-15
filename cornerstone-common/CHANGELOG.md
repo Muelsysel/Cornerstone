@@ -3,6 +3,12 @@
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 > 条目格式：`## [版本] - YYYY-MM-DD` → 变更类型（feat/fix/refactor/docs/test）+ 说明 + 涉及接口与测试。
 
+## [1.2.11] - 2026-08-16
+
+- fix(contract): `GlobalExceptionHandler` 补缺参/类型错误映射——`MissingServletRequestParameterException`（缺必填参数）与 `TypeMismatchException`（如 pageNum=abc）此前走兜底 500，现返回友好 400；`GlobalExceptionHandlerTest` 新增 2 用例
+
+**测试方法**：`mvn test -pl cornerstone-common`（35 用例）。
+
 ## [1.2.10] - 2026-08-16
 
 - fix(security): **透传头防伪造加固**——`UserContextFilter` 仅采信携带有效 `X-Internal-Token`（网关转发时附加）的 X-Cornerstone-* 身份头；直连服务端口伪造身份头（如 roles=admin 提升数据权限范围）现被忽略（fail-closed，按匿名处理）；未配置 `cornerstone.internal-token` 时保持旧行为（最小化部署/单测兼容）；`UserContextFilterTest` 新增 3 个回归用例（无令牌/错误令牌忽略、有效令牌采信）

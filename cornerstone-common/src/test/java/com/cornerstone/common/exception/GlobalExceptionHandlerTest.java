@@ -106,4 +106,26 @@ class GlobalExceptionHandlerTest {
 
         assertThat(result.getCode()).isEqualTo(ErrorCode.UNSUPPORTED_MEDIA_TYPE.getCode());
     }
+
+    @Test
+    void missingRequiredParamReturns400WithName() {
+        Result<Void> result =
+                handler.handleMissingParam(
+                        new org.springframework.web.bind.MissingServletRequestParameterException(
+                                "userId", "long"));
+
+        assertThat(result.getCode()).isEqualTo(ErrorCode.BAD_REQUEST.getCode());
+        assertThat(result.getMessage()).contains("userId");
+    }
+
+    @Test
+    void typeMismatchReturns400() {
+        // 回归：pageNum=abc 传 long 曾走兜底 500；现返回友好 400
+        Result<Void> result =
+                handler.handleTypeMismatch(
+                        new org.springframework.beans.TypeMismatchException("abc", long.class));
+
+        assertThat(result.getCode()).isEqualTo(ErrorCode.BAD_REQUEST.getCode());
+        assertThat(result.getMessage()).contains("参数格式错误");
+    }
 }

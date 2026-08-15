@@ -58,6 +58,21 @@ public class GlobalExceptionHandler {
         return Result.fail(ErrorCode.BAD_REQUEST);
     }
 
+    /** 缺少必填请求参数（如未传 @RequestParam(required=true)）：客户端问题，返回 400 而非 500 */
+    @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Result<Void> handleMissingParam(
+            org.springframework.web.bind.MissingServletRequestParameterException e) {
+        return Result.fail(ErrorCode.BAD_REQUEST.getCode(), "缺少必填参数: " + e.getParameterName());
+    }
+
+    /** 参数类型不匹配（如 pageNum=abc 传给 long）：客户端问题，返回 400 而非 500 */
+    @ExceptionHandler(org.springframework.beans.TypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Result<Void> handleTypeMismatch(org.springframework.beans.TypeMismatchException e) {
+        return Result.fail(ErrorCode.BAD_REQUEST.getCode(), "参数格式错误: " + e.getPropertyName());
+    }
+
     /** HTTP 方法不支持（如对只读端点用 POST）：返回 405 而非 500 */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
