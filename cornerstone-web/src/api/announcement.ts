@@ -37,3 +37,13 @@ export function updateAnnouncement(data: Partial<Announcement>): Promise<unknown
 export function deleteAnnouncement(id: number): Promise<unknown> {
   return request({ url: `/demo/announcement/${id}`, method: 'delete' })
 }
+
+/** 发布公告（DRAFT → PUBLISHED） */
+export function publishAnnouncement(id: number): Promise<unknown> {
+  return request({ url: `/demo/announcement/${id}/publish`, method: 'post' })
+}
+
+/** 下线公告（PUBLISHED → DRAFT） */
+export function offlineAnnouncement(id: number): Promise<unknown> {
+  return request({ url: `/demo/announcement/${id}/offline`, method: 'post' })
+}

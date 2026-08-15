@@ -41,8 +41,26 @@
         <el-table-column prop="author" label="作者" width="120" />
         <el-table-column prop="createTime" label="创建时间" min-width="170" />
         <el-table-column prop="updateTime" label="更新时间" min-width="170" />
-        <el-table-column label="操作" width="160" fixed="right">
+        <el-table-column label="操作" width="220" fixed="right">
           <template #default="{ row }: { row: any }">
+            <el-button
+              v-if="row.status === 'DRAFT'"
+              v-permission="'demo:announcement:edit'"
+              link
+              type="primary"
+              @click="handlePublish(row)"
+            >
+              发布
+            </el-button>
+            <el-button
+              v-else
+              v-permission="'demo:announcement:edit'"
+              link
+              type="warning"
+              @click="handleOffline(row)"
+            >
+              下线
+            </el-button>
             <el-button v-permission="'demo:announcement:edit'" link type="primary" @click="handleEdit(row)">编辑</el-button>
             <el-button v-permission="'demo:announcement:edit'" link type="danger" @click="handleDelete(row)">删除</el-button>
           </template>
@@ -98,6 +116,8 @@ import {
   createAnnouncement,
   deleteAnnouncement,
   getAnnouncementPage,
+  offlineAnnouncement,
+  publishAnnouncement,
   updateAnnouncement,
   type Announcement,
   type AnnouncementQuery,
@@ -204,6 +224,31 @@ async function handleDelete(row: Announcement) {
   try {
     await deleteAnnouncement(row.id)
     ElMessage.success('删除成功')
+    loadData()
+  } catch (e) {
+    if (e instanceof Error && e.message === 'canceled') return
+  }
+}
+
+// ---------------- 发布 / 下线 ----------------
+async function handlePublish(row: Announcement) {
+  await ElMessageBox.confirm(`确认发布公告「${row.title}」吗？`, '提示', { type: 'warning', confirmButtonText: '确定', cancelButtonText: '取消' })
+    .catch(() => Promise.reject(new Error('canceled')))
+  try {
+    await publishAnnouncement(row.id)
+    ElMessage.success('已发布')
+    loadData()
+  } catch (e) {
+    if (e instanceof Error && e.message === 'canceled') return
+  }
+}
+
+async function handleOffline(row: Announcement) {
+  await ElMessageBox.confirm(`确认下线公告「${row.title}」吗？`, '提示', { type: 'warning', confirmButtonText: '确定', cancelButtonText: '取消' })
+    .catch(() => Promise.reject(new Error('canceled')))
+  try {
+    await offlineAnnouncement(row.id)
+    ElMessage.success('已下线')
     loadData()
   } catch (e) {
     if (e instanceof Error && e.message === 'canceled') return
