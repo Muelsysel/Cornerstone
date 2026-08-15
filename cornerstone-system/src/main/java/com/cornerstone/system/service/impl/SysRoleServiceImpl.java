@@ -114,11 +114,15 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void delete(Long roleId) {
         if (roleId != null && roleId == 1L) {
             throw new BusinessException(SystemErrorCode.DELETE_BUILTIN_ROLE);
         }
         this.removeById(roleId);
+        // 清理角色-菜单/角色-部门关联，避免孤儿记录残留
+        roleMenuMapper.deleteRoleMenuByRoleId(roleId);
+        roleDeptMapper.deleteByRoleId(roleId);
     }
 
     @Override

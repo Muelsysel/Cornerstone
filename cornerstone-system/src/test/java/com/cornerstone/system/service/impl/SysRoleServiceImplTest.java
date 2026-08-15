@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -132,6 +133,19 @@ class SysRoleServiceImplTest {
     @Test
     void deleteRejectsBuiltinAdminRole() {
         assertThatThrownBy(() -> service.delete(1L)).isInstanceOf(BusinessException.class);
+        verify(roleMenuMapper, never()).deleteRoleMenuByRoleId(any());
+        verify(roleDeptMapper, never()).deleteByRoleId(any());
+    }
+
+    @Test
+    void deleteCleansAssociations() {
+        doReturn(true).when(service).removeById(3L);
+
+        service.delete(3L);
+
+        verify(service).removeById(3L);
+        verify(roleMenuMapper).deleteRoleMenuByRoleId(3L);
+        verify(roleDeptMapper).deleteByRoleId(3L);
     }
 
     @Test

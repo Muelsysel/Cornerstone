@@ -72,6 +72,17 @@ class SysUserServiceImplTest {
     @Test
     void deleteRejectsBuiltinAdmin() {
         assertThatThrownBy(() -> service.delete(1L)).isInstanceOf(BusinessException.class);
+        verify(userRoleMapper, never()).deleteUserRoleByUserId(any());
+    }
+
+    @Test
+    void deleteCleansUserRoleAssociations() {
+        doReturn(true).when(service).removeById(5L);
+
+        service.delete(5L);
+
+        verify(service).removeById(5L);
+        verify(userRoleMapper).deleteUserRoleByUserId(5L);
     }
 
     @Test

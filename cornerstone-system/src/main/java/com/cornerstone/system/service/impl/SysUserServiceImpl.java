@@ -99,11 +99,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void delete(Long userId) {
         if (userId != null && userId == 1L) {
             throw new BusinessException(SystemErrorCode.DELETE_BUILTIN_USER);
         }
         this.removeById(userId);
+        // 清理用户-角色关联，避免孤儿记录残留
+        userRoleMapper.deleteUserRoleByUserId(userId);
     }
 
     @Override
