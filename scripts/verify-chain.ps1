@@ -238,6 +238,13 @@ try {
             Write-Host "  INFO-RAW[length=$($infoResp.Length)]: $infoResp"
         }
         Assert 'IDOR blocked: cross-user info 403' $(if ($infoCode -eq 403) { 'OK' } else { 'FAIL' }) 'OK'
+
+        # 9b. IDOR 正向：test 查自己（userId=2）应成功（仅限本人语义的合法访问）
+        $selfCode = $null
+        $selfResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $testToken" `
+            'http://localhost:8080/system/user/info?userId=2'
+        try { $selfCode = ($selfResp | ConvertFrom-Json).code } catch {}
+        Assert 'IDOR allowed: self info 200' $(if ($selfCode -eq 200) { 'OK' } else { 'FAIL' }) 'OK'
     } else {
         Assert 'Login test user' 'FAIL' 'OK'
     }
@@ -249,8 +256,13 @@ try {
     $sixthResp = $null
     for ($i = 1; $i -le 6; $i++) {
         Write-JsonBody "{`"username`":`"$lockUser`",`"password`":`"wrong`"}"
-        $r = curl.exe -s --max-time 20 -X POST 'http://localhost:8080/auth/login' `
-            -H 'Content-Type: application/json' --data-binary "@$tmpJson"
+        $r = $null
+        # 失败登录幂等：响应丢失（curl 偶发）时重试该次，不影响锁定计数语义
+        for ($attempt = 1; $attempt -le 3 -and -not $r; $attempt++) {
+            $r = curl.exe -s --max-time 20 -X POST 'http://localhost:8080/auth/login' `
+                -H 'Content-Type: application/json' --data-binary "@$tmpJson"
+            if (-not $r) { Start-Sleep -Milliseconds 500 }
+        }
         if ($i -eq 1) { $firstResp = $r }
         if ($i -eq 6) { $sixthResp = $r }
         Start-Sleep -Milliseconds 300

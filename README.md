@@ -166,7 +166,7 @@ curl -u "cornerstone-client:cornerstone-secret" -X POST \
 | 文档完整性 | `bash scripts/check-docs.sh` | CONTEXT/ADR/CHANGELOG 存在性 + ADR 编号 |
 | 前端构建 | `cd cornerstone-web && npm run build` | vue-tsc 类型检查 + vite 构建 |
 | 前端单测 | `cd cornerstone-web && npm test` | Vitest + jsdom |
-| 端到端 | `scripts/verify-chain.ps1 -UseRunning` | 18 项契约断言（认证/分页/树/审计/公告状态机与隐私/IDOR/锁定/数据权限），见 `docs/guides/run-demo.md` |
+| 端到端 | `scripts/verify-chain.ps1 -UseRunning` | 19 项契约断言（认证/分页/树/审计/公告状态机与隐私/IDOR/锁定/数据权限），见 `docs/guides/run-demo.md` |
 
 > 接口纪律：**新增/修改接口必须补测试并全量跑通后再推送**（AGENTS.md「文档维护义务」）。
 
