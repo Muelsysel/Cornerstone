@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.0.7] - 2026-08-15
+
+- test: `MyMetaObjectHandlerTest` 4 用例（登录用户回填 createBy/updateBy、匿名回退 system、更新只触 update 字段、空用户名回退）
+
+**测试方法**：`mvn test -pl cornerstone-demo`（MyMetaObjectHandlerTest + AnnouncementControllerTest + AnnouncementServiceImplTest）。
+
 ## [1.0.6] - 2026-08-15
 
 - fix(隐私): 公告详情接口游客访问非已发布公告按不存在处理（防草稿/下线详情泄露），管理端不受影响——端到端实测

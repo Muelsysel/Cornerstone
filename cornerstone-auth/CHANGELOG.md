@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.0.7] - 2026-08-15
+
+- test: `LoginServiceTest` 7 用例（成功签发并清失败计数、错误密码计数+首次失败设 TTL、后续失败不重置 TTL、Redis 不可用降级放行、计数异常仍拒绝、日志投递失败不阻塞登录、锁定拒绝不重复计数）
+
+**测试方法**：`mvn test -pl cornerstone-auth`（LoginServiceTest 7 用例、LoginControllerTest 5 用例、AuthEndToEndTest）。
+
 ## [1.0.6] - 2026-08-15
 
 - test: 账号锁定回归用例（Redis 计数触发锁定 + 锁定拒绝落审计日志）
