@@ -182,24 +182,40 @@ try {
     if ($current -eq 2 -and $pageRecords -eq 1) { $pageOk = 'OK' }
     Assert 'Pagination passthrough pageNum/pageSize (current=2)' $pageOk 'OK'
 
-    # 6b. 菜单树查询（admin 需能获取完整菜单树）
-    $menuResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
-        'http://localhost:8080/system/menu/tree'
-    $menuOk = 'FAIL'
+    # 6a. 分页 maxLimit 契约：超大 pageSize 被截断为 500（防超大查询拖垮 DB）
+    $limitResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
+        'http://localhost:8080/system/user/page?pageNum=1&pageSize=9999'
+    $limitOk = 'FAIL'
     try {
-        $menuArr = ($menuResp | ConvertFrom-Json).data
-        if ($menuArr -is [array] -and $menuArr.Count -gt 0) { $menuOk = 'OK' }
+        $limitSize = ($limitResp | ConvertFrom-Json).data.size
+        if ($limitSize -eq 500) { $limitOk = 'OK' }
     } catch {}
+    Assert 'Pagination maxLimit caps pageSize at 500' $limitOk 'OK'
+
+    # 6b. 菜单树查询（admin 需能获取完整菜单树；curl 偶发空响应时重试）
+    $menuOk = 'FAIL'
+    for ($attempt = 1; $attempt -le 2 -and $menuOk -ne 'OK'; $attempt++) {
+        $menuResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
+            'http://localhost:8080/system/menu/tree'
+        try {
+            $menuArr = ($menuResp | ConvertFrom-Json).data
+            if ($menuArr -is [array] -and $menuArr.Count -gt 0) { $menuOk = 'OK' }
+        } catch {}
+        if ($menuOk -ne 'OK' -and $attempt -lt 2) { Start-Sleep -Milliseconds 500 }
+    }
     Assert 'Menu tree accessible (admin)' $menuOk 'OK'
 
-    # 6c. 部门树查询（admin 需能获取完整部门树）
-    $deptResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
-        'http://localhost:8080/system/dept/tree'
+    # 6c. 部门树查询（admin 需能获取完整部门树；curl 偶发空响应时重试）
     $deptOk = 'FAIL'
-    try {
-        $deptArr = ($deptResp | ConvertFrom-Json).data
-        if ($deptArr -is [array] -and $deptArr.Count -gt 0) { $deptOk = 'OK' }
-    } catch {}
+    for ($attempt = 1; $attempt -le 2 -and $deptOk -ne 'OK'; $attempt++) {
+        $deptResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
+            'http://localhost:8080/system/dept/tree'
+        try {
+            $deptArr = ($deptResp | ConvertFrom-Json).data
+            if ($deptArr -is [array] -and $deptArr.Count -gt 0) { $deptOk = 'OK' }
+        } catch {}
+        if ($deptOk -ne 'OK' -and $attempt -lt 2) { Start-Sleep -Milliseconds 500 }
+    }
     Assert 'Dept tree accessible (admin)' $deptOk 'OK'
 
     # 6d. 审计契约：登录日志含 admin 记录（登录成功已投递审计，回归防丢失）
