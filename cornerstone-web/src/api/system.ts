@@ -56,10 +56,6 @@ export function assignUserRoles(userId: number, roleIds: number[]): Promise<unkn
 
 // ---------------------------------- 个人中心 ----------------------------------
 
-export function getProfile(): Promise<User> {
-  return request({ url: '/system/user/profile', method: 'get' })
-}
-
 export function updatePassword(data: {
   oldPassword: string
   newPassword: string

@@ -14,7 +14,7 @@
 
     <!-- 能力卡片 -->
     <el-row :gutter="16" class="cards">
-      <el-col :span="6" v-for="card in cards" :key="card.title">
+      <el-col :xs="24" :sm="12" :md="6" v-for="card in cards" :key="card.title">
         <el-card shadow="hover" class="card">
           <el-icon :size="28" class="card-icon"><component :is="card.icon" /></el-icon>
           <div class="card-title">{{ card.title }}</div>
