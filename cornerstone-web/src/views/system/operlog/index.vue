@@ -113,6 +113,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Delete, Refresh, Search } from '@element-plus/icons-vue'
 import { clearOperLog, deleteOperLog, getOperLogPage } from '@/api/system'
+import { businessTypeText } from '@/utils/operlog'
 import type { OperLog, OperLogQuery } from '@/types/system'
 
 const loading = ref(false)
@@ -162,17 +163,7 @@ function handleDetail(row: OperLog) {
   detailVisible.value = true
 }
 
-// 业务类型枚举映射（对齐后端 BusinessType：0其他/1新增/2修改/3删除/8清空）。未知值宽容显示为「其他」。
-function businessTypeText(type: number | undefined): string {
-  const map: Record<number, string> = {
-    0: '其他',
-    1: '新增',
-    2: '修改',
-    3: '删除',
-    8: '清空',
-  }
-  return type !== undefined && type in map ? map[type] : '其他'
-}
+// businessTypeText 已提取到 utils/operlog.ts（业务类型 → 中文文本）
 
 async function handleDelete(row: OperLog) {
   await ElMessageBox.confirm('确认删除该条操作日志吗？', '提示', {
