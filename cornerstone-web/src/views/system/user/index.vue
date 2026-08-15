@@ -79,6 +79,8 @@
         v-model="selectedRoleIds"
         v-loading="rolesLoading"
         multiple
+        collapse-tags
+        collapse-tags-tooltip
         filterable
         placeholder="请选择角色（可多选，全量覆盖）"
         style="width: 100%"
