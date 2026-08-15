@@ -3,6 +3,11 @@
 > 项目级版本里程碑与仓库级变更记录。模块级细节见各模块 `CHANGELOG.md`
 > （common/api/gateway/auth/system/demo/web）。所有 AI 都是文档维护者（AGENTS.md「文档维护义务」）。
 
+## [1.5.13] - 2026-08-15（端到端契约扩展）
+
+- feat(scripts): `verify-chain.ps1` 断言 12→13 项——新增数据权限断言（test 角色仅本人范围分页只见自己，ADR-0006 回归）；IDOR 请求加重试消除本机 curl 偶发假失败；登录锁定循环加 300ms 间隔避免 verify 自身触发网关登录限流
+- docs: run-demo.md 同步 13 项断言说明
+
 ## [1.5.12] - 2026-08-15（登录防爆破 ADR）
 
 - docs: 新增 ADR-0009（登录防爆破——网关 IP 限流 + 账号级锁定，含降级策略与审计完整性）；CONTEXT-MAP 登录词汇同步 ADR 引用

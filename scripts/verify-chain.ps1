@@ -162,16 +162,24 @@ try {
     $testToken = $null
     try { $testToken = ($testLogin | ConvertFrom-Json).data.access_token } catch {}
     if ($testToken) {
-        $infoResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $testToken" `
-            'http://localhost:8080/system/user/info?userId=1'
+        # 重试一次：本机 Windows curl 偶发 stdout 捕获异常（连接建立但输出丢失），重试可消除偶发假失败
         $infoCode = $null
-        try { $infoCode = ($infoResp | ConvertFrom-Json).code } catch {}
+        for ($attempt = 1; $attempt -le 2 -and $infoCode -ne 403; $attempt++) {
+            $infoResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $testToken" `
+                'http://localhost:8080/system/user/info?userId=1'
+            try { $infoCode = ($infoResp | ConvertFrom-Json).code } catch {}
+            if ($infoCode -ne 403 -and $attempt -lt 2) { Start-Sleep -Seconds 1 }
+        }
+        if ($infoCode -ne 403) {
+            Write-Host "  INFO-RAW[length=$($infoResp.Length)]: $infoResp"
+        }
         Assert 'IDOR blocked: cross-user info 403' $(if ($infoCode -eq 403) { 'OK' } else { 'FAIL' }) 'OK'
     } else {
         Assert 'Login test user' 'FAIL' 'OK'
     }
 
     # 10. 登录锁定：连续失败 5 次后响应变化（用临时用户名避免污染真实账号；锁定消息与普通失败不同）
+    #     注意：登录请求受网关登录限流（5/s 桶 10）保护——间隔 300ms 避免 verify 自身触发 429
     $lockUser = "verify-lock-$ts"
     $firstResp = $null
     $sixthResp = $null
@@ -181,9 +189,21 @@ try {
             -H 'Content-Type: application/json' --data-binary "@$tmpJson"
         if ($i -eq 1) { $firstResp = $r }
         if ($i -eq 6) { $sixthResp = $r }
+        Start-Sleep -Milliseconds 300
     }
     # 锁定后响应（消息含"锁定"）与普通密码错误响应必须不同
     Assert 'Login lockout after 5 fails' $(if ($firstResp -and $sixthResp -and $firstResp -ne $sixthResp) { 'OK' } else { 'FAIL' }) 'OK'
+
+    # 11. 数据权限（ADR-0006）：test 角色仅本人范围，分页只能看到自己
+    $dsPage = curl.exe -s --max-time 20 -H "Authorization: Bearer $testToken" `
+        'http://localhost:8080/system/user/page?pageNum=1&pageSize=50'
+    $dsRecords = $null
+    try { $dsRecords = ($dsPage | ConvertFrom-Json).data.records } catch {}
+    $dsOk = 'FAIL'
+    if ($dsRecords -is [array] -and $dsRecords.Count -eq 1 -and $dsRecords[0].username -eq 'test') {
+        $dsOk = 'OK'
+    }
+    Assert 'Data scope: test sees only self' $dsOk 'OK'
 
     if ($script:fail -eq 0) {
         Write-Host ''
