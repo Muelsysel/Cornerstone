@@ -3,7 +3,9 @@ package com.cornerstone.system.service.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -17,6 +19,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /** 用户服务单测：密码编码、内置用户保护、角色分配委托（mock 隔离 Mapper）。 */
@@ -30,13 +33,14 @@ class SysUserServiceImplTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        service = new SysUserServiceImpl(passwordEncoder, userRoleMapper);
+        SysUserServiceImpl impl = new SysUserServiceImpl(passwordEncoder, userRoleMapper);
         // 注入 MyBatis-Plus ServiceImpl 的 baseMapper（protected 字段，3.5.9+ 声明于 CrudRepository）
         Field field =
                 com.baomidou.mybatisplus.spring.repository.CrudRepository.class.getDeclaredField(
                         "baseMapper");
         field.setAccessible(true);
-        field.set(service, userMapper);
+        field.set(impl, userMapper);
+        service = Mockito.spy(impl);
         when(passwordEncoder.encode(any())).thenAnswer(inv -> "enc:" + inv.getArgument(0));
     }
 
@@ -94,5 +98,64 @@ class SysUserServiceImplTest {
     void getRoleIdsDelegatesToMapper() {
         when(userRoleMapper.selectRoleIdsByUserId(3L)).thenReturn(List.of(5L, 6L));
         assertThat(service.getRoleIdsByUserId(3L)).containsExactly(5L, 6L);
+    }
+
+    @Test
+    void updateRejectsMissingUser() {
+        doReturn(null).when(service).getById(99L);
+
+        assertThatThrownBy(() -> service.update(user(99L, "ghost")))
+                .isInstanceOf(BusinessException.class);
+        verify(service, never()).updateById(any());
+    }
+
+    @Test
+    void updateWithPasswordEncodesIt() {
+        SysUser exist = user(4L, "alice");
+        SysUser patch = user(4L, "alice");
+        patch.setPassword("new-pass");
+        doReturn(exist).when(service).getById(4L);
+        doReturn(true).when(service).updateById(any());
+        doReturn(exist).when(service).getById(4L);
+
+        service.update(patch);
+
+        verify(passwordEncoder).encode("new-pass");
+        verify(service).updateById(argThat(u -> "enc:new-pass".equals(u.getPassword())));
+    }
+
+    @Test
+    void updateWithoutPasswordKeepsExistingHash() {
+        SysUser exist = user(4L, "alice");
+        exist.setPassword("keep-hash");
+        SysUser patch = user(4L, "alice"); // 未传密码
+        doReturn(exist).when(service).getById(4L);
+        doReturn(true).when(service).updateById(any());
+        doReturn(exist).when(service).getById(4L);
+
+        service.update(patch);
+
+        // 密码字段只在显式传入时更新：null 不清空、不重复编码
+        verify(passwordEncoder, never()).encode(any());
+        verify(service).updateById(argThat(u -> u.getPassword() == null));
+    }
+
+    @Test
+    void changeStatusPatchesOnlyStatus() {
+        service.changeStatus(7L, "1");
+
+        verify(service).updateById(argThat(u -> u.getId() == 7L && "1".equals(u.getStatus())));
+    }
+
+    @Test
+    void resetPasswordEncodesAndUpdates() {
+        SysUser exist = user(8L, "bob");
+        doReturn(exist).when(service).getById(8L);
+        doReturn(true).when(service).updateById(any());
+
+        service.resetPassword(8L, "temp-123");
+
+        verify(passwordEncoder).encode("temp-123");
+        verify(service).updateById(argThat(u -> u.getId() == 8L && u.getPassword() != null));
     }
 }

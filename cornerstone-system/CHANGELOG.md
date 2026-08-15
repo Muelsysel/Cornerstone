@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.4] - 2026-08-15
+
+- test: `SysUserServiceImplTest` 扩至 11 用例（新增 update 缺人拒绝/带密码编码/无密码保留原哈希、changeStatus 只补状态、resetPassword 编码更新）
+
+**测试方法**：`mvn test -pl cornerstone-system`（含 SysUserServiceImplTest 11 用例）。
+
 ## [1.2.3] - 2026-08-15
 
 - test: `SysProfileControllerTest` 5 用例（个人中心无上下文 401、返回当前用户、旧密码错误拒绝、用户不存在拒绝、改密只更新密码字段且传明文由服务层统一编码）
