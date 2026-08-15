@@ -34,7 +34,7 @@
         <spring-cloud.version>2023.0.6</spring-cloud.version>
         <spring-cloud-alibaba.version>2023.0.3.4</spring-cloud-alibaba.version>
         <mybatis-plus.version>3.5.17</mybatis-plus.version>
-        <springdoc.version>2.3.0</springdoc.version>
+        <springdoc.version>3.1.0</springdoc.version>
         <lombok.version>1.18.46</lombok.version>
 
         <!-- 插件版本 -->
