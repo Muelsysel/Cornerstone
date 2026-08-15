@@ -145,6 +145,11 @@ public class TokenAuthGlobalFilter implements GlobalFilter, Ordered {
                                     if (username != null) {
                                         h.add(UserContext.HEADER_USERNAME, username);
                                     }
+                                    // 部门透传：数据权限「本部门/本部门及以下」依赖 deptId（JWT claim → 透传头）
+                                    Object deptId = jwt.getClaim("deptId");
+                                    if (deptId != null) {
+                                        h.add(UserContext.HEADER_DEPT_ID, deptId.toString());
+                                    }
                                     // 角色透传：优先 JWT 的 roles 声明（真实角色，供数据权限/审计按角色解析），
                                     // client_credentials 令牌无 roles 时兜底用 scope（兼容服务身份）
                                     Object roles = jwt.getClaim("roles");

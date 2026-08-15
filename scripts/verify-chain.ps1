@@ -424,6 +424,21 @@ try {
     }
     Assert 'Data scope: test sees only self' $dsOk 'OK'
 
+    # 11b. deptId 契约：JWT 必须携带 deptId claim（回归：曾缺失 → 网关无法透传 → 数据权限
+    #     「本部门/本部门及以下」失效）。test 用户 seed dept_id=200，解码 payload 断言
+    $deptOk = 'FAIL'
+    if ($testToken) {
+        $payload = $testToken.Split('.')[1]
+        # base64url → 补 padding 后解码
+        $payload = $payload.Replace('-', '+').Replace('_', '/')
+        switch ($payload.Length % 4) { 2 { $payload += '==' } 3 { $payload += '=' } }
+        try {
+            $claimsJson = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($payload))
+            if ($claimsJson -match '"deptId"\s*:\s*200') { $deptOk = 'OK' }
+        } catch {}
+    }
+    Assert 'JWT carries deptId claim (data scope dependency)' $deptOk 'OK'
+
     # 12. 密码绑定契约：创建用户携带自定义密码 → 该密码必须真实生效（回归：@JsonIgnore 曾致初始密码
     #     永不到达 service，静默落默认 123456）；用自定义密码登录成功即证明绑定链路完整
     $pwUser = "verify-pw-$ts"

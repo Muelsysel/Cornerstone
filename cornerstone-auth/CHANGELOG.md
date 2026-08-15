@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.0.16] - 2026-08-16
+
+- fix(bug): **JWT 补 deptId claim**——登录签发令牌时携带用户部门 ID（曾缺失 → 网关无法透传 → 数据权限「本部门(4)/本部门及以下(3)」端到端失效，fail-closed 后此类用户看不到任何数据）；`LoginServiceTest` 新增 deptId 携带/省略两个回归用例
+
+**测试方法**：`mvn test -pl cornerstone-auth`（19 用例）。
+
 ## [1.0.15] - 2026-08-16
 
 - fix(ops): client_credentials 令牌有效期调至 12 小时——默认 5 分钟过短，服务调用频繁需重换 token

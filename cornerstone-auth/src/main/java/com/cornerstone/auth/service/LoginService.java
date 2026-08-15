@@ -163,10 +163,10 @@ public class LoginService {
         return result.getData();
     }
 
-    /** 用 RSA 密钥签发 RS256 JWT：subject=userId，携带 username/roles/scope(permissions)。 */
+    /** 用 RSA 密钥签发 RS256 JWT：subject=userId，携带 username/roles/scope(permissions)/deptId。 */
     private Jwt issueToken(UserAuthDTO user) {
         Instant now = Instant.now();
-        JwtClaimsSet claims =
+        JwtClaimsSet.Builder claims =
                 JwtClaimsSet.builder()
                         .issuer(issuer)
                         .subject(String.valueOf(user.getUserId()))
@@ -174,9 +174,14 @@ public class LoginService {
                         .expiresAt(now.plus(TOKEN_TTL))
                         .claim("username", user.getUsername())
                         .claim("roles", user.getRoles())
-                        .claim("scope", user.getPermissions())
-                        .build();
+                        .claim("scope", user.getPermissions());
+        // deptId：数据权限「本部门(4)/本部门及以下(3)」依赖该值；网关据此透传 X-Cornerstone-Dept-Id。
+        // 曾缺失导致 scope 3/4 用户无部门归属（fail-closed 后看不到任何数据）
+        if (user.getDeptId() != null) {
+            claims.claim("deptId", user.getDeptId());
+        }
+        JwtClaimsSet claimSet = claims.build();
         JwsHeader header = JwsHeader.with(SignatureAlgorithm.RS256).build();
-        return jwtEncoder.encode(JwtEncoderParameters.from(header, claims));
+        return jwtEncoder.encode(JwtEncoderParameters.from(header, claimSet));
     }
 }

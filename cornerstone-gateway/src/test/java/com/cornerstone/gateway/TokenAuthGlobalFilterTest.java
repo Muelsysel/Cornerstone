@@ -163,6 +163,23 @@ class TokenAuthGlobalFilterTest {
                 .containsExactly("cornerstone-internal-secret");
     }
 
+    /** JWT deptId claim 透传为 X-Cornerstone-Dept-Id（数据权限「本部门/本部门及以下」依赖） */
+    @Test
+    void forwardMapsDeptIdClaimToHeader() {
+        String token =
+                issueToken(Map.of("username", "admin", "deptId", 100L, "scope", List.of("read")));
+        MockServerWebExchange exchange =
+                MockServerWebExchange.from(
+                        MockServerHttpRequest.get("/system/user/page")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token));
+        ServerWebExchangeMutator mutator = new ServerWebExchangeMutator();
+
+        filter().filter(exchange, mutator).block();
+
+        HttpHeaders forwarded = mutator.getMutatedHeaders();
+        assertThat(forwarded.getFirst(UserContext.HEADER_DEPT_ID)).isEqualTo("100");
+    }
+
     /** 无效令牌返回 401 */
     @Test
     void invalidTokenReturns401() {

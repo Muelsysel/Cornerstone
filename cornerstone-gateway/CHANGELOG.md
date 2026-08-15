@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.14] - 2026-08-16
+
+- fix(bug): 网关把 JWT `deptId` claim 透传为 `X-Cornerstone-Dept-Id`——数据权限「本部门/本部门及以下」依赖该头（此前 JWT 无此 claim，透传头缺失）；`TokenAuthGlobalFilterTest` 新增 `forwardMapsDeptIdClaimToHeader`
+
+**测试方法**：`mvn test -pl cornerstone-gateway`（20 用例）+ 实测限流。
+
 ## [1.2.13] - 2026-08-16
 
 - fix(security): 网关转发时附加 `X-Internal-Token`（`cornerstone.internal-token`），并剥除客户端伪造的内部令牌——下游 `UserContextFilter` 凭此证明请求经网关转发（防直连服务端口伪造身份头）；`TokenAuthGlobalFilterTest` 新增 `forwardAddsInternalTokenAndStripsClientSupplied`

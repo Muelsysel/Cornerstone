@@ -93,6 +93,40 @@ class LoginServiceTest {
     }
 
     @Test
+    void successfulLoginIncludesDeptIdClaim() {
+        // 回归：deptId 此前未写入 JWT → 网关无法透传 → 数据权限「本部门(4)/本部门及以下(3)」失效
+        UserAuthDTO dto = user("admin");
+        dto.setDeptId(100L);
+        when(authUserClient.findByUsername("admin")).thenReturn(Result.success(dto));
+        when(passwordEncoder.matches("secret", "hash")).thenReturn(true);
+        when(redisValues.get("login:fail:admin")).thenReturn(null);
+        when(jwtEncoder.encode(any(JwtEncoderParameters.class))).thenReturn(jwt());
+
+        service.login(new LoginRequest("admin", "secret"), "127.0.0.1");
+
+        org.mockito.ArgumentCaptor<JwtEncoderParameters> captor =
+                org.mockito.ArgumentCaptor.forClass(JwtEncoderParameters.class);
+        verify(jwtEncoder).encode(captor.capture());
+        assertThat(captor.getValue().getClaims().getClaimAsString("deptId")).isEqualTo("100");
+    }
+
+    @Test
+    void successfulLoginOmitsDeptIdClaimWhenNull() {
+        // 无部门归属用户：JWT 不含 deptId（避免 null claim）
+        when(authUserClient.findByUsername("admin")).thenReturn(Result.success(user("admin")));
+        when(passwordEncoder.matches("secret", "hash")).thenReturn(true);
+        when(redisValues.get("login:fail:admin")).thenReturn(null);
+        when(jwtEncoder.encode(any(JwtEncoderParameters.class))).thenReturn(jwt());
+
+        service.login(new LoginRequest("admin", "secret"), "127.0.0.1");
+
+        org.mockito.ArgumentCaptor<JwtEncoderParameters> captor =
+                org.mockito.ArgumentCaptor.forClass(JwtEncoderParameters.class);
+        verify(jwtEncoder).encode(captor.capture());
+        assertThat(captor.getValue().getClaims().getClaimAsString("deptId")).isNull();
+    }
+
+    @Test
     void wrongPasswordIncrementsFailureCounter() {
         when(authUserClient.findByUsername("admin")).thenReturn(Result.success(user("admin")));
         when(passwordEncoder.matches("bad", "hash")).thenReturn(false);
