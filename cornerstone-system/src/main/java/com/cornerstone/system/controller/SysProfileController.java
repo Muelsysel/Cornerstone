@@ -7,7 +7,9 @@ import com.cornerstone.common.security.UserContext;
 import com.cornerstone.common.security.UserContextHolder;
 import com.cornerstone.system.annotation.OperLog;
 import com.cornerstone.system.constant.BusinessType;
+import com.cornerstone.system.domain.entity.SysDept;
 import com.cornerstone.system.domain.entity.SysUser;
+import com.cornerstone.system.domain.mapper.SysDeptMapper;
 import com.cornerstone.system.exception.SystemErrorCode;
 import com.cornerstone.system.service.SysUserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,18 +35,34 @@ public class SysProfileController {
 
     private final SysUserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final SysDeptMapper deptMapper;
 
-    public SysProfileController(SysUserService userService, PasswordEncoder passwordEncoder) {
+    public SysProfileController(
+            SysUserService userService, PasswordEncoder passwordEncoder, SysDeptMapper deptMapper) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.deptMapper = deptMapper;
     }
 
-    /** 当前登录用户信息 */
+    /** 当前登录用户信息（含部门名，列表/个人中心展示用） */
     @Operation(summary = "查询当前用户信息")
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public Result<SysUser> profile() {
-        return Result.success(userService.getById(requireUserId()));
+        SysUser user = userService.getById(requireUserId());
+        enrichDeptName(user);
+        return Result.success(user);
+    }
+
+    /** 单条回填部门名（复用 SysUser.deptName 非表字段） */
+    private void enrichDeptName(SysUser user) {
+        if (user == null || user.getDeptId() == null) {
+            return;
+        }
+        SysDept dept = deptMapper.selectById(user.getDeptId());
+        if (dept != null) {
+            user.setDeptName(dept.getDeptName());
+        }
     }
 
     /** 修改当前用户密码：验证旧密码后更新 */

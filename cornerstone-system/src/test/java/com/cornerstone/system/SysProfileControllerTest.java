@@ -13,7 +13,9 @@ import com.cornerstone.common.exception.BusinessException;
 import com.cornerstone.common.security.UserContext;
 import com.cornerstone.common.security.UserContextHolder;
 import com.cornerstone.system.controller.SysProfileController;
+import com.cornerstone.system.domain.entity.SysDept;
 import com.cornerstone.system.domain.entity.SysUser;
+import com.cornerstone.system.domain.mapper.SysDeptMapper;
 import com.cornerstone.system.exception.SystemErrorCode;
 import com.cornerstone.system.service.SysUserService;
 import org.junit.jupiter.api.AfterEach;
@@ -27,11 +29,12 @@ class SysProfileControllerTest {
 
     private final SysUserService userService = mock(SysUserService.class);
     private final PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
+    private final SysDeptMapper deptMapper = mock(SysDeptMapper.class);
     private SysProfileController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new SysProfileController(userService, passwordEncoder);
+        controller = new SysProfileController(userService, passwordEncoder, deptMapper);
     }
 
     @AfterEach
@@ -68,6 +71,25 @@ class SysProfileControllerTest {
 
         assertThat(result.getUsername()).isEqualTo("admin");
         verify(userService).getById(1L);
+    }
+
+    @Test
+    void profileEnrichesDeptName() {
+        // 个人中心展示部门名（复用 SysUser.deptName 非表字段，单查回填）
+        loginAs(1L);
+        SysUser user = new SysUser();
+        user.setId(1L);
+        user.setUsername("admin");
+        user.setDeptId(100L);
+        when(userService.getById(1L)).thenReturn(user);
+        SysDept dept = new SysDept();
+        dept.setId(100L);
+        dept.setDeptName("总公司");
+        when(deptMapper.selectById(100L)).thenReturn(dept);
+
+        SysUser result = controller.profile().getData();
+
+        assertThat(result.getDeptName()).isEqualTo("总公司");
     }
 
     @Test

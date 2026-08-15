@@ -73,7 +73,7 @@
         <el-descriptions :column="1" border>
           <el-descriptions-item label="用户名">{{ profile?.username || '-' }}</el-descriptions-item>
           <el-descriptions-item label="昵称">{{ profile?.nickname || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="部门ID">{{ profile?.deptId ?? '-' }}</el-descriptions-item>
+          <el-descriptions-item label="部门">{{ profile?.deptName || (profile?.deptId ?? '-') }}</el-descriptions-item>
           <el-descriptions-item label="角色">{{ rolesText }}</el-descriptions-item>
           <el-descriptions-item label="权限点">{{ permissionsCount }}</el-descriptions-item>
         </el-descriptions>
