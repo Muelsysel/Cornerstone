@@ -1,0 +1,27 @@
+# Dependabot：自动化依赖更新
+# - npm（cornerstone-web）：每周一检查，PR 上限 5 个
+# - maven（根 pom + 各模块）：每周一检查，PR 上限 5 个
+# 版本合并策略：patch/minor 自动 squash 合并；major 需人工 review（脚手架稳定性优先）
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/cornerstone-web"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
