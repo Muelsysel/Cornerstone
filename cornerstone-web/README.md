@@ -52,7 +52,7 @@ cornerstone-web/
 # 启动依赖（Nacos / MySQL / Redis）
 docker compose up -d
 
-# 启动 4 个服务（4 个终端；登录端点正在开发，最终为 POST /auth/login）
+# 启动 4 个服务（4 个终端）
 mvn -pl cornerstone-auth,cornerstone-system,cornerstone-demo spring-boot:run
 mvn -pl cornerstone-gateway spring-boot:run
 ```
@@ -68,16 +68,31 @@ npm run dev
 
 ### 3. 登录
 
-- 测试账号：`admin` / `admin123`
+- 测试账号：`admin` / `admin123`（另有 `test` / `admin123` 演示数据权限）
 - 登录走 `POST /auth/login`，经网关 8080 转发到 auth 服务；成功后返回
   `{ access_token, token_type, expires_in, userId, username, roles }`，
   令牌存入 Pinia + localStorage。
 
-> 登录端点目前由后端子代理并行开发中，若尚未就绪，`/auth/login` 会返回错误提示——前端按约定实现，后端就绪后即可联调。
+## Docker 部署（前后端分离，生产形态）
+
+前端容器化：多阶段构建（node 构建 dist → nginx 托管），nginx 同时反向代理 API 到后端网关，
+浏览器同源访问（无跨域），一键起全套。
+
+```bash
+# 后端 4 服务本地跑起来后，构建并启动前端容器
+docker compose up --build frontend
+
+# 访问 http://localhost:8088 （页面 + API 均由 nginx 提供）
+```
+
+- `Dockerfile`：`node:20-alpine` 构建 → `nginx:1.27-alpine` 托管
+- `nginx.conf`：SPA 路由回退 + `/auth /system /demo` 反代到 `host.docker.internal:8080`（宿主机网关；
+  后端若容器化改为 `http://cornerstone-gateway:8080` 即可）
+- `docker-compose.yml`：`frontend` 服务（8088:80 + host-gateway）
 
 ## 代理说明
 
-开发环境下，`vite.config.ts` 配置了到网关 `http://localhost:8080` 的开发代理，前端无需额外 CORS 配置：
+开发环境：`vite.config.ts` 配置了到网关 `http://localhost:8080` 的开发代理，前端无需额外 CORS 配置：
 
 | 前缀 | 目标 | 说明 |
 | --- | --- | --- |
@@ -85,7 +100,7 @@ npm run dev
 | `/system` | 网关 8080 | 系统管理（用户/角色/菜单/部门） |
 | `/demo` | 网关 8080 | 演示业务（公告） |
 
-生产环境：建议在前端部署由 Nginx 等做同路径反向代理到网关，前端代码无需改动。
+生产环境：由 nginx 同路径反代到网关（见 Docker 部署），前端代码无需改动。
 
 ## 常用命令
 

@@ -30,8 +30,24 @@
 ## 部署与运行
 
 - 依赖（Nacos/MySQL/Redis）：`docker compose up -d`（MySQL 映射宿主 3307），或见 `docs/guides/run-demo.md` 手动启动
-- 服务端口：gateway 8080 · auth 8081 · system 8082 · demo 8083 · 前端 dev 5173
+- 服务端口：gateway 8080 · auth 8081 · system 8082 · demo 8083 · 前端 dev 5173 · **前端容器 8088（nginx）**
+- 前端容器化：`docker compose up --build frontend`（多阶段构建：node 构建 dist → nginx 托管 + 反代 /auth /system /demo 到网关）
 - 演示链路：见 `docs/guides/run-demo.md`（client_credentials / 用户登录 admin/admin123 / 数据权限 / 服务间认证 / 限流）
+
+## 测试与验证（推送前必读）
+
+每个模块的变更记录见其 `CHANGELOG.md`（文档维护义务，AGENTS.md）。测试命令：
+
+| 模块 | 命令 | 说明 |
+| --- | --- | --- |
+| 全仓 | `mvn clean test`（JAVA_HOME=JDK17） | 编译 + 全部单测/集成测试 |
+| 单个后端模块 | `mvn test -pl <module>` | common/api/gateway/auth/system/demo |
+| 格式 | `mvn spotless:check`（不过则 `spotless:apply`） | google-java-format AOSP |
+| 文档完整性 | `bash scripts/check-docs.sh` | CONTEXT/ADR/CHANGELOG 存在性 + ADR 编号 |
+| 前端 | `cd cornerstone-web && npm run build` | vue-tsc 类型检查 + vite 构建 |
+| 端到端演示 | `docs/guides/run-demo.md` | curl 链路（认证/数据权限/限流/服务间认证） |
+
+接口测试纪律：新增/修改接口必须补测试并全量跑通后再推送（见 AGENTS.md「文档维护义务」）。
 
 ## 决策记录（ADR）
 

@@ -36,6 +36,20 @@ services:
     networks:
       - cornerstone-net
 
+  # 前端：多阶段构建（node 构建 → nginx 托管），反代 /auth /system /demo 到宿主机网关
+  # 构建：docker compose up --build frontend；访问 http://localhost:8088
+  # 说明：后端服务当前在宿主机本地运行（网关 8080），容器内经 host-gateway 访问；
+  #       若后端也容器化，把 nginx.conf 的 proxy_pass 改为 http://cornerstone-gateway:8080
+  frontend:
+    build: ./cornerstone-web
+    container_name: cornerstone-frontend
+    ports:
+      - "8088:80"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - cornerstone-net
+
 volumes:
   cornerstone-mysql-data:
   cornerstone-redis-data:

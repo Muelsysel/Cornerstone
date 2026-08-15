@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-router'
 import { getToken } from '@/utils/auth'
 import { hasPermission } from '@/utils/permission'
 
@@ -95,7 +95,9 @@ export const routes: RouteRecordRaw[] = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  // hash 模式：SPA 路由在 # 后（如 #/system/user），nginx 静态托管只见 /，
+  // 避免与 API 前缀 /system/、/demo/、/auth/ 冲突（history 模式刷新会被 nginx 反代到网关）
+  history: createWebHashHistory(),
   routes,
 })
 
