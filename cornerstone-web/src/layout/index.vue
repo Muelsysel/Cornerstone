@@ -3,16 +3,13 @@
     <!-- 侧边菜单：由路由表驱动 -->
     <el-aside width="220px" class="layout-aside">
       <div class="logo">
-        <el-icon :size="22"><Platform /></el-icon>
-        <span>Cornerstone</span>
+        <div class="logo-mark">C</div>
+        <span class="logo-name">Cornerstone</span>
       </div>
       <el-menu
         :default-active="activeMenu"
         router
         class="layout-menu"
-        background-color="#001529"
-        text-color="rgba(255,255,255,0.68)"
-        active-text-color="#ffffff"
       >
         <template v-for="group in menuGroups" :key="group.name || group.items[0]?.path">
           <!-- 分组菜单（如"系统管理"） -->
@@ -51,7 +48,7 @@
         <div class="page-title">{{ currentTitle }}</div>
         <el-dropdown trigger="click" @command="onCommand">
           <div class="user-info">
-            <el-icon :size="18"><UserFilled /></el-icon>
+            <el-icon :size="16"><UserFilled /></el-icon>
             <span>{{ userStore.user?.username || '未登录' }}</span>
             <el-icon :size="12"><ArrowDown /></el-icon>
           </div>
@@ -194,8 +191,10 @@ async function submitPassword() {
 .layout {
   height: 100%;
 }
+
+/* ---------- 侧边栏 ---------- */
 .layout-aside {
-  background-color: #001529;
+  background: var(--cs-sider-bg);
   display: flex;
   flex-direction: column;
 }
@@ -204,38 +203,108 @@ async function submitPassword() {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  color: #fff;
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 1px;
+  gap: 10px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
+.logo-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--cs-primary), #7c3aed);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.4);
+}
+.logo-name {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
 .layout-menu {
   border-right: none;
   flex: 1;
+  padding-top: 6px;
+  background: transparent;
 }
+.layout-menu :deep(.el-menu),
+.layout-menu :deep(.el-sub-menu .el-menu) {
+  background: transparent;
+}
+.layout-menu :deep(.el-menu-item),
+.layout-menu :deep(.el-sub-menu__title) {
+  height: 46px;
+  line-height: 46px;
+  color: var(--cs-sider-text);
+}
+.layout-menu :deep(.el-menu-item .el-icon),
+.layout-menu :deep(.el-sub-menu__title .el-icon) {
+  color: inherit;
+}
+.layout-menu :deep(.el-menu-item:hover),
+.layout-menu :deep(.el-sub-menu__title:hover) {
+  background: var(--cs-sider-hover);
+  color: #fff;
+}
+.layout-menu :deep(.el-menu-item.is-active) {
+  background: linear-gradient(90deg, rgba(79, 70, 229, 0.38), rgba(79, 70, 229, 0.1));
+  color: var(--cs-sider-text-active);
+  font-weight: 500;
+  border-right: 3px solid var(--cs-primary);
+}
+.layout-menu :deep(.el-sub-menu.is-active > .el-sub-menu__title) {
+  color: #fff;
+}
+
+/* ---------- 顶栏 ---------- */
 .layout-header {
   background: #fff;
-  border-bottom: 1px solid #e4e7ed;
+  border-bottom: 1px solid var(--cs-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 60px;
+  padding: 0 20px;
 }
 .page-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-size: 16px;
-  font-weight: 500;
-  color: #303133;
+  font-weight: 600;
+  color: var(--cs-text);
+}
+.page-title::before {
+  content: '';
+  width: 3px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--cs-primary);
 }
 .user-info {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   cursor: pointer;
-  color: #303133;
+  color: var(--cs-text);
+  padding: 7px 12px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
 }
+.user-info:hover {
+  background: #f3f4f6;
+}
+
+/* ---------- 内容区 ---------- */
 .layout-main {
-  background: #f0f2f5;
-  padding: 16px;
+  background: var(--cs-content-bg);
+  padding: 16px 20px 20px;
+  overflow-y: auto;
 }
 </style>

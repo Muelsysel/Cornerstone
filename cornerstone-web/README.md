@@ -10,10 +10,26 @@ Cornerstone 的前端管理后台，基于 **Vite + Vue 3 + Element Plus + Pinia
 | --- | --- |
 | 构建工具 | Vite 5 |
 | 框架 | Vue 3（`<script setup>` + TS） |
-| UI 组件库 | Element Plus |
+| UI 组件库 | Element Plus（**按需引入**：unplugin-auto-import + unplugin-vue-components） |
 | 状态管理 | Pinia |
-| 路由 | Vue Router 4 |
+| 路由 | Vue Router 4（hash 模式） |
 | HTTP | Axios |
+
+> **按需引入说明**：组件与 API 样式按需打包（见 `vite.config.ts`），自动生成的类型声明
+> `src/auto-imports.d.ts`、`src/components.d.ts` 随源码提交，供 `vue-tsc` 校验。
+> 函数式组件（消息/弹窗/通知/加载）样式在 `main.ts` 手动引入。
+
+## 前端设计（简洁 · 高级 · 非模板感）
+
+设计语言集中定义在 `src/styles/theme.css`（CSS 变量），改主题只动这一个文件：
+
+- **品牌主色**：「基石蓝」深靛蓝 `#4F46E5`（覆盖 Element Plus 默认亮蓝），见 `--cs-primary` 与 `--el-color-primary` 变量族
+- **侧边栏**：石板深色 `#111827`，激活菜单项左侧品牌色条 + 渐隐高亮
+- **登录页**：深色渐变背景 + 品牌光晕，左品牌区（logo/定位文案）+ 右登录卡片
+- **细节**：卡片统一圆角/轻投影、表格浅色表头、细滚动条、系统字体栈（中文优先 PingFang/Microsoft YaHei）
+- **动效克制**：仅 hover 轻过渡，不堆砌动画
+
+> 每次改动主题/布局，同步更新本章节与 `CHANGELOG.md`（AGENTS.md「文档维护义务」）。
 
 ## 目录结构
 
@@ -22,8 +38,9 @@ cornerstone-web/
 ├── index.html
 ├── vite.config.ts          # 开发代理：/auth、/system、/demo -> 网关 8080
 ├── src/
-│   ├── main.ts             # 应用入口，注册 Element Plus / Pinia / Router
-│   ├── App.vue
+│   ├── main.ts             # 应用入口（按需引入 + 主题 + 路由/权限指令）
+│   ├── App.vue             # el-config-provider（zh-cn 语言包）
+│   ├── styles/theme.css    # 设计语言：品牌色/布局/组件细节（CSS 变量）
 │   ├── api/                # 接口封装（request.ts 为 axios 封装）
 │   │   ├── auth.ts         # 登录 / 退出
 │   │   ├── system.ts       # 用户/角色/菜单/部门/字典/参数/日志

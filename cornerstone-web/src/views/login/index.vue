@@ -1,10 +1,20 @@
 <template>
   <div class="login-page">
-    <el-card class="login-card">
+    <!-- 品牌区 -->
+    <div class="login-brand">
+      <div class="login-logo">C</div>
+      <h1>Cornerstone</h1>
+      <p>
+        文档约束驱动的多 AI 协作 Spring Cloud 基石<br />
+        简洁 · 高级 · 易用 · 高性能
+      </p>
+    </div>
+
+    <!-- 登录卡片 -->
+    <el-card class="login-card" shadow="never">
       <div class="login-title">
-        <el-icon :size="24" color="#409EFF"><Platform /></el-icon>
-        <h2>Cornerstone 管理后台</h2>
-        <p>系统登录</p>
+        <h2>欢迎登录</h2>
+        <p>使用你的账号进入管理后台</p>
       </div>
 
       <el-form
@@ -16,13 +26,13 @@
         @keyup.enter="handleLogin"
       >
         <el-form-item label="用户名" prop="username">
-          <el-input v-model="form.username" placeholder="admin" :prefix-icon="User" />
+          <el-input v-model="form.username" placeholder="请输入用户名" :prefix-icon="User" />
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-input
             v-model="form.password"
             type="password"
-            placeholder="admin123"
+            placeholder="请输入密码"
             show-password
             :prefix-icon="Lock"
           />
@@ -40,9 +50,7 @@
       </el-form>
 
       <div class="login-tip">
-        测试账号：admin / admin123
-        <br />
-        需先启动后端（docker compose + 4 个服务），详见 cornerstone-web/README.md
+        测试账号 admin / admin123 · 部署与启动见 cornerstone-web/README.md
       </div>
     </el-card>
   </div>
@@ -92,38 +100,103 @@ async function handleLogin() {
 
 <style scoped>
 .login-page {
+  position: relative;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1f3b73 0%, #409eff 100%);
+  gap: 72px;
+  background: linear-gradient(135deg, #0b1120 0%, #111827 55%, #1e1b4b 100%);
+  overflow: hidden;
 }
+/* 背景光晕：两个柔和的品牌色圆，营造纵深又不抢主体 */
+.login-page::before,
+.login-page::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.login-page::before {
+  width: 560px;
+  height: 560px;
+  top: -180px;
+  right: -140px;
+  background: radial-gradient(circle, rgba(79, 70, 229, 0.32) 0%, transparent 65%);
+}
+.login-page::after {
+  width: 480px;
+  height: 480px;
+  bottom: -200px;
+  left: -120px;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.22) 0%, transparent 65%);
+}
+
+/* ---------- 品牌区 ---------- */
+.login-brand {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  max-width: 360px;
+}
+.login-logo {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--cs-primary), #7c3aed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 22px;
+  box-shadow: 0 10px 28px rgba(79, 70, 229, 0.45);
+}
+.login-brand h1 {
+  margin: 0 0 12px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.login-brand p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 14px;
+  line-height: 1.9;
+}
+
+/* ---------- 登录卡片 ---------- */
 .login-card {
+  position: relative;
+  z-index: 1;
   width: 400px;
-  padding: 16px 12px;
-  border-radius: 8px;
+  border-radius: 12px;
+  box-shadow: 0 24px 56px -16px rgba(0, 0, 0, 0.5);
+  padding: 10px 6px;
 }
 .login-title {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 26px;
 }
 .login-title h2 {
-  margin: 8px 0 4px;
-  color: #303133;
+  margin: 0 0 6px;
+  font-size: 22px;
+  color: var(--cs-text);
 }
 .login-title p {
   margin: 0;
-  color: #909399;
-  font-size: 14px;
+  color: var(--cs-text-secondary);
+  font-size: 13px;
 }
 .login-btn {
   width: 100%;
+  margin-top: 4px;
 }
 .login-tip {
-  margin-top: 8px;
-  color: #909399;
+  margin-top: 6px;
+  color: #9ca3af;
   font-size: 12px;
-  line-height: 1.6;
+  line-height: 1.7;
   text-align: center;
 }
 </style>

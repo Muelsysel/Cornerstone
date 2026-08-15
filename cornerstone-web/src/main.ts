@@ -1,9 +1,14 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import ElementPlus from 'element-plus'
-import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-import 'element-plus/dist/index.css'
+// Element Plus 按需引入（见 vite.config.ts）：组件样式随组件自动加载；
+// 函数式组件（消息/弹窗/通知/加载）在模板中无引用，需手动引入其样式。
+import 'element-plus/es/components/message/style/css'
+import 'element-plus/es/components/message-box/style/css'
+import 'element-plus/es/components/notification/style/css'
+import 'element-plus/es/components/loading/style/css'
+
+import '@/styles/theme.css'
 
 import App from '@/App.vue'
 import router from '@/router'
@@ -18,7 +23,6 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 
 app.use(createPinia())
 app.use(router)
-app.use(ElementPlus, { locale: zhCn })
 
 // 注册自定义指令（v-permission 按钮级权限控制）
 setupPermissionDirective(app)

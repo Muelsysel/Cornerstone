@@ -1,9 +1,12 @@
 <template>
-  <router-view />
+  <!-- el-config-provider：按需引入模式下由它统一注入 zh-cn 语言包（日期、分页等组件文案） -->
+  <el-config-provider :locale="zhCn">
+    <router-view />
+  </el-config-provider>
 </template>
 
 <script setup lang="ts">
-// 应用根组件：仅挂载路由出口。
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
 </script>
 
 <style>
@@ -12,7 +15,5 @@ body,
 #app {
   height: 100%;
   margin: 0;
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-    'Microsoft YaHei', Arial, sans-serif;
 }
 </style>

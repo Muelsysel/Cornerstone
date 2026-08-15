@@ -29,7 +29,7 @@
         <el-table-column prop="dictName" label="字典名称" min-width="150" />
         <el-table-column prop="dictType" label="字典类型" min-width="150" />
         <el-table-column label="状态" width="90">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-tag :type="row.status === '0' ? 'success' : 'info'">
               {{ row.status === '0' ? '启用' : '停用' }}
             </el-tag>
@@ -38,7 +38,7 @@
         <el-table-column prop="remark" label="备注" min-width="160" show-overflow-tooltip />
         <el-table-column prop="createTime" label="创建时间" min-width="170" />
         <el-table-column label="操作" width="200" fixed="right">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-button link type="primary" @click="handleData(row)">数据项</el-button>
             <el-button v-permission="'system:dict:edit'" link type="primary" @click="handleEdit(row)">
               编辑
@@ -105,7 +105,7 @@
         <el-table-column prop="dictValue" label="键值" min-width="120" />
         <el-table-column prop="sort" label="排序" width="80" />
         <el-table-column label="状态" width="90">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-tag :type="row.status === '0' ? 'success' : 'info'">
               {{ row.status === '0' ? '启用' : '停用' }}
             </el-tag>
@@ -113,7 +113,7 @@
         </el-table-column>
         <el-table-column prop="remark" label="备注" min-width="140" show-overflow-tooltip />
         <el-table-column label="操作" width="140" fixed="right">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-button v-permission="'system:dict:edit'" link type="primary" @click="handleDataEdit(row)">
               编辑
             </el-button>
@@ -275,7 +275,7 @@ async function handleSubmit() {
 }
 
 async function handleDelete(row: DictType) {
-  await ElMessageBox.confirm(`确认删除字典「${row.dictName}」吗？`, '提示', { type: 'warning' })
+  await ElMessageBox.confirm(`确认删除字典「${row.dictName}」吗？`, '提示', { type: 'warning', confirmButtonText: '确定', cancelButtonText: '取消' })
     .catch(() => Promise.reject(new Error('canceled')))
   try {
     await deleteDictType(row.dictId)
@@ -382,7 +382,7 @@ async function handleDataSubmit() {
 }
 
 async function handleDataDelete(row: DictData) {
-  await ElMessageBox.confirm(`确认删除数据项「${row.dictLabel}」吗？`, '提示', { type: 'warning' })
+  await ElMessageBox.confirm(`确认删除数据项「${row.dictLabel}」吗？`, '提示', { type: 'warning', confirmButtonText: '确定', cancelButtonText: '取消' })
     .catch(() => Promise.reject(new Error('canceled')))
   try {
     await deleteDictData(row.dictCode)

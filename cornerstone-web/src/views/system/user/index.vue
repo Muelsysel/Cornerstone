@@ -34,16 +34,16 @@
         <el-table-column prop="phone" label="手机号" min-width="130" />
         <el-table-column prop="email" label="邮箱" min-width="180" show-overflow-tooltip />
         <el-table-column label="状态" width="90">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-switch
               :model-value="row.status === '0'"
               :loading="statusLoadingId === row.userId"
-              @change="(val: boolean) => handleStatusChange(row, val)"
+              @change="(val: string | number | boolean) => handleStatusChange(row, val)"
             />
           </template>
         </el-table-column>
         <el-table-column label="操作" width="160" fixed="right">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-button v-permission="'system:user:edit'" link type="primary" @click="handleEdit(row)">
               编辑
             </el-button>
@@ -230,9 +230,9 @@ async function handleSubmit() {
 }
 
 // ---------------- 状态切换 ----------------
-async function handleStatusChange(row: User, val: boolean) {
+async function handleStatusChange(row: User, val: string | number | boolean) {
   const action = val ? '启用' : '停用'
-  await ElMessageBox.confirm(`确认${action}用户「${row.username}」吗？`, '提示', { type: 'warning' })
+  await ElMessageBox.confirm(`确认${action}用户「${row.username}」吗？`, '提示', { type: 'warning', confirmButtonText: '确定', cancelButtonText: '取消' })
     .catch(() => Promise.reject(new Error('canceled')))
   statusLoadingId.value = row.userId
   try {
@@ -251,7 +251,7 @@ async function handleStatusChange(row: User, val: boolean) {
 
 // ---------------- 删除 ----------------
 async function handleDelete(row: User) {
-  await ElMessageBox.confirm(`确认删除用户「${row.username}」吗？`, '提示', { type: 'warning' })
+  await ElMessageBox.confirm(`确认删除用户「${row.username}」吗？`, '提示', { type: 'warning', confirmButtonText: '确定', cancelButtonText: '取消' })
     .catch(() => Promise.reject(new Error('canceled')))
   try {
     await deleteUser(row.userId)

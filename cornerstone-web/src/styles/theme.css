@@ -1,0 +1,107 @@
+/* ============================================================
+   Cornerstone 主题
+   设计语言：简洁 · 高级 · 易用 · 高性能（非模板感）
+   —— 品牌主色为深靛蓝「基石蓝」，侧边栏为石板深色。
+   —— 与 cornerstone-web/README.md「前端设计」章节保持同步。
+   ============================================================ */
+
+:root {
+  /* ---------- 品牌主色：基石蓝（深靛蓝） ---------- */
+  --cs-primary: #4f46e5;
+  --cs-primary-dark: #4338ca;
+  --cs-primary-light: #818cf8;
+
+  /* Element Plus 主色变量族（覆盖默认亮蓝 #409EFF） */
+  --el-color-primary: #4f46e5;
+  --el-color-primary-light-3: #847eed;
+  --el-color-primary-light-5: #a7a3f2;
+  --el-color-primary-light-7: #cac8f7;
+  --el-color-primary-light-8: #dcdafa;
+  --el-color-primary-light-9: #ededfc;
+  --el-color-primary-dark-2: #3f38b7;
+
+  /* ---------- 侧边栏：石板深色 ---------- */
+  --cs-sider-bg: #111827;
+  --cs-sider-text: rgba(255, 255, 255, 0.6);
+  --cs-sider-text-active: #ffffff;
+  --cs-sider-hover: rgba(255, 255, 255, 0.07);
+
+  /* ---------- 内容区 ---------- */
+  --cs-content-bg: #f5f6fa;
+  --cs-border: #e5e7eb;
+  --cs-text: #1f2329;
+  --cs-text-secondary: #6b7280;
+
+  /* ---------- Element Plus 细节 ---------- */
+  --el-border-radius-base: 6px;
+  --el-border-radius-small: 4px;
+  --el-font-family: 'Inter', 'Helvetica Neue', Helvetica, 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+  --el-box-shadow-light: 0 1px 2px rgba(16, 24, 40, 0.04),
+    0 1px 3px rgba(16, 24, 40, 0.06);
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--cs-content-bg);
+  font-family: var(--el-font-family);
+  color: var(--cs-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------- 细滚动条（桌面端） ---------- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---------- 卡片：统一圆角与轻投影 ---------- */
+.el-card {
+  border-radius: 8px;
+  border-color: var(--cs-border);
+}
+.el-card.is-always-shadow,
+.el-card.is-hover-shadow {
+  box-shadow: var(--el-box-shadow-light);
+}
+
+/* ---------- 表格：浅色表头、克制的分割线 ---------- */
+.el-table th.el-table__cell {
+  background: #f9fafb;
+  color: #374151;
+  font-weight: 600;
+}
+
+/* ---------- 分页：靠右留白 ---------- */
+.pagination {
+  margin-top: 14px;
+  justify-content: flex-end;
+}
+
+/* ---------- 弹窗/抽屉标题加粗 ---------- */
+.el-dialog__title {
+  font-weight: 600;
+}
+
+/* ---------- 表单提示文字 ---------- */
+.el-form-item__label {
+  color: var(--cs-text-secondary);
+}

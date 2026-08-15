@@ -19,7 +19,7 @@
         <el-table-column prop="deptName" label="部门名称" min-width="200" />
         <el-table-column prop="sort" label="排序" width="80" />
         <el-table-column label="状态" width="90">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-tag :type="row.status === '0' ? 'success' : 'info'">
               {{ row.status === '0' ? '启用' : '停用' }}
             </el-tag>
@@ -29,7 +29,7 @@
         <el-table-column prop="phone" label="联系电话" min-width="140" />
         <el-table-column prop="createTime" label="创建时间" min-width="170" />
         <el-table-column label="操作" width="180" fixed="right">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-button v-permission="'system:dept:add'" link type="primary" @click="handleCreate(row)">新增</el-button>
             <el-button v-permission="'system:dept:edit'" link type="primary" @click="handleEdit(row)">编辑</el-button>
             <el-button v-permission="'system:dept:remove'" link type="danger" @click="handleDelete(row)">删除</el-button>
@@ -50,7 +50,8 @@
           <el-tree-select
             v-model="form.parentId"
             :data="treeSelectData"
-            :props="{ label: 'deptName', value: 'deptId' }"
+            :props="{ label: 'deptName', children: 'children' }"
+            node-key="deptId"
             check-strictly
             clearable
             default-expand-all
@@ -192,7 +193,7 @@ async function handleSubmit() {
 }
 
 async function handleDelete(row: Dept) {
-  await ElMessageBox.confirm(`确认删除部门「${row.deptName}」吗？`, '提示', { type: 'warning' })
+  await ElMessageBox.confirm(`确认删除部门「${row.deptName}」吗？`, '提示', { type: 'warning', confirmButtonText: '确定', cancelButtonText: '取消' })
     .catch(() => Promise.reject(new Error('canceled')))
   try {
     await deleteDept(row.deptId)

@@ -27,7 +27,7 @@
         <el-table-column prop="username" label="用户名" min-width="120" />
         <el-table-column prop="ipaddr" label="登录IP" min-width="130" />
         <el-table-column prop="status" label="状态" width="90">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-tag :type="row.status === '0' ? 'success' : 'danger'">
               {{ row.status === '0' ? '成功' : '失败' }}
             </el-tag>
@@ -36,7 +36,7 @@
         <el-table-column prop="msg" label="描述" min-width="160" show-overflow-tooltip />
         <el-table-column prop="loginTime" label="登录时间" min-width="170" />
         <el-table-column label="操作" width="80" fixed="right">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-button link type="primary" @click="handleDetail(row)">详情</el-button>
           </template>
         </el-table-column>

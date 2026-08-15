@@ -42,6 +42,7 @@ services:
   #       若后端也容器化，把 nginx.conf 的 proxy_pass 改为 http://cornerstone-gateway:8080
   frontend:
     build: ./cornerstone-web
+    image: cornerstone-frontend:latest
     container_name: cornerstone-frontend
     ports:
       - "8088:80"

@@ -30,7 +30,7 @@
         <el-table-column prop="id" label="ID" width="70" />
         <el-table-column prop="title" label="标题" min-width="200" show-overflow-tooltip />
         <el-table-column label="状态" width="100">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-tag :type="row.status === 'PUBLISHED' ? 'success' : 'info'">
               {{ row.status === 'PUBLISHED' ? '已发布' : '草稿' }}
             </el-tag>
@@ -40,7 +40,7 @@
         <el-table-column prop="createTime" label="创建时间" min-width="170" />
         <el-table-column prop="updateTime" label="更新时间" min-width="170" />
         <el-table-column label="操作" width="160" fixed="right">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
             <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
           </template>
@@ -192,7 +192,7 @@ async function handleSubmit() {
 
 // ---------------- 删除 ----------------
 async function handleDelete(row: Announcement) {
-  await ElMessageBox.confirm(`确认删除公告「${row.title}」吗？`, '提示', { type: 'warning' })
+  await ElMessageBox.confirm(`确认删除公告「${row.title}」吗？`, '提示', { type: 'warning', confirmButtonText: '确定', cancelButtonText: '取消' })
     .catch(() => Promise.reject(new Error('canceled')))
   try {
     await deleteAnnouncement(row.id)

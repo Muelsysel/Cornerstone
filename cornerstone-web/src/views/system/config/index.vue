@@ -32,7 +32,7 @@
         <el-table-column prop="remark" label="备注" min-width="150" show-overflow-tooltip />
         <el-table-column prop="createTime" label="创建时间" min-width="170" />
         <el-table-column label="操作" width="140" fixed="right">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-button v-permission="'system:config:edit'" link type="primary" @click="handleEdit(row)">
               编辑
             </el-button>
@@ -186,8 +186,7 @@ async function handleSubmit() {
 
 async function handleDelete(row: Config) {
   await ElMessageBox.confirm(`确认删除参数「${row.configName || row.configKey}」吗？`, '提示', {
-    type: 'warning',
-  }).catch(() => Promise.reject(new Error('canceled')))
+    type: 'warning', confirmButtonText: '确定', cancelButtonText: '取消' }).catch(() => Promise.reject(new Error('canceled')))
   try {
     await deleteConfig(row.configId)
     ElMessage.success('删除成功')

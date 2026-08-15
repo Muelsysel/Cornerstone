@@ -23,14 +23,14 @@
         <el-table-column prop="operId" label="ID" width="70" />
         <el-table-column prop="title" label="系统模块" min-width="130" />
         <el-table-column label="操作类型" width="100">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-tag>{{ businessTypeText(row.businessType) }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="operName" label="操作人" width="110" />
         <el-table-column prop="operIp" label="操作IP" width="130" />
         <el-table-column prop="status" label="状态" width="80">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-tag :type="row.status === 0 ? 'success' : 'danger'">
               {{ row.status === 0 ? '成功' : '失败' }}
             </el-tag>
@@ -39,7 +39,7 @@
         <el-table-column prop="method" label="请求方法" min-width="200" show-overflow-tooltip />
         <el-table-column prop="operTime" label="操作时间" min-width="170" />
         <el-table-column label="操作" width="80" fixed="right">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-button link type="primary" @click="handleDetail(row)">详情</el-button>
           </template>
         </el-table-column>

@@ -18,7 +18,7 @@
       >
         <el-table-column prop="menuName" label="菜单名称" min-width="180" />
         <el-table-column label="类型" width="90">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-tag :type="typeTag(row.menuType)" size="small">
               {{ typeText(row.menuType) }}
             </el-tag>
@@ -29,7 +29,7 @@
         <el-table-column prop="perms" label="权限标识" min-width="150" />
         <el-table-column prop="sort" label="排序" width="70" />
         <el-table-column label="操作" width="180" fixed="right">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-button v-permission="'system:menu:add'" link type="primary" @click="handleCreate(row)">新增</el-button>
             <el-button v-permission="'system:menu:edit'" link type="primary" @click="handleEdit(row)">编辑</el-button>
             <el-button v-permission="'system:menu:remove'" link type="danger" @click="handleDelete(row)">删除</el-button>
@@ -50,7 +50,8 @@
           <el-tree-select
             v-model="form.parentId"
             :data="treeSelectData"
-            :props="{ label: 'menuName', value: 'menuId' }"
+            :props="{ label: 'menuName', children: 'children' }"
+            node-key="menuId"
             check-strictly
             clearable
             default-expand-all
@@ -206,7 +207,7 @@ async function handleSubmit() {
 }
 
 async function handleDelete(row: Menu) {
-  await ElMessageBox.confirm(`确认删除菜单「${row.menuName}」吗？`, '提示', { type: 'warning' })
+  await ElMessageBox.confirm(`确认删除菜单「${row.menuName}」吗？`, '提示', { type: 'warning', confirmButtonText: '确定', cancelButtonText: '取消' })
     .catch(() => Promise.reject(new Error('canceled')))
   try {
     await deleteMenu(row.menuId)

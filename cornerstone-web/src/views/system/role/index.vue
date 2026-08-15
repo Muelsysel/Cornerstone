@@ -30,7 +30,7 @@
         <el-table-column prop="roleKey" label="权限字符" min-width="140" />
         <el-table-column prop="sort" label="排序" width="80" />
         <el-table-column label="状态" width="90">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-tag :type="row.status === '0' ? 'success' : 'info'">
               {{ row.status === '0' ? '启用' : '停用' }}
             </el-tag>
@@ -38,7 +38,7 @@
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" min-width="170" />
         <el-table-column label="操作" width="230" fixed="right">
-          <template #default="{ row }">
+          <template #default="{ row }: { row: any }">
             <el-button v-permission="'system:role:edit'" link type="primary" @click="handleAssign(row)">
               分配权限
             </el-button>
@@ -265,7 +265,7 @@ async function submitAssign() {
 
 // ---------------- 删除 ----------------
 async function handleDelete(row: Role) {
-  await ElMessageBox.confirm(`确认删除角色「${row.roleName}」吗？`, '提示', { type: 'warning' })
+  await ElMessageBox.confirm(`确认删除角色「${row.roleName}」吗？`, '提示', { type: 'warning', confirmButtonText: '确定', cancelButtonText: '取消' })
     .catch(() => Promise.reject(new Error('canceled')))
   try {
     await deleteRole(row.roleId)
