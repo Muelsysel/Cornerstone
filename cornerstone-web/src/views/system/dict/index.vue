@@ -95,6 +95,16 @@
     <!-- 数据项管理弹窗：维护当前字典类型下的数据项 -->
     <el-dialog v-model="dataVisible" :title="`数据项 - ${currentDictType || ''}`" width="860px" destroy-on-close>
       <div class="data-toolbar">
+        <el-input
+          v-model="dataQuery.dictLabel"
+          placeholder="标签模糊搜索"
+          clearable
+          style="width: 180px"
+          @keyup.enter="handleDataSearch"
+          @clear="handleDataSearch"
+        />
+        <el-button type="primary" :icon="Search" @click="handleDataSearch">搜索</el-button>
+        <el-button :icon="Refresh" @click="handleDataReset">重置</el-button>
         <el-button v-permission="'system:dict:add'" type="primary" :icon="Plus" @click="handleDataCreate">
           新增数据项
         </el-button>
@@ -317,7 +327,18 @@ const dataList = ref<DictData[]>([])
 const dataTotal = ref(0)
 const currentDictType = ref('')
 
-const dataQuery = reactive({ pageNum: 1, pageSize: 10, dictType: '' })
+const dataQuery = reactive({ pageNum: 1, pageSize: 10, dictType: '', dictLabel: '' })
+
+function handleDataSearch() {
+  dataQuery.pageNum = 1
+  loadDataList()
+}
+
+function handleDataReset() {
+  dataQuery.dictLabel = ''
+  dataQuery.pageNum = 1
+  loadDataList()
+}
 
 async function handleData(row: DictType) {
   currentDictType.value = row.dictType
