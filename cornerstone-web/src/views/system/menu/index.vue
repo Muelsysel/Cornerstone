@@ -99,6 +99,18 @@
         <el-form-item label="排序" prop="sort">
           <el-input-number v-model="form.sort" :min="0" :max="999" />
         </el-form-item>
+        <el-form-item label="显示状态">
+          <el-radio-group v-model="form.visible">
+            <el-radio value="0">显示</el-radio>
+            <el-radio value="1">隐藏</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="菜单状态">
+          <el-radio-group v-model="form.status">
+            <el-radio value="0">正常</el-radio>
+            <el-radio value="1">停用</el-radio>
+          </el-radio-group>
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -125,6 +137,10 @@ interface MenuForm {
   perms?: string
   icon?: string
   sort: number
+  /** 显示状态：0 显示 / 1 隐藏 */
+  visible?: string
+  /** 菜单状态：0 正常 / 1 停用 */
+  status?: string
 }
 
 const loading = ref(false)
@@ -208,6 +224,8 @@ function handleCreate(parent: Menu | null) {
     perms: '',
     icon: '',
     sort: 0,
+    visible: '0',
+    status: '0',
   })
   dialogVisible.value = true
 }
@@ -224,6 +242,8 @@ function handleEdit(row: Menu) {
     perms: row.perms || '',
     icon: row.icon || '',
     sort: row.sort ?? 0,
+    visible: row.visible || '0',
+    status: row.status || '0',
   })
   dialogVisible.value = true
 }
