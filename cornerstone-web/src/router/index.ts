@@ -70,13 +70,13 @@ export const routes: RouteRecordRaw[] = [
         path: 'system/operlog',
         name: 'OperLogManage',
         component: () => import('@/views/system/operlog/index.vue'),
-        meta: { title: '操作日志', icon: 'Document', group: '系统管理', permission: 'system:operlog:list' },
+        meta: { title: '操作日志', icon: 'Document', group: '系统管理', permission: 'system:log:list' },
       },
       {
         path: 'system/loginlog',
         name: 'LoginLogManage',
         component: () => import('@/views/system/loginlog/index.vue'),
-        meta: { title: '登录日志', icon: 'Finished', group: '系统管理', permission: 'system:loginlog:list' },
+        meta: { title: '登录日志', icon: 'Finished', group: '系统管理', permission: 'system:log:list' },
       },
       {
         path: 'demo/announcement',
