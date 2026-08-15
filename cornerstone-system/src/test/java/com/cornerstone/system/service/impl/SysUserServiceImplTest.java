@@ -208,6 +208,16 @@ class SysUserServiceImplTest {
     }
 
     @Test
+    void changeStatusRejectsInvalidStatusValue() {
+        // 状态仅允许 0/1：非法值拒绝（防污染 DB char(1) 列）
+        doReturn(user(7L, "alice")).when(service).getById(7L);
+
+        assertThatThrownBy(() -> service.changeStatus(7L, "abc"))
+                .isInstanceOf(BusinessException.class);
+        verify(service, never()).updateById(any());
+    }
+
+    @Test
     void resetPasswordEncodesAndUpdates() {
         SysUser exist = user(8L, "bob");
         doReturn(exist).when(service).getById(8L);

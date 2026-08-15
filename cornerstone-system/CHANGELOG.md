@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.38] - 2026-08-16
+
+- fix(security): `changeStatus` 校验状态合法性（仅 0/1）——此前可传任意值污染 DB char(1) 列；`SysUserServiceImplTest` 新增 `changeStatusRejectsInvalidStatusValue`
+
+**测试方法**：`mvn test -pl cornerstone-system`（132 用例）。
+
 ## [1.2.37] - 2026-08-16
 
 - fix(contract): **主键 JSON 字段名对齐前端契约**——SysConfig/SysOperLog/SysLoginLog/SysDictType/SysDictData 补 `@JsonProperty`（configId/operId/infoId/dictId/dictCode）；此前响应为 `id`，前端读 `operId` 等为 null → 删除日志/字典等操作传 null id 失败；`SystemExtensionTest` 新增 `entityIdJsonContractUsesFrontendFieldNames` 锁定

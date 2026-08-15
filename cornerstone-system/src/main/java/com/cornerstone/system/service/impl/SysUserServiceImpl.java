@@ -123,6 +123,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
         if (this.getById(userId) == null) {
             throw new BusinessException(SystemErrorCode.USER_NOT_FOUND);
         }
+        // 状态合法性：仅接受 0（正常）/ 1（停用），防非法值污染 DB（char(1) 列）
+        if (!"0".equals(status) && !"1".equals(status)) {
+            throw new BusinessException(
+                    com.cornerstone.common.core.ErrorCode.BAD_REQUEST, "状态值非法（仅 0/1）");
+        }
         SysUser user = new SysUser();
         user.setId(userId);
         user.setStatus(status);
