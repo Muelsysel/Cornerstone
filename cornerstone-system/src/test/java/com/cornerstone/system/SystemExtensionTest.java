@@ -1,6 +1,5 @@
 package com.cornerstone.system;
 
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -76,14 +75,19 @@ class SystemExtensionTest {
     }
 
     @Test
-    void dictTypePage_shouldReturnOk() throws Exception {
+    void dictTypePage_shouldPassPaginationParamsToService() throws Exception {
         org.mockito.Mockito.when(
                         dictService.pageType(
-                                anyLong(), anyLong(), anyString(), anyString(), anyString()))
-                .thenReturn(new Page<SysDictType>(1, 10));
-        mockMvc.perform(get("/system/dict/type/page").header("Authorization", bearer()))
+                                eq(3L), eq(20L), anyString(), anyString(), anyString()))
+                .thenReturn(new Page<SysDictType>(3, 20));
+        mockMvc.perform(
+                        get("/system/dict/type/page")
+                                .param("pageNum", "3")
+                                .param("pageSize", "20")
+                                .header("Authorization", bearer()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200));
+        verify(dictService).pageType(3L, 20L, null, null, null);
     }
 
     @Test
@@ -102,35 +106,47 @@ class SystemExtensionTest {
     }
 
     @Test
-    void configPage_shouldReturnOk() throws Exception {
+    void configPage_shouldPassPaginationParamsToService() throws Exception {
         org.mockito.Mockito.when(
-                        configService.page(
-                                anyLong(), anyLong(), anyString(), anyString(), anyString()))
-                .thenReturn(new Page<SysConfig>(1, 10));
-        mockMvc.perform(get("/system/config/page").header("Authorization", bearer()))
+                        configService.page(eq(2L), eq(50L), anyString(), anyString(), anyString()))
+                .thenReturn(new Page<SysConfig>(2, 50));
+        mockMvc.perform(
+                        get("/system/config/page")
+                                .param("pageNum", "2")
+                                .param("pageSize", "50")
+                                .header("Authorization", bearer()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200));
+        verify(configService).page(2L, 50L, null, null, null);
     }
 
     @Test
-    void operLogPage_shouldReturnOk() throws Exception {
+    void operLogPage_shouldPassPaginationParamsToService() throws Exception {
         org.mockito.Mockito.when(
-                        operLogService.page(
-                                anyLong(), anyLong(), anyString(), anyString(), anyString()))
-                .thenReturn(new Page<SysOperLog>(1, 10));
-        mockMvc.perform(get("/system/operlog/page").header("Authorization", bearer()))
+                        operLogService.page(eq(4L), eq(10L), anyString(), anyString(), anyString()))
+                .thenReturn(new Page<SysOperLog>(4, 10));
+        mockMvc.perform(
+                        get("/system/operlog/page")
+                                .param("pageNum", "4")
+                                .param("pageSize", "10")
+                                .header("Authorization", bearer()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200));
+        verify(operLogService).page(4L, 10L, null, null, null);
     }
 
     @Test
-    void loginLogPage_shouldReturnOk() throws Exception {
-        org.mockito.Mockito.when(
-                        loginLogService.page(anyLong(), anyLong(), anyString(), anyString()))
-                .thenReturn(new Page<SysLoginLog>(1, 10));
-        mockMvc.perform(get("/system/loginlog/page").header("Authorization", bearer()))
+    void loginLogPage_shouldPassPaginationParamsToService() throws Exception {
+        org.mockito.Mockito.when(loginLogService.page(eq(5L), eq(15L), anyString(), anyString()))
+                .thenReturn(new Page<SysLoginLog>(5, 15));
+        mockMvc.perform(
+                        get("/system/loginlog/page")
+                                .param("pageNum", "5")
+                                .param("pageSize", "15")
+                                .header("Authorization", bearer()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200));
+        verify(loginLogService).page(5L, 15L, null, null);
     }
 
     private String bearer() {

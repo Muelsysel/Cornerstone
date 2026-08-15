@@ -29,11 +29,11 @@ public class SysLoginLogController {
     @GetMapping("/page")
     @PreAuthorize("hasAuthority('system:log:list')")
     public Result<Page<SysLoginLog>> page(
-            @RequestParam(name = "pageNum", defaultValue = "1") long current,
-            @RequestParam(name = "pageSize", defaultValue = "10") long size,
+            @RequestParam(name = "pageNum", defaultValue = "1") long pageNum,
+            @RequestParam(name = "pageSize", defaultValue = "10") long pageSize,
             @RequestParam(name = "username", required = false) String username,
             @RequestParam(name = "status", required = false) String status) {
-        return Result.success(loginLogService.page(current, size, username, status));
+        return Result.success(loginLogService.page(pageNum, pageSize, username, status));
     }
 
     /** 删除单条登录日志 */

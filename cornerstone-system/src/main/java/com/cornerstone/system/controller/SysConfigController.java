@@ -34,12 +34,13 @@ public class SysConfigController {
     @GetMapping("/page")
     @PreAuthorize("hasAuthority('system:config:list')")
     public Result<Page<SysConfig>> page(
-            @RequestParam(name = "pageNum", defaultValue = "1") long current,
-            @RequestParam(name = "pageSize", defaultValue = "10") long size,
+            @RequestParam(name = "pageNum", defaultValue = "1") long pageNum,
+            @RequestParam(name = "pageSize", defaultValue = "10") long pageSize,
             @RequestParam(name = "configName", required = false) String configName,
             @RequestParam(name = "configKey", required = false) String configKey,
             @RequestParam(name = "configType", required = false) String configType) {
-        return Result.success(configService.page(current, size, configName, configKey, configType));
+        return Result.success(
+                configService.page(pageNum, pageSize, configName, configKey, configType));
     }
 
     /** 按键名查参数值（读缓存） */

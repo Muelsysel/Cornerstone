@@ -36,12 +36,12 @@ public class SysDictController {
     @GetMapping("/type/page")
     @PreAuthorize("hasAuthority('system:dict:list')")
     public Result<Page<SysDictType>> pageType(
-            @RequestParam(name = "pageNum", defaultValue = "1") long current,
-            @RequestParam(name = "pageSize", defaultValue = "10") long size,
+            @RequestParam(name = "pageNum", defaultValue = "1") long pageNum,
+            @RequestParam(name = "pageSize", defaultValue = "10") long pageSize,
             @RequestParam(name = "dictName", required = false) String dictName,
             @RequestParam(name = "dictType", required = false) String dictType,
             @RequestParam(name = "status", required = false) String status) {
-        return Result.success(dictService.pageType(current, size, dictName, dictType, status));
+        return Result.success(dictService.pageType(pageNum, pageSize, dictName, dictType, status));
     }
 
     /** 新增字典类型 */
@@ -82,12 +82,12 @@ public class SysDictController {
     @GetMapping("/data/page")
     @PreAuthorize("hasAuthority('system:dict:list')")
     public Result<Page<SysDictData>> pageData(
-            @RequestParam(name = "pageNum", defaultValue = "1") long current,
-            @RequestParam(name = "pageSize", defaultValue = "10") long size,
+            @RequestParam(name = "pageNum", defaultValue = "1") long pageNum,
+            @RequestParam(name = "pageSize", defaultValue = "10") long pageSize,
             @RequestParam(name = "dictType", required = false) String dictType,
             @RequestParam(name = "dictLabel", required = false) String dictLabel,
             @RequestParam(name = "status", required = false) String status) {
-        return Result.success(dictService.pageData(current, size, dictType, dictLabel, status));
+        return Result.success(dictService.pageData(pageNum, pageSize, dictType, dictLabel, status));
     }
 
     /** 新增字典数据 */

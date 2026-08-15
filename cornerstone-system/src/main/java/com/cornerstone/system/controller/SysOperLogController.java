@@ -29,12 +29,12 @@ public class SysOperLogController {
     @GetMapping("/page")
     @PreAuthorize("hasAuthority('system:log:list')")
     public Result<Page<SysOperLog>> page(
-            @RequestParam(name = "pageNum", defaultValue = "1") long current,
-            @RequestParam(name = "pageSize", defaultValue = "10") long size,
+            @RequestParam(name = "pageNum", defaultValue = "1") long pageNum,
+            @RequestParam(name = "pageSize", defaultValue = "10") long pageSize,
             @RequestParam(name = "title", required = false) String title,
             @RequestParam(name = "operName", required = false) String operName,
             @RequestParam(name = "status", required = false) String status) {
-        return Result.success(operLogService.page(current, size, title, operName, status));
+        return Result.success(operLogService.page(pageNum, pageSize, title, operName, status));
     }
 
     /** 删除单条操作日志 */

@@ -41,11 +41,11 @@ public class SysUserController {
     @GetMapping("/page")
     @PreAuthorize("hasAuthority('system:user:list')")
     public Result<Page<SysUser>> page(
-            @RequestParam(name = "pageNum", defaultValue = "1") long current,
-            @RequestParam(name = "pageSize", defaultValue = "10") long size,
+            @RequestParam(name = "pageNum", defaultValue = "1") long pageNum,
+            @RequestParam(name = "pageSize", defaultValue = "10") long pageSize,
             @RequestParam(name = "username", required = false) String username,
             @RequestParam(name = "status", required = false) String status) {
-        return Result.success(userService.page(current, size, username, status));
+        return Result.success(userService.page(pageNum, pageSize, username, status));
     }
 
     /** 按 ID 查询用户基础信息：SystemUserClient 契约 */

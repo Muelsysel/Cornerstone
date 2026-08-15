@@ -35,11 +35,11 @@ public class SysRoleController {
     @GetMapping("/page")
     @PreAuthorize("hasAuthority('system:role:list')")
     public Result<Page<SysRole>> page(
-            @RequestParam(name = "pageNum", defaultValue = "1") long current,
-            @RequestParam(name = "pageSize", defaultValue = "10") long size,
+            @RequestParam(name = "pageNum", defaultValue = "1") long pageNum,
+            @RequestParam(name = "pageSize", defaultValue = "10") long pageSize,
             @RequestParam(name = "roleName", required = false) String roleName,
             @RequestParam(name = "status", required = false) String status) {
-        return Result.success(roleService.page(current, size, roleName, status));
+        return Result.success(roleService.page(pageNum, pageSize, roleName, status));
     }
 
     /** 角色列表 */
