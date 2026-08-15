@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.0.11] - 2026-08-16
+
+- fix(security): `LoginRequest` 补 `@Size` 长度上限——用户名 ≤64（Redis key/日志防超大值）、密码 ≤72（BCrypt 仅处理前 72 字节，超长静默截断会致两个不同长密码判同）；随 common 补 validation 实现后真实生效；`LoginControllerTest` 新增超长用户名/密码 400 拒绝用例（不触发服务调用）
+
+**测试方法**：`mvn test -pl cornerstone-auth`（17 用例）。
+
 ## [1.0.10] - 2026-08-16
 
 - docs(api): LoginController 补 OpenAPI `@Tag`/`@Operation`（登录/退出端点描述完整，对齐 demo 活模板）

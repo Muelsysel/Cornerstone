@@ -30,6 +30,12 @@
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
         </dependency>
+        <!-- Bean Validation 实现（Hibernate Validator）：@Valid/@Validated/@Size/@NotBlank 等
+             在所有服务中生效（此前仅有 api 无实现，校验注解全部静默失效） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

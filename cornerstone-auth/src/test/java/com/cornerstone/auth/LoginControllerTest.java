@@ -161,6 +161,40 @@ class LoginControllerTest {
         assertThat(captor.getValue().getMsg()).isEqualTo("登录失败次数过多，已锁定");
     }
 
+    @Test
+    void oversizedUsername_shouldBeRejectedAsBadRequest() throws Exception {
+        // 长度上限是安全边界（Redis key/日志防超大值），超长用户名必须在入口 400 拒绝
+        String huge = "u".repeat(65);
+        mockMvc.perform(
+                        post("/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"username\":\"" + huge + "\",\"password\":\"x\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("用户名长度不能超过 64 个字符"));
+
+        // 校验失败不应触发任何服务调用（不查询用户、不投递日志）
+        verify(authUserClient, org.mockito.Mockito.never())
+                .findByUsername(org.mockito.ArgumentMatchers.anyString());
+        verify(loginLogClient, org.mockito.Mockito.never()).record(any(LoginLogDTO.class));
+    }
+
+    @Test
+    void oversizedPassword_shouldBeRejectedAsBadRequest() throws Exception {
+        // BCrypt 仅处理前 72 字节，超长密码会静默截断（两个不同长密码可能判为相同）→ 入口拒绝
+        String huge = "p".repeat(73);
+        mockMvc.perform(
+                        post("/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"username\":\"admin\",\"password\":\"" + huge + "\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("密码长度不能超过 72 个字符"));
+
+        verify(authUserClient, org.mockito.Mockito.never())
+                .findByUsername(org.mockito.ArgumentMatchers.anyString());
+    }
+
     private UserAuthDTO adminUser() {
         UserAuthDTO dto = new UserAuthDTO();
         dto.setUserId(1L);
