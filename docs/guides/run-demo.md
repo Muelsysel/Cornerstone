@@ -78,6 +78,18 @@ curl -s -H "Authorization: Bearer $USER_TOKEN" \
 # 8. 错误密码 → 401
 curl -s -X POST http://localhost:8080/auth/login \
   -H 'Content-Type: application/json' -d '{"username":"admin","password":"wrong"}'
+
+# ---- v3：数据权限对比（V6 演示数据）----
+# admin（角色数据范围=全部）查用户分页 → 见全部用户（admin + test）
+curl -s -H "Authorization: Bearer $USER_TOKEN" \
+  "http://localhost:8080/system/user/page?pageNum=1&pageSize=10"
+
+# test（角色数据范围=仅本人）登录后查用户分页 → 仅见自己（SQL 层自动过滤）
+TEST_TOKEN=$(curl -s -X POST http://localhost:8080/auth/login \
+  -H 'Content-Type: application/json' -d '{"username":"test","password":"admin123"}' \
+  | jq -r '.data.access_token')
+curl -s -H "Authorization: Bearer $TEST_TOKEN" \
+  "http://localhost:8080/system/user/page?pageNum=1&pageSize=10"
 ```
 
 ### 实测记录（7 步）
