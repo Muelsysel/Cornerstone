@@ -37,8 +37,7 @@ Cornerstone is a multi-context repo (`CONTEXT-MAP.md` at the root):
 │   ├── CONTEXT.md                     ← new-module live template
 │   └── docs/adr/
 └── cornerstone-web/
-    ├── CONTEXT.md                     ← frontend (non-Maven module)
-    └── README.md                      ← frontend design & deployment
+    └── README.md                      ← 前端（非 Maven 模块）：设计语言与部署说明，无 CONTEXT.md
 ```
 
 ## Use the glossary's vocabulary
