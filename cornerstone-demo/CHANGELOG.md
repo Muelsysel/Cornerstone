@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.0.5] - 2026-08-15
+
+- fix(隐私): 公开分页接口未认证时强制只返回已发布（此前游客可见草稿/下线公告）；已登录管理端查看全部——端到端实测（游客 0 草稿 / 管理 9 草稿）
+
+**测试方法**：`mvn test -pl cornerstone-demo`（AnnouncementControllerTest + AnnouncementServiceImplTest：MockMvc + H2 跑 Flyway + 纯单元）。
+
 ## [1.0.4] - 2026-08-15
 
 - perf: V4 迁移补 `announcement(create_time)` 索引（分页倒序排序提速，活模板示范）

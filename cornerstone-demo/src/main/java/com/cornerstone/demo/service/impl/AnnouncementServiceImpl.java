@@ -23,6 +23,11 @@ public class AnnouncementServiceImpl extends ServiceImpl<AnnouncementMapper, Ann
 
     @Override
     public Page<Announcement> page(int pageNum, int pageSize, String title, Integer status) {
+        // 游客（无用户上下文）未指定状态时只看已发布——避免草稿/下线公告对外泄露；
+        // 已登录用户（管理后台）未指定状态时查看全部（草稿/发布/下线）。
+        if (status == null && UserContextHolder.get() == null) {
+            status = AnnouncementStatus.PUBLISHED.getCode();
+        }
         LambdaQueryWrapper<Announcement> wrapper =
                 new LambdaQueryWrapper<Announcement>()
                         .like(StringUtils.hasText(title), Announcement::getTitle, title)
