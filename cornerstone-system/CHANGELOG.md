@@ -6,7 +6,7 @@
 
 - fix(data): **字典类型改名级联同步数据项**——`updateType` 修改 dictType 时，`sys_dict_data` 数据项此前保留旧类型成为孤儿（listData(新类型) 查不到，前端虽禁用改名但 API 可触发）；现用 `LambdaUpdateWrapper` 级联更新全部数据项；`SysDictServiceImplTest` 新增改名同步/类型不变不级联两个用例
 
-**测试方法**：`mvn test -pl cornerstone-system`（168 用例）。
+**测试方法**：`mvn test -pl cornerstone-system`（167 用例）。
 
 ## [1.2.54] - 2026-08-16
 
