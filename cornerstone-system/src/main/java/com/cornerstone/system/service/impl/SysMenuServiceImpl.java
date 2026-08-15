@@ -44,6 +44,10 @@ public class SysMenuServiceImpl implements SysMenuService {
         if (menu.getParentId() == null) {
             menu.setParentId(0L);
         }
+        // 父节点必须存在（与部门 add 的 resolveAncestors 同级校验）：否则生成悬空节点，树组装时被丢弃、后台不可见
+        if (menu.getParentId() != 0L && menuMapper.selectById(menu.getParentId()) == null) {
+            throw new BusinessException(SystemErrorCode.INVALID_PARENT);
+        }
         menuMapper.insert(menu);
         return menu;
     }
@@ -55,10 +59,13 @@ public class SysMenuServiceImpl implements SysMenuService {
         if (exist == null) {
             throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
         }
-        // 父节点不能选自己或自身子节点（选子节点会形成环，破坏菜单树）
+        // 父节点不能选自己或自身子节点（选子节点会形成环，破坏菜单树）；父节点须存在（防悬空节点）
         Long newParent = menu.getParentId();
         if (newParent != null
                 && (newParent.equals(menu.getId()) || isDescendant(menu.getId(), newParent))) {
+            throw new BusinessException(SystemErrorCode.INVALID_PARENT);
+        }
+        if (newParent != null && newParent != 0L && menuMapper.selectById(newParent) == null) {
             throw new BusinessException(SystemErrorCode.INVALID_PARENT);
         }
         menuMapper.updateById(menu);

@@ -140,11 +140,25 @@ class SysMenuServiceImplTest {
     @Test
     void addKeepsProvidedParentId() {
         SysMenu m = menu(null, 5L, "子菜单", 1);
+        when(menuMapper.selectById(5L)).thenReturn(menu(5L, 0L, "父菜单", 1));
         when(menuMapper.insert(m)).thenReturn(1);
 
         service.add(m);
 
         assertThat(m.getParentId()).isEqualTo(5L);
+    }
+
+    @Test
+    void addRejectsMissingParent() {
+        // 回归：父菜单不存在时此前生成悬空节点（树组装丢弃、后台不可见）；现与部门同级校验报 INVALID_PARENT
+        SysMenu m = menu(null, 99L, "孤儿菜单", 1);
+        when(menuMapper.selectById(99L)).thenReturn(null);
+
+        assertThatThrownBy(() -> service.add(m))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getCode())
+                .isEqualTo(SystemErrorCode.INVALID_PARENT.getCode());
+        verify(menuMapper, never()).insert(any(SysMenu.class));
     }
 
     @Test
@@ -168,6 +182,22 @@ class SysMenuServiceImplTest {
         when(menuMapper.selectById(1L)).thenReturn(root);
         when(menuMapper.selectList(null)).thenReturn(List.of(root, child, grandchild));
         SysMenu m = menu(1L, 3L, "系统管理", 1);
+
+        assertThatThrownBy(() -> service.update(m))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getCode())
+                .isEqualTo(SystemErrorCode.INVALID_PARENT.getCode());
+        verify(menuMapper, never()).updateById(any(SysMenu.class));
+    }
+
+    @Test
+    void updateRejectsMissingParent() {
+        // 回归：父菜单不存在时更新会生成悬空节点；现报 INVALID_PARENT
+        SysMenu exist = menu(1L, 0L, "系统管理", 1);
+        when(menuMapper.selectById(1L)).thenReturn(exist);
+        when(menuMapper.selectList(null)).thenReturn(List.of(exist));
+        when(menuMapper.selectById(99L)).thenReturn(null);
+        SysMenu m = menu(1L, 99L, "系统管理", 1);
 
         assertThatThrownBy(() -> service.update(m))
                 .isInstanceOf(BusinessException.class)

@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.41] - 2026-08-16
+
+- fix(bug): 菜单父节点存在性校验——add/update 指定不存在的 parentId 此前生成悬空节点（树组装丢弃、后台不可见）；现与部门同级报 INVALID_PARENT；`SysMenuServiceImplTest` 新增 `addRejectsMissingParent`/`updateRejectsMissingParent`
+
+**测试方法**：`mvn test -pl cornerstone-system`（154 用例）。
+
 ## [1.2.40] - 2026-08-16
 
 - fix(security): **停用账号禁止登录**——`AuthUserSupportService.findByUsername` 查询强制过滤 `status='0'`，停用用户视为不存在（认证统一报「用户名或密码错误」，与游客访问非已发布公告按不存在处理同款 fail-closed，避免账号状态枚举）；`AuthUserSupportServiceTest` 新增 `disabledUserReturnsNull`
