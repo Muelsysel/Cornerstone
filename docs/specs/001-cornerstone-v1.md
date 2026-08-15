@@ -1,6 +1,9 @@
 # Spec 001 — Cornerstone v1：文档约束驱动的 AI 协作 Spring Cloud 脚手架
 
 > 状态：ready-for-agent · 来源：grill-with-docs 设计树（用户已确认共享理解）
+>
+> **演进注记（读此文档前必看）**：本文档为 v1 原始规格，后续实现决策以 ADR 为准并已落地——
+> 数据权限（部门级）已实现（ADR-0006）；前端管理后台已并入本仓库 `cornerstone-web`（Vue3 + Vite）；网关限流已落地（含登录独立限流，ADR-0009）；测试缝实际采用 H2 + Mock（非 Testcontainers）。仍待实现：授权码 + PKCE（前端接入时启用）。
 
 ## Problem Statement
 
