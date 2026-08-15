@@ -74,6 +74,34 @@ class TokenAuthGlobalFilterTest {
         assertThat(exchange.getResponse().getStatusCode()).isNull();
     }
 
+    /** 白名单精确边界：/auth 根路径放行，但 /auth-extra 不误匹配（前缀带斜杠才命中） */
+    @Test
+    void whitelistBoundaryAuthRootAndSibling() {
+        // /auth 精确匹配放行
+        MockServerWebExchange root = MockServerWebExchange.from(MockServerHttpRequest.get("/auth"));
+        boolean[] rootContinued = {false};
+        filter().filter(
+                        root,
+                        ex -> {
+                            rootContinued[0] = true;
+                            return reactor.core.publisher.Mono.empty();
+                        })
+                .block();
+        assertThat(rootContinued[0]).isTrue();
+
+        // /auth-extra 不以 "/auth/" 开头 → 非白名单 → 无令牌 401
+        MockServerWebExchange sibling =
+                MockServerWebExchange.from(MockServerHttpRequest.get("/auth-extra/path"));
+        filter().filter(sibling, (ex) -> reactor.core.publisher.Mono.empty()).block();
+        assertThat(sibling.getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+
+        // /demo-secret 不以 "/demo/" 开头 → 非白名单 → 401（防前缀越权）
+        MockServerWebExchange demoSecret =
+                MockServerWebExchange.from(MockServerHttpRequest.get("/demo-secret/admin"));
+        filter().filter(demoSecret, (ex) -> reactor.core.publisher.Mono.empty()).block();
+        assertThat(demoSecret.getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
     /** 非白名单路径无令牌返回 401 + Result JSON */
     @Test
     void protectedPathWithoutTokenReturns401() {
