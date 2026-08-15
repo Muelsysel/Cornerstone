@@ -3,6 +3,21 @@
 > 项目级版本里程碑与仓库级变更记录。模块级细节见各模块 `CHANGELOG.md`
 > （common/api/gateway/auth/system/demo/web）。所有 AI 都是文档维护者（AGENTS.md「文档维护义务」）。
 
+## [1.5.28] - 2026-08-16（安全加固 + 输入校验收官）
+
+- fix(security): **停用账号禁止登录**——`AuthUserSupportService.findByUsername` 过滤 `status='0'`（fail-closed，避免账号状态枚举）；verify-chain 新增「停用用户拒登」断言
+- fix(data): **RBAC 全部可写字符串字段补长度校验**（`ValidationUtils.maxLength`，与 DB 列对齐，DataTruncation 500 → 友好 400）+ **全部枚举字段补合法性校验**（`ValidationUtils.oneOf`：状态/类型/数据范围/是否默认）；前端表单 maxlength 同步对齐
+- feat(scripts): `verify-chain.ps1` 断言 30→33 项（超长标题/超长参数值 400、停用用户拒登）
+- test: 后端 213→**220 用例**（common 30 + system 152 + demo 27 + auth 17 + gateway 14 等）、前端 34、e2e 33
+
+## [1.5.27] - 2026-08-16（公告字段校验）
+
+- fix(bug): 公告标题加长度上限（100 字符，与 DB varchar(100) 对齐）——超长曾触发 DataTruncation → 500，现返回友好 400；verify-chain 断言 29→30
+
+## [1.5.26] - 2026-08-16（client_credentials 令牌有效期）
+
+- fix(auth): `client_credentials` TokenSettings accessTokenTimeToLive 5 分钟 → 12 小时（默认 5 分钟过短，机器对机器场景频繁续期）
+
 ## [1.5.25] - 2026-08-15（端到端契约扩展）
 
 - feat(scripts): `verify-chain.ps1` 断言 20→21 项——新增游客分页隐私断言（公开分页只返回已发布公告）；update 补幂等重试；4 次连跑稳定 PASS
