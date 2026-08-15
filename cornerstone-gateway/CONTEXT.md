@@ -8,6 +8,7 @@
 - 全局 JWT 校验：白名单路径放行，其余路径必须携带有效令牌。
 - 令牌→上下文头透传：`sub`→`X-Cornerstone-User-Id`、`username/preferred_username`→`X-Cornerstone-Username`、角色→`X-Cornerstone-Roles`（优先 JWT 的 `roles` 声明，client_credentials 无 roles 时兜底 `scope`，逗号连接）。头名与 `UserContext` 约定一致；入口统一剥除外部伪造的同名头。
 - Redis 限流（按客户端 IP，默认 10 请求/秒 + 突发 20；`/auth/login` 独立更严限流 5/s + burst 10 防账号爆破，路由声明于 `/auth/**` 之前）。
+- 访问日志：记录方法/路径/状态/耗时/客户端 IP（优先 `X-Forwarded-For` 第一个，经 nginx 反代时定位真实客户端；`/actuator/**` 探针静默）。
 - 全局 CORS（仅本地白名单：dev 5173 / 前端容器 8088；生产经 nginx 同源反代不触发）。
 - 校验失败返回 401 + `Result` 统一结构。
 - Nacos 服务注册（`cornerstone-gateway`）。
