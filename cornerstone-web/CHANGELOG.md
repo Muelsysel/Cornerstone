@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.3.1] - 2026-08-15（体验细节）
+
+- feat: 全局错误捕获（app.config.errorHandler，渲染错误可定位不静默）；登录表单 autocomplete（浏览器密码管理器友好）；首页欢迎语加当前日期；index.html 补 description/theme-color meta
+
+**测试方法**：`npm run build`（vue-tsc 类型检查 + vite 构建，须通过）；`npm test`（vitest 单测）。
+
 ## [1.3.0] - 2026-08-15（健壮性与一致性）
 
 - fix: 401 死循环——响应拦截器清会话（localStorage + store.resetSession）再跳登录页，避免与登录页守卫互相弹跳

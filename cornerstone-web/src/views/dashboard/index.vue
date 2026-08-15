@@ -6,7 +6,7 @@
         <div>
           <h2 class="hello">你好，{{ userStore.user?.username || '管理员' }} 👋</h2>
           <p class="desc">
-            欢迎使用 Cornerstone 管理后台。当前角色：{{ rolesText }}；权限点数量：{{ permissionsCount }}。
+            {{ today }}。当前角色：{{ rolesText }}；权限点数量：{{ permissionsCount }}。
           </p>
         </div>
       </div>
@@ -50,6 +50,14 @@ const rolesText = computed(() => {
 })
 
 const permissionsCount = computed(() => userStore.permissions?.length || 0)
+
+// 当前日期（中文长格式），欢迎语氛围
+const today = new Date().toLocaleDateString('zh-CN', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  weekday: 'long',
+})
 
 // 能力卡片（静态展示项目能力，不依赖统计接口——克制不造新后端接口）
 const cards = [

@@ -27,4 +27,9 @@ app.use(router)
 // 注册自定义指令（v-permission 按钮级权限控制）
 setupPermissionDirective(app)
 
+// 全局错误捕获：渲染/生命周期错误不静默，控制台给出可定位信息（避免白屏无从排查）
+app.config.errorHandler = (err, _instance, info) => {
+  console.error('[Cornerstone] 未捕获错误:', err, info)
+}
+
 app.mount('#app')
