@@ -17,6 +17,8 @@ spring:
 
 # 测试专用 RSA 公钥（与 test-private.pem 配对），覆盖 application.yml 默认公钥
 cornerstone:
+  # 测试内部令牌（与请求头匹配，供 InternalTokenFilter 放行）
+  internal-token: cornerstone-internal-secret
   security:
     public-key: |
       -----BEGIN PUBLIC KEY-----

@@ -35,8 +35,9 @@ mybatis-plus:
       logic-delete-value: 1
       logic-not-delete-value: 0
 
-# 资源服务器：JWT 校验公钥（与 auth/gateway 对齐，SPKI PEM 格式）
+# 资源服务器：JWT 校验公钥（与 auth/gateway 对齐，SPKI PEM 格式）；服务间内部令牌与 auth 共享（Feign 调用 /system/auth/** 时校验）
 cornerstone:
+  internal-token: cornerstone-internal-secret
   security:
     public-key: |
       -----BEGIN PUBLIC KEY-----

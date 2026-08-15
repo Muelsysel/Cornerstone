@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * 资源服务器安全配置。 - 双保险：服务端同样校验网关透传的 JWT（公钥与 auth/gateway 对齐）。 - 权限来源：JWT 的 scope（→ SCOPE_*）与
@@ -34,18 +35,20 @@ public class ResourceServerConfig {
     private String publicKeyPem;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http, InternalTokenFilter internalTokenFilter) throws Exception {
         return http.csrf(csrf -> csrf.disable())
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
                         auth ->
-                                // /system/auth/** 为服务间内部接口（认证中心登录契约），网关白名单不含 /system/** 已隔离外部；v1
-                                // 简化匿名访问；/actuator/** 放行健康检查
+                                // /system/auth/** 为服务间内部接口（认证中心登录契约），网关白名单不含 /system/** 已隔离外部；
+                                // 另有 InternalTokenFilter 校验共享内部令牌；/actuator/** 放行健康检查
                                 auth.requestMatchers("/system/auth/**", "/actuator/**")
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated())
+                .addFilterBefore(internalTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .oauth2ResourceServer(
                         oauth2 ->
                                 oauth2.jwt(

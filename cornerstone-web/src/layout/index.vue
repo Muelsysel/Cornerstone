@@ -14,11 +14,33 @@
         text-color="rgba(255,255,255,0.68)"
         active-text-color="#ffffff"
       >
-        <template v-for="item in menuRoutes" :key="item.path">
-          <el-menu-item :index="`/${item.path}`">
-            <el-icon><component :is="item.icon" /></el-icon>
-            <span>{{ item.title }}</span>
-          </el-menu-item>
+        <template v-for="group in menuGroups" :key="group.name || group.items[0]?.path">
+          <!-- 分组菜单（如"系统管理"） -->
+          <el-sub-menu v-if="group.name" :index="group.name">
+            <template #title>
+              <el-icon><Folder /></el-icon>
+              <span>{{ group.name }}</span>
+            </template>
+            <el-menu-item
+              v-for="item in group.items"
+              :key="item.path"
+              :index="`/${item.path}`"
+            >
+              <el-icon><component :is="item.icon" /></el-icon>
+              <span>{{ item.title }}</span>
+            </el-menu-item>
+          </el-sub-menu>
+          <!-- 未分组菜单项 -->
+          <template v-else>
+            <el-menu-item
+              v-for="item in group.items"
+              :key="item.path"
+              :index="`/${item.path}`"
+            >
+              <el-icon><component :is="item.icon" /></el-icon>
+              <span>{{ item.title }}</span>
+            </el-menu-item>
+          </template>
         </template>
       </el-menu>
     </el-aside>
@@ -62,8 +84,7 @@ const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 
-// 从路由表扁平化用于菜单展示的一级路由，并按权限过滤：
-// 路由声明了 meta.permission 时，无对应权限点的菜单项不渲染；未声明则默认展示。
+// 从路由表扁平化用于菜单展示并按权限过滤；按 meta.group 分组（有分组归 el-sub-menu，无分组平级展示）。
 const menuRoutes = computed(() => {
   const root = routes.find((r) => r.path === '/')
   return (root?.children || [])
@@ -75,7 +96,21 @@ const menuRoutes = computed(() => {
       path: c.path,
       title: String(c.meta?.title || ''),
       icon: String(c.meta?.icon || 'Document'),
+      group: String(c.meta?.group || ''),
     }))
+})
+
+const menuGroups = computed(() => {
+  const groups: { name: string; items: typeof menuRoutes.value }[] = []
+  for (const item of menuRoutes.value) {
+    const existing = groups.find((g) => g.name === item.group)
+    if (existing) {
+      existing.items.push(item)
+    } else {
+      groups.push({ name: item.group, items: [item] })
+    }
+  }
+  return groups
 })
 
 // 当前高亮菜单 = 当前路由路径；标题取路由 meta.title

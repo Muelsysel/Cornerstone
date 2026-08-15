@@ -77,7 +77,9 @@ class SysAuthUserControllerTest {
         when(menuMapper.selectBatchIds(any()))
                 .thenReturn(List.of(userList, roleList, stopped, blankPerm));
 
-        mockMvc.perform(get("/system/auth/user/admin"))
+        mockMvc.perform(
+                        get("/system/auth/user/admin")
+                                .header("X-Internal-Token", "cornerstone-internal-secret"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.userId").value(1))
@@ -97,7 +99,9 @@ class SysAuthUserControllerTest {
     void findByUnknownUser_shouldReturnNullData() throws Exception {
         when(userMapper.selectOne(any())).thenReturn(null);
 
-        mockMvc.perform(get("/system/auth/user/nobody"))
+        mockMvc.perform(
+                        get("/system/auth/user/nobody")
+                                .header("X-Internal-Token", "cornerstone-internal-secret"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data").doesNotExist());
@@ -107,6 +111,7 @@ class SysAuthUserControllerTest {
     void recordLoginLog_shouldInvokeSysLoginLogService() throws Exception {
         mockMvc.perform(
                         post("/system/auth/login-log")
+                                .header("X-Internal-Token", "cornerstone-internal-secret")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(
                                         "{\"username\":\"admin\",\"status\":\"0\",\"msg\":\"登录成功\","

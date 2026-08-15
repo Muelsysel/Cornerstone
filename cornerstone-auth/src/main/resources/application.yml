@@ -21,6 +21,8 @@ management:
 
 # 认证中心 RSA 密钥（PKCS8 PEM）。网关持有同一公钥校验令牌，二者必须一致。
 cornerstone:
+  # 服务间内部令牌：与 cornerstone-system 共享，Feign 调用 /system/auth/** 时自动附加
+  internal-token: cornerstone-internal-secret
   auth:
     rsa:
       private-key: classpath:rsa-private.pem
