@@ -3,6 +3,12 @@
 > 项目级版本里程碑与仓库级变更记录。模块级细节见各模块 `CHANGELOG.md`
 > （common/api/gateway/auth/system/demo/web）。所有 AI 都是文档维护者（AGENTS.md「文档维护义务」）。
 
+## [1.5.2] - 2026-08-15（安全与测试续批）
+
+- fix(安全): 网关透传头防伪造（入口剥除 X-Cornerstone-*，含白名单路径；防身份伪造）；登录限流 bean @Primary/@Qualifier
+- test: AuthUserSupportService/GlobalExceptionHandler/TokenAuthGlobalFilter 防伪造回归；verify-chain 支持 -UseRunning
+- feat: 仓库元数据（描述/主题）+ CODE_OF_CONDUCT + Issue 模板；Vite 7 升级（audit 归零）；ADR-0008
+
 ## [1.5.1] - 2026-08-15（工程优化续批）
 
 - fix(安全): 登录接口独立限流（/auth/login 5/s + burst 10）；限流 bean @Primary/@Qualifier 修复（Gateway 自动配置单 bean 需求），端到端 7 项链路实测通过

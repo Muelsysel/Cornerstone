@@ -100,7 +100,9 @@ docker compose up -d
 ### 2. 启动后端服务
 
 ```bash
-# 方式 A：一键脚本（Windows，依赖检查 + 4 服务并行 + 前端，日志输出到 logs/）
+# 方式 A：一键脚本（Windows，依赖检查 + common/api 安装 + 4 服务并行 + 前端，日志输出到 logs/）
+#   默认 JDK：C:\Dev\Lang\JAVA\JAVA17；Maven：D:\.develop\apache-maven-3.9.5\bin\mvn.cmd
+#   与本机路径不同时加参数：-JavaHome <jdk目录> -MavenCmd <mvn.cmd 路径>
 powershell -ExecutionPolicy Bypass -File scripts/start-all.ps1
 
 # 方式 B：手动（4 个终端，详见 docs/guides/run-demo.md）
