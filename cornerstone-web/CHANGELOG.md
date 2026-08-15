@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.4.34] - 2026-08-16
+
+- feat(ux): 公告列表加「发布时间」列（已发布显示 publishTime，未发布显示 —）
+
+**测试方法**：`npm test`（34 用例）+ `npm run build`。
+
 ## [1.4.33] - 2026-08-16
 
 - fix(ux): 字典/菜单/参数表单补 maxlength 对齐后端列长（dictName/dictLabel 100、menuName 50、configName 100/configKey 100/configValue 500）
