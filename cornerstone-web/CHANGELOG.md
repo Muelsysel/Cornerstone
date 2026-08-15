@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.4.18] - 2026-08-15
+
+- refactor: 公告状态展示映射提取为 `utils/announcement.ts`（可测纯函数），页面引用工具；新增 `announcement.spec.ts` 2 用例（文本/标签类型映射）
+
+**测试方法**：`npm test`（27 用例）+ `npm run build`。
+
 ## [1.4.17] - 2026-08-15（依赖补丁升级）
 
 - deps: element-plus 2.8.4→2.14.4、vue 3.5.12→3.5.41、axios 1.7.7→1.19.0（同代际最终补丁；跳过 vue-router 5/pinia 4/vite 8/typescript 7 等破坏性大版本）

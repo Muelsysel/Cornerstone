@@ -35,8 +35,8 @@
         <el-table-column label="状态" width="100">
           <template #default="{ row }: { row: any }">
             <!-- 状态为后端整数：0草稿 1已发布 2已下线 -->
-            <el-tag :type="statusTagType(row.status)">
-              {{ statusText(row.status) }}
+            <el-tag :type="announcementStatusTagType(row.status)">
+              {{ announcementStatusText(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -119,6 +119,10 @@ import {
   type Announcement,
   type AnnouncementQuery,
 } from '@/api/announcement'
+import {
+  announcementStatusText,
+  announcementStatusTagType,
+} from '@/utils/announcement'
 
 interface AnnouncementForm {
   id?: number
@@ -190,14 +194,7 @@ function handleEdit(row: Announcement) {
   dialogVisible.value = true
 }
 
-// 状态展示映射（后端整数：0草稿 1已发布 2已下线）
-function statusText(status: number | undefined): string {
-  return status === 1 ? '已发布' : status === 2 ? '已下线' : '草稿'
-}
-
-function statusTagType(status: number | undefined): 'success' | 'warning' | 'info' {
-  return status === 1 ? 'success' : status === 2 ? 'warning' : 'info'
-}
+// 状态展示映射已提取到 utils/announcement.ts（announcementStatusText/announcementStatusTagType）
 
 async function handleSubmit() {
   if (!formRef.value) return
