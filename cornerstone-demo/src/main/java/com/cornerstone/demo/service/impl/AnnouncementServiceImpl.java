@@ -51,6 +51,7 @@ public class AnnouncementServiceImpl extends ServiceImpl<AnnouncementMapper, Ann
     @Override
     public Announcement create(Announcement announcement) {
         validateTitle(announcement.getTitle());
+        validateContent(announcement.getContent());
         // 新建即草稿态
         announcement.setStatus(AnnouncementStatus.DRAFT.getCode());
         // 作者自动取自网关透传的当前用户（与审计列一致），避免前端传参伪造
@@ -65,6 +66,7 @@ public class AnnouncementServiceImpl extends ServiceImpl<AnnouncementMapper, Ann
     @Override
     public void update(Announcement announcement) {
         validateTitle(announcement.getTitle());
+        validateContent(announcement.getContent());
         Announcement current = getById(announcement.getId());
         // 业务规则：只有草稿允许编辑内容；已发布/已下线只能走状态流转
         if (!Objects.equals(current.getStatus(), AnnouncementStatus.DRAFT.getCode())) {
@@ -102,6 +104,17 @@ public class AnnouncementServiceImpl extends ServiceImpl<AnnouncementMapper, Ann
     private void validateTitle(String title) {
         if (!StringUtils.hasText(title)) {
             throw new BusinessException(DemoErrorCode.ANNOUNCEMENT_TITLE_REQUIRED);
+        }
+    }
+
+    /**
+     * 内容长度上限（20000 字符）：MySQL TEXT 列字节上限 64KB，UTF-8 中文 3 字节/字—— 20000 字符即使全中文（60000 字节）也低于 65535
+     * 上限，防 DataTruncation → 500。
+     */
+    private void validateContent(String content) {
+        if (content != null && content.length() > 20000) {
+            throw new BusinessException(
+                    com.cornerstone.common.core.ErrorCode.BAD_REQUEST, "公告内容不能超过 20000 字符");
         }
     }
 

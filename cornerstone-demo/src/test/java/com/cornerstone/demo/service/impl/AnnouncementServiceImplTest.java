@@ -80,6 +80,17 @@ class AnnouncementServiceImplTest {
     }
 
     @Test
+    void createRejectsOversizedContent() {
+        // 回归：超长内容曾触发 MySQL DataTruncation → 500；现业务层返回友好 400
+        loginAs("admin");
+        Announcement a = announcement(null, null);
+        a.setTitle("超长内容");
+        a.setContent("x".repeat(20001));
+        assertThatThrownBy(() -> service.create(a)).isInstanceOf(BusinessException.class);
+        verify(mapper, never()).insert(org.mockito.ArgumentMatchers.<Announcement>any());
+    }
+
+    @Test
     void createForcesDraftAndFillsAuthor() {
         loginAs("admin");
         Announcement a = announcement(null, null);
