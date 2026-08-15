@@ -165,6 +165,7 @@ import {
   updateRole,
 } from '@/api/system'
 import type { Dept, Menu, Role, RoleQuery } from '@/types/system'
+import { pageNumAfterDelete } from '@/utils/pagination'
 
 interface RoleForm {
   roleId?: number
@@ -363,6 +364,8 @@ async function handleDelete(row: Role) {
   try {
     await deleteRole(row.roleId)
     ElMessage.success('删除成功')
+    // 删除当前页最后一条时回退一页，避免停留在空页
+    query.pageNum = pageNumAfterDelete(query.pageNum, list.value.length)
     loadData()
   } catch (e) {
     if (e instanceof Error && e.message === 'canceled') return

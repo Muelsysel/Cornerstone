@@ -115,6 +115,7 @@ import { Delete, Refresh, Search } from '@element-plus/icons-vue'
 import { clearOperLog, deleteOperLog, getOperLogPage } from '@/api/system'
 import { businessTypeText } from '@/utils/operlog'
 import type { OperLog, OperLogQuery } from '@/types/system'
+import { pageNumAfterDelete } from '@/utils/pagination'
 
 const loading = ref(false)
 const list = ref<OperLog[]>([])
@@ -174,6 +175,8 @@ async function handleDelete(row: OperLog) {
   try {
     await deleteOperLog(row.operId)
     ElMessage.success('删除成功')
+    // 删除当前页最后一条时回退一页，避免停留在空页
+    query.pageNum = pageNumAfterDelete(query.pageNum, list.value.length)
     loadData()
   } catch (e) {
     if (e instanceof Error && e.message === 'canceled') return

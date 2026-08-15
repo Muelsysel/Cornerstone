@@ -163,6 +163,7 @@ import {
   updateUser,
 } from '@/api/system'
 import type { Role, User, UserQuery } from '@/types/system'
+import { pageNumAfterDelete } from '@/utils/pagination'
 
 interface UserForm {
   userId?: number
@@ -378,6 +379,8 @@ async function handleDelete(row: User) {
   try {
     await deleteUser(row.userId)
     ElMessage.success('删除成功')
+    // 删除当前页最后一条时回退一页，避免停留在空页
+    query.pageNum = pageNumAfterDelete(query.pageNum, list.value.length)
     loadData()
   } catch (e) {
     if (e instanceof Error && e.message === 'canceled') return

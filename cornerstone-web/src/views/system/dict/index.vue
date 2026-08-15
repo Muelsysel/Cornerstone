@@ -188,6 +188,7 @@ import {
   updateDictType,
 } from '@/api/system'
 import type { DictData, DictType, DictTypeQuery } from '@/types/system'
+import { pageNumAfterDelete } from '@/utils/pagination'
 
 // ---------------- 字典类型 ----------------
 const loading = ref(false)
@@ -290,6 +291,8 @@ async function handleDelete(row: DictType) {
   try {
     await deleteDictType(row.dictId)
     ElMessage.success('删除成功')
+    // 删除当前页最后一条时回退一页，避免停留在空页
+    query.pageNum = pageNumAfterDelete(query.pageNum, list.value.length)
     loadData()
   } catch (e) {
     if (e instanceof Error && e.message === 'canceled') return
@@ -395,6 +398,8 @@ async function handleDataDelete(row: DictData) {
   try {
     await deleteDictData(row.dictCode)
     ElMessage.success('删除成功')
+    // 删除当前页最后一条时回退一页，避免停留在空页
+    dataQuery.pageNum = pageNumAfterDelete(dataQuery.pageNum, dataList.value.length)
     loadDataList()
   } catch (e) {
     if (e instanceof Error && e.message === 'canceled') return

@@ -90,6 +90,7 @@ import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'elem
 import { Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { createConfig, deleteConfig, getConfigPage, updateConfig } from '@/api/system'
 import type { Config, ConfigQuery } from '@/types/system'
+import { pageNumAfterDelete } from '@/utils/pagination'
 
 interface ConfigForm {
   configId?: number
@@ -195,6 +196,8 @@ async function handleDelete(row: Config) {
   try {
     await deleteConfig(row.configId)
     ElMessage.success('删除成功')
+    // 删除当前页最后一条时回退一页，避免停留在空页
+    query.pageNum = pageNumAfterDelete(query.pageNum, list.value.length)
     loadData()
   } catch (e) {
     if (e instanceof Error && e.message === 'canceled') return
