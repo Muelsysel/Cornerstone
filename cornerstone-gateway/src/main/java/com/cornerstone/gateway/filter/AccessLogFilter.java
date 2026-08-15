@@ -35,13 +35,20 @@ public class AccessLogFilter implements GlobalFilter, Ordered {
                             ServerHttpResponse response = exchange.getResponse();
                             long cost = System.currentTimeMillis() - start;
                             String ip = clientIp(request);
+                            // 操作人：令牌过滤器写入 exchange 属性（无令牌/白名单请求为 anonymous）
+                            String user =
+                                    String.valueOf(
+                                            exchange.getAttributeOrDefault(
+                                                    TokenAuthGlobalFilter.ATTR_USERNAME,
+                                                    "anonymous"));
                             log.info(
-                                    "[gateway] {} {} -> {} {}ms ip={}",
+                                    "[gateway] {} {} -> {} {}ms ip={} user={}",
                                     request.getMethod(),
                                     request.getPath(),
                                     response.getStatusCode(),
                                     cost,
-                                    ip);
+                                    ip,
+                                    user);
                         });
     }
 

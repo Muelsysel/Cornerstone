@@ -26,6 +26,9 @@ import reactor.core.publisher.Mono;
 @Component
 public class TokenAuthGlobalFilter implements GlobalFilter, Ordered {
 
+    /** 认证用户名（exchange 属性，供 AccessLogFilter 记录操作人） */
+    public static final String ATTR_USERNAME = "cornerstone.auth.username";
+
     /**
      * 白名单前缀：认证、演示服务、Actuator、OpenAPI 文档路径免令牌。
      *
@@ -121,6 +124,9 @@ public class TokenAuthGlobalFilter implements GlobalFilter, Ordered {
 
     /** 把 JWT 声明映射为透传上下文头，构造新请求继续转发（附加内部令牌证明经网关转发） */
     private ServerWebExchange forwardWithHeaders(ServerWebExchange exchange, Jwt jwt) {
+        // 记录认证主体：AccessLogFilter 据此输出操作人（client_credentials 为 client_id）
+        String principal = jwt.getSubject();
+        exchange.getAttributes().put(ATTR_USERNAME, principal != null ? principal : "anonymous");
         ServerHttpRequest mutated =
                 exchange.getRequest()
                         .mutate()

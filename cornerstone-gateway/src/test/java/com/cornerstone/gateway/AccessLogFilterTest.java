@@ -97,4 +97,19 @@ class AccessLogFilterTest {
         // 取 X-Forwarded-For 第一个 IP（真实客户端），而非反代/网关地址
         assertThat(event.getFormattedMessage()).contains("ip=203.0.113.7");
     }
+
+    @Test
+    void logsAuthenticatedUserFromExchangeAttribute() {
+        MockServerWebExchange exchange =
+                MockServerWebExchange.from(
+                        MockServerHttpRequest.method(HttpMethod.GET, "/system/user/list").build());
+        exchange.getResponse().setStatusCode(HttpStatus.OK);
+        // 令牌过滤器写入的属性（正常由 TokenAuthGlobalFilter 设置）
+        exchange.getAttributes()
+                .put(com.cornerstone.gateway.filter.TokenAuthGlobalFilter.ATTR_USERNAME, "admin");
+
+        filter.filter(exchange, passThroughChain()).block();
+
+        assertThat(events().get(0).getFormattedMessage()).contains("user=admin");
+    }
 }
