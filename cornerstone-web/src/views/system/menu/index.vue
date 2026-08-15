@@ -24,7 +24,15 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="icon" label="图标" width="90" />
+        <el-table-column label="图标" width="110">
+          <template #default="{ row }: { row: any }">
+            <span v-if="row.icon" class="icon-cell">
+              <el-icon><component :is="row.icon" /></el-icon>
+              <span class="icon-name">{{ row.icon }}</span>
+            </span>
+            <span v-else class="icon-empty">-</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="path" label="路由路径" min-width="150" />
         <el-table-column prop="perms" label="权限标识" min-width="150" />
         <el-table-column prop="sort" label="排序" width="70" />
@@ -277,5 +285,17 @@ onMounted(loadData)
   display: flex;
   align-items: center;
   gap: 6px;
+}
+.icon-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.icon-name {
+  font-size: 12px;
+  color: var(--cs-text-secondary);
+}
+.icon-empty {
+  color: var(--cs-text-placeholder);
 }
 </style>

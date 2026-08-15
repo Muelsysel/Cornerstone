@@ -26,7 +26,7 @@
         <el-button v-permission="'demo:announcement:edit'" type="primary" :icon="Plus" @click="handleCreate">
           新增公告
         </el-button>
-        <span class="tip">公开查询无需登录；新增/编辑/发布/下线/删除需要登录后的授权。</span>
+        <span class="tip">公告查询接口为公开 API（无需登录即可访问）；本管理页面的新增/编辑/发布/下线/删除需登录并具备编辑权限。</span>
       </div>
 
       <el-table v-loading="loading" :data="list" border stripe>
