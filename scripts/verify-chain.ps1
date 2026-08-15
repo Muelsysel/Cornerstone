@@ -142,11 +142,23 @@ try {
         try { $updCode = ($updResp | ConvertFrom-Json).code } catch {}
         Assert 'Update announcement PUT /{id} 200' $(if ($updCode -eq 200) { 'OK' } else { 'FAIL' }) 'OK'
 
-        # 8. 隐私契约：游客访问草稿详情 -> 业务码非 200（按不存在处理，防草稿/下线泄露）
+        # 7b. 状态机契约：发布（草稿→已发布）→ 下线（已发布→已下线）
+        $pubResp = curl.exe -s --max-time 20 -X POST "http://localhost:8080/demo/announcement/$draftId/publish" `
+            -H "Authorization: Bearer $adminToken"
+        $pubCode = $null
+        try { $pubCode = ($pubResp | ConvertFrom-Json).code } catch {}
+        Assert 'Publish announcement POST /{id}/publish 200' $(if ($pubCode -eq 200) { 'OK' } else { 'FAIL' }) 'OK'
+        $offResp = curl.exe -s --max-time 20 -X POST "http://localhost:8080/demo/announcement/$draftId/offline" `
+            -H "Authorization: Bearer $adminToken"
+        $offCode = $null
+        try { $offCode = ($offResp | ConvertFrom-Json).code } catch {}
+        Assert 'Offline announcement POST /{id}/offline 200' $(if ($offCode -eq 200) { 'OK' } else { 'FAIL' }) 'OK'
+
+        # 8. 隐私契约：游客访问非已发布（草稿/已下线）详情 -> 业务码非 200（按不存在处理，防泄露）
         $guestDetail = curl.exe -s --max-time 20 "http://localhost:8080/demo/announcement/$draftId"
         $guestCode = $null
         try { $guestCode = ($guestDetail | ConvertFrom-Json).code } catch {}
-        Assert 'Guest cannot read draft detail (code != 200)' $(if ($guestCode -ne 200) { 'OK' } else { 'FAIL' }) 'OK'
+        Assert 'Guest cannot read non-published detail (code != 200)' $(if ($guestCode -ne 200) { 'OK' } else { 'FAIL' }) 'OK'
 
         # 清理临时草稿
         curl.exe -s -o NUL --max-time 20 -X DELETE "http://localhost:8080/demo/announcement/$draftId" `
@@ -156,13 +168,17 @@ try {
     }
 
     # 9. IDOR：普通用户无权查看他人资料（曾可越权传任意 userId 查他人信息）
-    Write-JsonBody '{"username":"test","password":"admin123"}'
-    $testLogin = curl.exe -s --max-time 20 -X POST 'http://localhost:8080/auth/login' `
-        -H 'Content-Type: application/json' --data-binary "@$tmpJson"
+    #     重试一次：本机 Windows curl 偶发 stdout 捕获异常（连接建立但输出丢失），重试可消除偶发假失败
     $testToken = $null
-    try { $testToken = ($testLogin | ConvertFrom-Json).data.access_token } catch {}
+    for ($attempt = 1; $attempt -le 2 -and -not $testToken; $attempt++) {
+        Write-JsonBody '{"username":"test","password":"admin123"}'
+        $testLogin = curl.exe -s --max-time 20 -X POST 'http://localhost:8080/auth/login' `
+            -H 'Content-Type: application/json' --data-binary "@$tmpJson"
+        try { $testToken = ($testLogin | ConvertFrom-Json).data.access_token } catch {}
+        if (-not $testToken -and $attempt -lt 2) { Start-Sleep -Seconds 1 }
+    }
     if ($testToken) {
-        # 重试一次：本机 Windows curl 偶发 stdout 捕获异常（连接建立但输出丢失），重试可消除偶发假失败
+        # IDOR 请求同样重试
         $infoCode = $null
         for ($attempt = 1; $attempt -le 2 -and $infoCode -ne 403; $attempt++) {
             $infoResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $testToken" `
