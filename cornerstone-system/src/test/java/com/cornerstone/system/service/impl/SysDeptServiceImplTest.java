@@ -78,6 +78,18 @@ class SysDeptServiceImplTest {
     }
 
     @Test
+    void addRejectsOversizedDeptName() {
+        // 回归：超长部门名曾触发 DB varchar(50) DataTruncation → 500；现业务层返回友好 400
+        SysDept d = dept(null, 0L, "n".repeat(51), null, 1);
+
+        assertThatThrownBy(() -> service.add(d)).isInstanceOf(BusinessException.class);
+        verify(deptMapper, never())
+                .insert(
+                        org.mockito.ArgumentMatchers
+                                .<com.cornerstone.system.domain.entity.SysDept>any());
+    }
+
+    @Test
     void addUnderParentResolvesAncestorsChain() {
         SysDept parent = dept(5L, 1L, "研发部", "0,1", 1);
         SysDept d = dept(null, 5L, "测试组", null, 1);

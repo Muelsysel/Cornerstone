@@ -47,6 +47,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
     @Transactional(rollbackFor = Exception.class)
     public SysUser add(SysUser user) {
         validateUsernameLength(user.getUsername());
+        validateNicknameLength(user.getNickname());
         long exists =
                 this.count(
                         new LambdaQueryWrapper<SysUser>()
@@ -78,6 +79,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
         if (hasText(user.getUsername())) {
             validateUsernameLength(user.getUsername());
         }
+        validateNicknameLength(user.getNickname());
         if (hasText(user.getUsername()) && !user.getUsername().equals(exist.getUsername())) {
             long exists =
                     this.count(
@@ -166,6 +168,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
         if (username != null && username.length() > 30) {
             throw new BusinessException(
                     com.cornerstone.common.core.ErrorCode.BAD_REQUEST, "用户名长度不能超过 30 个字符");
+        }
+    }
+
+    /** 昵称长度上限（与 DB varchar(30) 一致）：防 DataTruncation → 500。 */
+    private void validateNicknameLength(String nickname) {
+        if (nickname != null && nickname.length() > 30) {
+            throw new BusinessException(
+                    com.cornerstone.common.core.ErrorCode.BAD_REQUEST, "昵称长度不能超过 30 个字符");
         }
     }
 

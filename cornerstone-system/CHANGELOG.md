@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.36] - 2026-08-16
+
+- fix(bug): 部门名加长度校验（≤50，与 DB varchar(50) 一致）——超长曾触发 DataTruncation → 500；现返回友好 400；`SysDeptServiceImplTest` 新增 `addRejectsOversizedDeptName`；用户昵称同步补长度校验（≤30）
+
+**测试方法**：`mvn test -pl cornerstone-system`（130 用例）。
+
 ## [1.2.35] - 2026-08-16
 
 - fix(bug): 角色名称/标识加长度校验（roleName ≤30、roleKey ≤50，与 DB 列一致）——超长曾触发 DataTruncation → 500；现返回友好 400；`SysRoleServiceImplTest` 新增 `addRejectsOversizedRoleName`

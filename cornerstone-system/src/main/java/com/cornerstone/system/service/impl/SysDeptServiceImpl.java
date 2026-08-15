@@ -37,6 +37,7 @@ public class SysDeptServiceImpl implements SysDeptService {
 
     @Override
     public SysDept add(SysDept dept) {
+        validateDeptNameLength(dept.getDeptName());
         if (dept.getParentId() == null) {
             dept.setParentId(0L);
         }
@@ -51,6 +52,7 @@ public class SysDeptServiceImpl implements SysDeptService {
         if (exist == null) {
             throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
         }
+        validateDeptNameLength(dept.getDeptName());
         // 父节点不能选自己或自身子节点（选子节点会形成环：A→B→C→A）
         Long newParent = dept.getParentId();
         if (Objects.equals(newParent, dept.getId())
@@ -140,5 +142,13 @@ public class SysDeptServiceImpl implements SysDeptService {
 
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    /** 部门名长度上限（与 DB varchar(50) 一致）：防 DataTruncation → 500。 */
+    private void validateDeptNameLength(String deptName) {
+        if (deptName != null && deptName.length() > 50) {
+            throw new BusinessException(
+                    com.cornerstone.common.core.ErrorCode.BAD_REQUEST, "部门名称不能超过 50 个字符");
+        }
     }
 }
