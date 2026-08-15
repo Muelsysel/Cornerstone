@@ -28,13 +28,14 @@ Java 17 · Spring Boot 3.2 · Spring Cloud 2023.0 · Spring Cloud Alibaba (Nacos
 | `cornerstone-demo` | 服务 | 公告管理——**新模块活模板** |
 | `cornerstone-web` | 前端 | 管理后台（Vue3 + Vite + Element Plus；非 Maven 模块，见 ADR-0005） |
 
-## 已实现能力（v1–v3）
+## 已实现能力（v1–v4）
 
 - **认证**：client_credentials（服务间）+ 用户名密码登录（admin/admin123）+ JWT（RS256，携带角色与权限）
-- **权限**：RBAC（菜单-按钮权限点）+ 部门数据权限（全部/自定义/本部门及以下/本部门/仅本人）+ 前端 v-permission/路由守卫
-- **审计**：操作日志（@OperLog AOP）+ 登录日志（成功/失败自动记录）
-- **治理**：服务间内部令牌认证（ADR-0007）、actuator 健康检查、网关 Redis 限流、CI（编译/测试/Spotless/文档校验）
-- **文档约束**：AGENTS.md（黄金法则 + 八荣八耻）、CONTEXT-MAP、6+ 条 ADR、项目技能 `skills/cornerstone-dev`
+- **权限**：RBAC（菜单-按钮权限点，前端角色分配权限树）+ 部门数据权限（全部/自定义/本部门及以下/本部门/仅本人）+ 前端 v-permission/路由守卫
+- **用户自助**：个人中心（个人信息 + 修改密码，旧密码验证）
+- **审计**：操作日志（@OperLog AOP + 详情查看）+ 登录日志（成功/失败自动记录）
+- **治理**：服务间内部令牌认证（ADR-0007）、actuator 健康检查、网关 Redis 限流、网关访问日志、CI（编译/测试/Spotless/文档校验）
+- **文档约束**：AGENTS.md（黄金法则 + 八荣八耻）、CONTEXT-MAP、7 条 ADR、项目技能 `skills/cornerstone-dev`
 
 ## 快速开始
 
