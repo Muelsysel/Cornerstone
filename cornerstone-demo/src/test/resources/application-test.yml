@@ -16,6 +16,8 @@ spring:
 
 # 测试隔离：用测试密钥对，与主配置（生产公钥）解耦
 cornerstone:
+  # 与主配置一致：UserContextFilter 采信透传头需有效内部令牌（防直连伪造）
+  internal-token: cornerstone-internal-secret
   security:
     public-key: |
       -----BEGIN PUBLIC KEY-----

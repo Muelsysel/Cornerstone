@@ -5,3 +5,7 @@ spring:
       discovery:
         enabled: false
         register-enabled: false
+
+# 与主配置一致：Feign 附加/UserContextFilter 校验用内部令牌
+cornerstone:
+  internal-token: cornerstone-internal-secret
