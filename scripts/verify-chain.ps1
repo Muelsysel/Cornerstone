@@ -331,6 +331,22 @@ try {
     # 锁定后响应（消息含"锁定"）与普通密码错误响应必须不同
     Assert 'Login lockout after 5 fails' $(if ($firstResp -and $sixthResp -and $firstResp -ne $sixthResp) { 'OK' } else { 'FAIL' }) 'OK'
 
+    # 10b. 网关登录限流契约：连续快速请求触发 429（回归：曾因 RedisRateLimiter 缺脚本注入完全失效——全 200）
+    #     登录限流 5/s + 突发 10：快速连发 20 次应出现 429
+    $rlUser = "verify-rl-$ts"
+    $rl429 = $false
+    for ($i = 1; $i -le 20; $i++) {
+        Write-JsonBody "{`"username`":`"$rlUser`",`"password`":`"wrong`"}"
+        $rlCode = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 -X POST 'http://localhost:8080/auth/login' `
+            -H 'Content-Type: application/json' --data-binary "@$tmpJson"
+        if ($rlCode -eq '429') { $rl429 = $true; break }
+        # 极小间隔打满令牌桶
+        Start-Sleep -Milliseconds 50
+    }
+    Assert 'Gateway login rate limit (429 on burst)' $(if ($rl429) { 'OK' } else { 'FAIL' }) 'OK'
+    # 限流测试后等待令牌桶恢复，避免影响后续登录
+    Start-Sleep -Seconds 3
+
     # 11. 数据权限（ADR-0006）：test 角色仅本人范围，分页只能看到自己
     $dsPage = curl.exe -s --max-time 20 -H "Authorization: Bearer $testToken" `
         'http://localhost:8080/system/user/page?pageNum=1&pageSize=50'
