@@ -21,6 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class SysDictServiceImpl implements SysDictService {
 
+    /** 字典数据缓存 TTL：服务层失效路径之外的兜底，防缓存永久陈旧 */
+    private static final java.time.Duration DICT_CACHE_TTL = java.time.Duration.ofHours(1);
+
     private final SysDictTypeMapper typeMapper;
     private final SysDictDataMapper dataMapper;
     private final JsonCache jsonCache;
@@ -122,7 +125,8 @@ public class SysDictServiceImpl implements SysDictService {
                                 // 确定性排序：sort 可重复，按 id 升序兜底
                                 .orderByAsc(SysDictData::getDictSort)
                                 .orderByAsc(SysDictData::getId));
-        jsonCache.setList(key, data);
+        // TTL 兜底：服务层失效路径之外的防陈旧（DB 直改/跨实例遗漏）
+        jsonCache.setList(key, data, DICT_CACHE_TTL);
         return data;
     }
 

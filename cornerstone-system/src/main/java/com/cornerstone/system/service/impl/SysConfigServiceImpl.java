@@ -40,6 +40,9 @@ public class SysConfigServiceImpl implements SysConfigService {
         return page;
     }
 
+    /** 参数值缓存 TTL：服务层失效路径之外的兜底，防 DB 直改/跨实例遗漏时缓存永久陈旧 */
+    private static final java.time.Duration CONFIG_CACHE_TTL = java.time.Duration.ofHours(1);
+
     @Override
     public String getValueByKey(String configKey) {
         String cacheKey = String.format(CacheConstants.CONFIG_KEY, configKey);
@@ -52,7 +55,7 @@ public class SysConfigServiceImpl implements SysConfigService {
                         new LambdaQueryWrapper<SysConfig>().eq(SysConfig::getConfigKey, configKey));
         String value = config != null ? config.getConfigValue() : null;
         if (value != null) {
-            jsonCache.setString(cacheKey, value);
+            jsonCache.setString(cacheKey, value, CONFIG_CACHE_TTL);
         }
         return value;
     }
@@ -78,7 +81,8 @@ public class SysConfigServiceImpl implements SysConfigService {
         if (config.getConfigValue() != null) {
             jsonCache.setString(
                     String.format(CacheConstants.CONFIG_KEY, config.getConfigKey()),
-                    config.getConfigValue());
+                    config.getConfigValue(),
+                    CONFIG_CACHE_TTL);
         }
         return config;
     }
@@ -112,7 +116,8 @@ public class SysConfigServiceImpl implements SysConfigService {
         if (config.getConfigKey() != null && config.getConfigValue() != null) {
             jsonCache.setString(
                     String.format(CacheConstants.CONFIG_KEY, config.getConfigKey()),
-                    config.getConfigValue());
+                    config.getConfigValue(),
+                    CONFIG_CACHE_TTL);
         }
         return configMapper.selectById(config.getId());
     }

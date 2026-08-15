@@ -67,7 +67,7 @@ class SysDictServiceImplTest {
         List<SysDictData> result = service.listData("gender");
 
         assertThat(result).hasSize(1);
-        verify(jsonCache).setList(eq(dictKey("gender")), any());
+        verify(jsonCache).setList(eq(dictKey("gender")), any(), any(java.time.Duration.class));
     }
 
     @Test

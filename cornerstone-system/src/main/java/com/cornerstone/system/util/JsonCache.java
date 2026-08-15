@@ -38,8 +38,17 @@ public class JsonCache {
 
     /** 写入对象列表，异常静默降级 */
     public void setList(String key, List<?> value) {
+        setList(key, value, null);
+    }
+
+    /** 写入对象列表（带 TTL，防服务层失效路径遗漏时缓存永久陈旧），异常静默降级 */
+    public void setList(String key, List<?> value, java.time.Duration ttl) {
         try {
-            redis.opsForValue().set(key, objectMapper.writeValueAsString(value));
+            if (ttl != null) {
+                redis.opsForValue().set(key, objectMapper.writeValueAsString(value), ttl);
+            } else {
+                redis.opsForValue().set(key, objectMapper.writeValueAsString(value));
+            }
         } catch (Exception e) {
             log.warn("Redis 写入缓存失败 key={}", key);
         }
@@ -57,8 +66,17 @@ public class JsonCache {
 
     /** 写入字符串，异常静默降级 */
     public void setString(String key, String value) {
+        setString(key, value, null);
+    }
+
+    /** 写入字符串（带 TTL），异常静默降级 */
+    public void setString(String key, String value, java.time.Duration ttl) {
         try {
-            redis.opsForValue().set(key, value);
+            if (ttl != null) {
+                redis.opsForValue().set(key, value, ttl);
+            } else {
+                redis.opsForValue().set(key, value);
+            }
         } catch (Exception e) {
             log.warn("Redis 写入缓存失败 key={}", key);
         }

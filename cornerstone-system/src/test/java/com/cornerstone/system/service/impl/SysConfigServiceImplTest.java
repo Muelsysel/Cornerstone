@@ -49,7 +49,7 @@ class SysConfigServiceImplTest {
         when(configMapper.selectOne(any())).thenReturn(config(1L, "a", "db"));
 
         assertThat(service.getValueByKey("a")).isEqualTo("db");
-        verify(jsonCache).setString(key("a"), "db");
+        verify(jsonCache).setString(eq(key("a")), eq("db"), any(java.time.Duration.class));
     }
 
     @Test
@@ -58,7 +58,7 @@ class SysConfigServiceImplTest {
         when(configMapper.selectOne(any())).thenReturn(null);
 
         assertThat(service.getValueByKey("a")).isNull();
-        verify(jsonCache, never()).setString(anyString(), anyString());
+        verify(jsonCache, never()).setString(anyString(), anyString(), any());
     }
 
     @Test
@@ -72,7 +72,7 @@ class SysConfigServiceImplTest {
 
         // 旧 key 缓存必须清除（key 可能被修改）
         verify(jsonCache).evict(key("old"));
-        verify(jsonCache).setString(key("new"), "v2");
+        verify(jsonCache).setString(eq(key("new")), eq("v2"), any(java.time.Duration.class));
     }
 
     @Test
@@ -108,10 +108,10 @@ class SysConfigServiceImplTest {
     void addWritesCacheOnlyForNonNullValue() {
         when(configMapper.selectCount(any())).thenReturn(0L);
         service.add(config(null, "a", "v"));
-        verify(jsonCache).setString(key("a"), "v");
+        verify(jsonCache).setString(eq(key("a")), eq("v"), any(java.time.Duration.class));
 
         service.add(config(null, "b", null));
-        verify(jsonCache, never()).setString(eq(key("b")), anyString());
+        verify(jsonCache, never()).setString(eq(key("b")), anyString(), any());
     }
 
     @Test

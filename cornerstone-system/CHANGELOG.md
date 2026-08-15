@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.45] - 2026-08-16
+
+- fix(data): 参数/字典缓存加 **TTL（1 小时）**——`JsonCache` 新增带 TTL 写入（`setString`/`setList` 重载）；服务层失效路径之外的兜底，防 DB 直改/跨实例遗漏时缓存永久陈旧
+
+**测试方法**：`mvn test -pl cornerstone-system`（157 用例）。
+
 ## [1.2.44] - 2026-08-16
 
 - fix(security): 参数值查询接口 `GET /system/config/value/{configKey}` 权限收紧——`isAuthenticated()` → `system:config:list`（任意登录者含 client_credentials 此前可读任意参数值，如默认初始密码）
