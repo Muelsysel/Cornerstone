@@ -79,7 +79,14 @@
           <el-input v-model="form.perms" placeholder="如：system:user:list" />
         </el-form-item>
         <el-form-item label="图标" prop="icon">
-          <el-input v-model="form.icon" placeholder="图标名称" />
+          <el-select v-model="form.icon" filterable clearable placeholder="选择或输入图标名" style="width: 100%">
+            <el-option v-for="name in iconOptions" :key="name" :label="name" :value="name">
+              <span class="icon-option">
+                <el-icon><component :is="name" /></el-icon>
+                <span>{{ name }}</span>
+              </span>
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="排序" prop="sort">
           <el-input-number v-model="form.sort" :min="0" :max="999" />
@@ -114,6 +121,35 @@ interface MenuForm {
 
 const loading = ref(false)
 const submitting = ref(false)
+
+// 常用菜单图标（@element-plus/icons-vue 全局注册，可搜索选择避免手填出错）
+const iconOptions = [
+  'HomeFilled',
+  'User',
+  'Avatar',
+  'Menu',
+  'OfficeBuilding',
+  'Collection',
+  'Setting',
+  'Document',
+  'Finished',
+  'Bell',
+  'Key',
+  'Lock',
+  'Filter',
+  'Platform',
+  'Folder',
+  'FolderOpened',
+  'Files',
+  'DataAnalysis',
+  'Monitor',
+  'Cpu',
+  'Message',
+  'Star',
+  'Link',
+  'CircleCheck',
+  'Warning',
+]
 const tree = ref<Menu[]>([])
 const dialogVisible = ref(false)
 const isEdit = ref(false)
@@ -236,5 +272,10 @@ onMounted(loadData)
 <style scoped>
 .table-toolbar {
   margin-bottom: 12px;
+}
+.icon-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 </style>
