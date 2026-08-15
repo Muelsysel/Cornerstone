@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.1.2] - 2026-08-15
+
+- test: `AuthUserSupportServiceTest`（认证核心组装：用户不存在/角色权限组装/空角色/菜单 perms 与状态过滤）
+
+**测试方法**：`mvn test -pl cornerstone-system`（CornerstoneDataPermissionHandlerTest / SysAuthUserControllerTest / SystemSecurityTest / SystemExtensionTest / DataScopeServiceTest / OperLogAspectTest / AuthUserSupportServiceTest）。
+
 ## [1.1.1] - 2026-08-15
 
 - fix: 参数缓存一致性——`SysConfigServiceImpl.update` 先清旧 key 缓存再写新值（configKey 可变更），null 值不写缓存（避免读到过期旧值）

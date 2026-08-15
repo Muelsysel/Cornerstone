@@ -23,6 +23,10 @@ public class AccessLogFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        // 健康检查/探针高频请求不入访问日志（避免噪音刷屏）；其余请求正常记录
+        if (exchange.getRequest().getPath().value().startsWith("/actuator")) {
+            return chain.filter(exchange);
+        }
         long start = System.currentTimeMillis();
         return chain.filter(exchange)
                 .doFinally(
