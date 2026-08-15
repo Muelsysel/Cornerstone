@@ -55,6 +55,7 @@ public class SysUserController {
     /** 按 ID 查询用户基础信息：SystemUserClient 契约 */
     @Operation(summary = "查询用户基础信息", description = "实现 cornerstone-api SystemUserClient 契约")
     @GetMapping("/{userId}")
+    @PreAuthorize("hasAuthority('system:user:list')")
     public Result<UserDTO> getById(@PathVariable(name = "userId") Long userId) {
         SysUser user = userService.getById(userId);
         if (user == null) {

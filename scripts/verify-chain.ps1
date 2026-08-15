@@ -112,6 +112,16 @@ try {
     }
     Assert 'Client credentials isolated from admin API (403)' $ccOk 'OK'
 
+    # 1d. 用户信息接口权限：client_credentials 查任意用户基础信息（/system/user/{id} 契约端点）必须 403
+    #     （回归：该端点曾无 @PreAuthorize，任意登录者/服务身份可枚举他人用户名/昵称/部门）
+    $ccIdOk = 'FAIL'
+    if ($ccToken) {
+        $ccIdCode = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 `
+            -H "Authorization: Bearer $ccToken" 'http://localhost:8080/system/user/1'
+        if ($ccIdCode -eq '403') { $ccIdOk = 'OK' }
+    }
+    Assert 'Client credentials cannot read user by id (403)' $ccIdOk 'OK'
+
     # 2. Public endpoint without token -> 200
     $pageUrl = 'http://localhost:8080/demo/announcement/page?pageNum=1&pageSize=10'
     $code = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 $pageUrl
@@ -158,8 +168,9 @@ try {
     $code = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 'http://localhost:8080/system/user/1'
     Assert 'Protected no token 401' $code '401'
 
-    # 4. Protected endpoint with token -> 200
-    $code = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 -H "Authorization: Bearer $token" 'http://localhost:8080/system/user/1'
+    # 4. Protected endpoint with admin token -> 200（用户信息接口需 system:user:list；
+    #     client_credentials 令牌对该端点的 403 已由 1d 断言覆盖）
+    $code = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 -H "Authorization: Bearer $adminToken" 'http://localhost:8080/system/user/1'
     Assert 'Protected with token 200' $code '200'
 
     # 5. Invalid token -> 401

@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.46] - 2026-08-16
+
+- fix(security): `GET /system/user/{userId}` 补 `system:user:list` 权限——该端点实现 SystemUserClient 契约，曾无 @PreAuthorize，任意登录者（含 client_credentials 服务身份）可枚举任意用户用户名/昵称/部门 ID
+
+**测试方法**：`mvn test -pl cornerstone-system`（157 用例）。
+
 ## [1.2.45] - 2026-08-16
 
 - fix(data): 参数/字典缓存加 **TTL（1 小时）**——`JsonCache` 新增带 TTL 写入（`setString`/`setList` 重载）；服务层失效路径之外的兜底，防 DB 直改/跨实例遗漏时缓存永久陈旧
