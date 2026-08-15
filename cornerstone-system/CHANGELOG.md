@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.2] - 2026-08-15
+
+- test: `SysMenuServiceImplTest` 9 用例（树组装/过滤/增删改校验/子菜单删除保护）、`SysDeptServiceImplTest` 8 用例（树组装/ancestors 解析/父节点非法校验/子部门删除保护）、`SysLoginLogServiceImplTest` 5 用例（状态映射/分页条件/删除清空）、`SysOperLogServiceImplTest` 5 用例（记录/分页/删除清空）
+
+**测试方法**：`mvn test -pl cornerstone-system`（含上述 27 个新增服务用例）。
+
 ## [1.2.1] - 2026-08-15
 
 - test: `InternalTokenFilterTest` 4 用例（内部令牌正确放行/错误 401/缺失 401/非内部路径放行——安全逻辑回归）
