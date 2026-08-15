@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.5] - 2026-08-15
+
+- test: `SysRoleServiceImplTest` 扩至 10 用例（新增 update 自定义数据范围重建 dept 关联、update 全局范围清空 dept 关联）
+
+**测试方法**：`mvn test -pl cornerstone-system`（含 SysRoleServiceImplTest 10 用例）。
+
 ## [1.2.4] - 2026-08-15
 
 - test: `SysUserServiceImplTest` 扩至 11 用例（新增 update 缺人拒绝/带密码编码/无密码保留原哈希、changeStatus 只补状态、resetPassword 编码更新）

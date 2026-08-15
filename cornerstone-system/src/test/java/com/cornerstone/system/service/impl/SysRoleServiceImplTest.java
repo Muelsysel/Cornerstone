@@ -91,6 +91,34 @@ class SysRoleServiceImplTest {
     }
 
     @Test
+    void updateWithCustomScopeRebuildsDepts() {
+        when(service.getById(7L)).thenReturn(role(7L, "op", "1"));
+        when(service.updateById(any())).thenReturn(true);
+        when(service.getById(7L)).thenReturn(role(7L, "op", "2"));
+        SysRole r = role(7L, "op", "2");
+        r.setDeptIds(List.of(30L, 40L));
+
+        service.update(r);
+
+        verify(roleDeptMapper).deleteByRoleId(7L);
+        verify(roleDeptMapper).batchInsert(7L, List.of(30L, 40L));
+    }
+
+    @Test
+    void updateWithGlobalScopeClearsDepts() {
+        when(service.getById(8L)).thenReturn(role(8L, "all", "2"));
+        when(service.updateById(any())).thenReturn(true);
+        when(service.getById(8L)).thenReturn(role(8L, "all", "1"));
+        SysRole r = role(8L, "all", "1");
+        r.setDeptIds(List.of(30L));
+
+        service.update(r);
+
+        verify(roleDeptMapper).deleteByRoleId(8L);
+        verify(roleDeptMapper, never()).batchInsert(eq(8L), any());
+    }
+
+    @Test
     void deleteRejectsBuiltinAdminRole() {
         assertThatThrownBy(() -> service.delete(1L)).isInstanceOf(BusinessException.class);
     }
