@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.0.11] - 2026-08-15
+
+- docs: CONTEXT.md 同步白名单常量拆分（PUBLIC_GET_PATHS/PUBLIC_OTHER_PATHS）与仅 GET 公开语义
+
+**测试方法**：`mvn test -pl cornerstone-demo`（23 用例）。
+
 ## [1.0.10] - 2026-08-15
 
 - test: `AnnouncementControllerTest` 补发布/下线契约用例（POST /{id}/publish、POST /{id}/offline 带权 200；@Transactional 回滚防污染共享种子数据）

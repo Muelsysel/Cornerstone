@@ -51,7 +51,7 @@ controller → service(业务规则) → mapper(MyBatis-Plus) → announcement �
 - **分页**：MyBatis-Plus `Page` + `PaginationInnerInterceptor(MYSQL)`（`config/MybatisPlusConfig`）。
 - **状态流转规则**集中在 `AnnouncementServiceImpl`：
   - 新增即 `草稿`；仅 `草稿` 可编辑；`草稿→已发布`；`已发布→已下线`；非法流转抛 `BusinessException(ANNOUNCEMENT_STATUS_ILLEGAL)`。
-- **权限**：`SecurityConfig` 配置公开白名单（公告查询 / Springdoc / **Actuator**）+ 资源服务器校验；`@PreAuthorize("hasAuthority('demo:announcement:edit')")`。
+- **权限**：`SecurityConfig` 配置公开白名单（公告查询仅 GET / Springdoc / **Actuator**）+ 资源服务器校验；`@PreAuthorize("hasAuthority('demo:announcement:edit')")`。
 - **安全异常映射**：`config/ResourceServerExceptionAdvice` 将方法级无权限改为 HTTP 403（避免被 common 兜底吞成 200）。
 - **审计**：`config/MyMetaObjectHandler` 实现 `MetaObjectHandler`，取当前用户上下文，匿名回退 `system`。
 
@@ -78,7 +78,7 @@ controller → service(业务规则) → mapper(MyBatis-Plus) → announcement �
    - 实体继承 MyBatis-Plus 注解（`@TableId`/`@TableName`/`@TableLogic`/`@TableField(fill=...)`）。
    - 自定义错误码枚举：实现 `com.cornerstone.common.core.IErrorCode`，从 **1000 起** 编号，避免与内置码冲突。
    - 服务抽象业务规则，非法状态抛 `BusinessException`。
-   - 公开接口在 `SecurityConfig.PUBLIC_PATHS` 白名单加路径；受保护接口加 `@PreAuthorize`。
+   - 公开接口在 `SecurityConfig.PUBLIC_GET_PATHS`（仅 GET 读接口）或 `PUBLIC_OTHER_PATHS`（文档/Actuator）白名单加路径；受保护接口加 `@PreAuthorize`——写操作只允许 GET 之外的方法在 URL 层即要求认证。
    - 统一返回 `Result<T>`，禁止另起炉灶。
 6. **写 CONTEXT.md**：照本节结构写清「职责 / 边界 / 不做的事 / 词汇表」；新模块的领域术语必须入库级词汇表。
 7. **过 ADR 门槛**：新增模块 = 一次难逆决策，记录 `docs/adr/` 决策 + 更新根 `CONTEXT-MAP.md` 模块地图。
