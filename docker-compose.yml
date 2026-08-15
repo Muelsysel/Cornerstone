@@ -70,6 +70,13 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - cornerstone-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
 volumes:
   cornerstone-mysql-data:
