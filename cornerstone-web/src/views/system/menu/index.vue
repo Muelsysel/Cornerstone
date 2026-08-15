@@ -75,7 +75,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="菜单名称" prop="menuName">
-          <el-input v-model="form.menuName" placeholder="菜单显示名称" />
+          <el-input v-model="form.menuName" maxlength="50" placeholder="菜单显示名称" />
         </el-form-item>
         <el-form-item label="路由路径" prop="path">
           <el-input v-model="form.path" placeholder="如：system/user" />

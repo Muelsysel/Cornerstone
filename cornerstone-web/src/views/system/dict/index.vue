@@ -71,7 +71,7 @@
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-width="90px">
         <el-form-item label="字典名称" prop="dictName">
-          <el-input v-model="form.dictName" placeholder="字典名称" />
+          <el-input v-model="form.dictName" maxlength="100" placeholder="字典名称" />
         </el-form-item>
         <el-form-item label="字典类型" prop="dictType">
           <el-input v-model="form.dictType" :disabled="isEdit" placeholder="如：sys_normal_disable" />
@@ -147,7 +147,7 @@
           <el-input :model-value="currentDictType" disabled />
         </el-form-item>
         <el-form-item label="标签" prop="dictLabel">
-          <el-input v-model="dataForm.dictLabel" placeholder="显示标签" />
+          <el-input v-model="dataForm.dictLabel" maxlength="100" placeholder="显示标签" />
         </el-form-item>
         <el-form-item label="键值" prop="dictValue">
           <el-input v-model="dataForm.dictValue" placeholder="存储键值" />

@@ -64,13 +64,13 @@
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-width="90px">
         <el-form-item label="参数名称" prop="configName">
-          <el-input v-model="form.configName" placeholder="参数名称" />
+          <el-input v-model="form.configName" maxlength="100" placeholder="参数名称" />
         </el-form-item>
         <el-form-item label="参数键名" prop="configKey">
-          <el-input v-model="form.configKey" :disabled="isEdit" placeholder="如：sys.user.initPassword" />
+          <el-input v-model="form.configKey" :disabled="isEdit" maxlength="100" placeholder="如：sys.user.initPassword" />
         </el-form-item>
         <el-form-item label="参数键值" prop="configValue">
-          <el-input v-model="form.configValue" placeholder="参数键值" />
+          <el-input v-model="form.configValue" maxlength="500" placeholder="参数键值" />
         </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="form.remark" type="textarea" :rows="2" placeholder="备注" />
