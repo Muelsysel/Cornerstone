@@ -89,6 +89,10 @@ function go(path: string) {
 }
 .card {
   text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-2px);
 }
 .card-icon {
   color: var(--cs-primary);
