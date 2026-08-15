@@ -36,6 +36,13 @@
         <el-table-column prop="path" label="路由路径" min-width="150" />
         <el-table-column prop="perms" label="权限标识" min-width="150" />
         <el-table-column prop="sort" label="排序" width="70" />
+        <el-table-column label="状态" width="90">
+          <template #default="{ row }: { row: any }">
+            <el-tag :type="row.status === '1' ? 'info' : 'success'">
+              {{ row.status === '1' ? '停用' : '正常' }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }: { row: any }">
             <el-button v-permission="'system:menu:add'" link type="primary" @click="handleCreate(row)">新增</el-button>
