@@ -72,6 +72,17 @@ class SysLoginLogServiceImplTest {
     }
 
     @Test
+    void recordTruncatesOversizedUsername() {
+        // 回归：登录接口允许 64 字符用户名，日志列 varchar(50)——超长会 DataTruncation → 审计记录丢失
+        doReturn(true).when(service).save(any(SysLoginLog.class));
+        String longName = "u".repeat(64);
+
+        service.record(longName, "127.0.0.1", false, "用户名或密码错误");
+
+        verify(service).save(argThat(log -> log.getUsername().length() == 50));
+    }
+
+    @Test
     void pagePassesConditions() {
         doReturn(new Page<SysLoginLog>()).when(service).page(any(), any());
 

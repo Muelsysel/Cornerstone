@@ -17,12 +17,21 @@ public class SysLoginLogServiceImpl extends ServiceImpl<SysLoginLogMapper, SysLo
     @Override
     public void record(String username, String ipaddr, boolean success, String msg) {
         SysLoginLog log = new SysLoginLog();
-        log.setUsername(username);
-        log.setIpaddr(ipaddr);
+        // 截断到 DB 列上限：登录接口允许 64 字符用户名（Redis key 安全），日志列 varchar(50)——
+        // 超长会 DataTruncation → 审计记录丢失（登录不阻塞但审计断档）
+        log.setUsername(truncate(username, 50));
+        log.setIpaddr(truncate(ipaddr, 128));
         log.setStatus(success ? "0" : "1");
-        log.setMsg(msg);
+        log.setMsg(truncate(msg, 255));
         log.setLoginTime(LocalDateTime.now());
         this.save(log);
+    }
+
+    private String truncate(String value, int max) {
+        if (value == null || value.length() <= max) {
+            return value;
+        }
+        return value.substring(0, max);
     }
 
     @Override
