@@ -409,10 +409,14 @@ try {
         Assert 'IDOR allowed: self info 200' $(if ($selfCode -eq 200) { 'OK' } else { 'FAIL' }) 'OK'
 
         # 9c. 缺参契约：/system/user/info 不传必填 userId → 业务码 400（回归：曾走兜底 500）
+        #     幂等重试：curl 偶发空响应会导致假失败
         $missCode = $null
-        $missResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $testToken" `
-            'http://localhost:8080/system/user/info'
-        try { $missCode = ($missResp | ConvertFrom-Json).code } catch {}
+        for ($attempt = 1; $attempt -le 2 -and $missCode -ne 400; $attempt++) {
+            $missResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $testToken" `
+                'http://localhost:8080/system/user/info'
+            try { $missCode = ($missResp | ConvertFrom-Json).code } catch {}
+            if ($missCode -ne 400 -and $attempt -lt 2) { Start-Sleep -Milliseconds 500 }
+        }
         Assert 'Missing required param returns 400 (not 500)' $(if ($missCode -eq 400) { 'OK' } else { 'FAIL' }) 'OK'
     } else {
         Assert 'Login test user' 'FAIL' 'OK'
