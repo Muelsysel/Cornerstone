@@ -81,4 +81,20 @@ class AccessLogFilterTest {
     void filterRunsLast() {
         assertThat(filter.getOrder()).isEqualTo(Integer.MAX_VALUE);
     }
+
+    @Test
+    void logsClientIpFromXForwardedFor() {
+        MockServerWebExchange exchange =
+                MockServerWebExchange.from(
+                        MockServerHttpRequest.method(HttpMethod.GET, "/system/user/list")
+                                .header("X-Forwarded-For", "203.0.113.7, 10.0.0.1")
+                                .build());
+        exchange.getResponse().setStatusCode(HttpStatus.OK);
+
+        filter.filter(exchange, passThroughChain()).block();
+
+        ILoggingEvent event = events().get(0);
+        // 取 X-Forwarded-For 第一个 IP（真实客户端），而非反代/网关地址
+        assertThat(event.getFormattedMessage()).contains("ip=203.0.113.7");
+    }
 }

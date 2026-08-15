@@ -34,12 +34,7 @@ public class AccessLogFilter implements GlobalFilter, Ordered {
                             ServerHttpRequest request = exchange.getRequest();
                             ServerHttpResponse response = exchange.getResponse();
                             long cost = System.currentTimeMillis() - start;
-                            String ip =
-                                    request.getRemoteAddress() != null
-                                            ? request.getRemoteAddress()
-                                                    .getAddress()
-                                                    .getHostAddress()
-                                            : "unknown";
+                            String ip = clientIp(request);
                             log.info(
                                     "[gateway] {} {} -> {} {}ms ip={}",
                                     request.getMethod(),
@@ -48,6 +43,17 @@ public class AccessLogFilter implements GlobalFilter, Ordered {
                                     cost,
                                     ip);
                         });
+    }
+
+    /** 客户端 IP：优先 X-Forwarded-For 第一个（经 nginx 反代时记录真实客户端），缺省回退远端地址 */
+    private String clientIp(ServerHttpRequest request) {
+        String forwarded = request.getHeaders().getFirst("X-Forwarded-For");
+        if (forwarded != null && !forwarded.isBlank()) {
+            return forwarded.split(",")[0].trim();
+        }
+        return request.getRemoteAddress() != null
+                ? request.getRemoteAddress().getAddress().getHostAddress()
+                : "unknown";
     }
 
     @Override
