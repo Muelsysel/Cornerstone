@@ -3,6 +3,13 @@
 > 项目级版本里程碑与仓库级变更记录。模块级细节见各模块 `CHANGELOG.md`
 > （common/api/gateway/auth/system/demo/web）。所有 AI 都是文档维护者（AGENTS.md「文档维护义务」）。
 
+## [1.5.3] - 2026-08-15（功能补全与验证）
+
+- feat: 用户分配角色（前后端全链路，端到端实测）；公告页发布/下线按钮（对齐后端端点）
+- perf: nginx gzip（主包 390KB → 130KB）；登录后默认进 dashboard
+- fix(安全): 网关透传头防伪造（X-Cornerstone-* 入口剥除）
+- test: 登录限流实测（30 次请求 11 次 429，5/s + burst 10 生效）
+
 ## [1.5.2] - 2026-08-15（安全与测试续批）
 
 - fix(安全): 网关透传头防伪造（入口剥除 X-Cornerstone-*，含白名单路径；防身份伪造）；登录限流 bean @Primary/@Qualifier
