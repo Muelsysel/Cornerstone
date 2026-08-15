@@ -126,6 +126,16 @@ class SysDictServiceImplTest {
     }
 
     @Test
+    void updateDataWithChangedTypeEvictsBothCaches() {
+        when(dataMapper.selectById(1L)).thenReturn(data(1L, "gender", "男"));
+        SysDictData d = data(1L, "status", "女"); // dictType 变更
+        service.updateData(d);
+        // 新旧类型缓存都必须清除
+        verify(jsonCache).evict(dictKey("gender"));
+        verify(jsonCache).evict(dictKey("status"));
+    }
+
+    @Test
     void deleteTypeRemovesDataAndEvictsCache() {
         SysDictType type = new SysDictType();
         type.setId(1L);

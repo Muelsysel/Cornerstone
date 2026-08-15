@@ -138,11 +138,16 @@ public class SysDictServiceImpl implements SysDictService {
 
     @Override
     public SysDictData updateData(SysDictData data) {
-        if (dataMapper.selectById(data.getId()) == null) {
+        SysDictData exist = dataMapper.selectById(data.getId());
+        if (exist == null) {
             throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
         }
         dataMapper.updateById(data);
-        jsonCache.evict(String.format(CacheConstants.DICT_KEY, data.getDictType()));
+        // 缓存一致性：dictType 可能被修改 → 新旧类型缓存都清
+        jsonCache.evict(String.format(CacheConstants.DICT_KEY, exist.getDictType()));
+        if (data.getDictType() != null && !data.getDictType().equals(exist.getDictType())) {
+            jsonCache.evict(String.format(CacheConstants.DICT_KEY, data.getDictType()));
+        }
         return dataMapper.selectById(data.getId());
     }
 
