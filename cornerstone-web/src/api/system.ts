@@ -54,12 +54,12 @@ export function assignUserRoles(userId: number, roleIds: number[]): Promise<unkn
   return request({ url: `/system/user/${userId}/roles`, method: 'put', data: roleIds })
 }
 
-/** 重置用户密码 */
+/** 重置用户密码（密码走请求体，避免明文进 URL） */
 export function resetUserPassword(userId: number, password: string): Promise<unknown> {
   return request({
     url: `/system/user/${userId}/password`,
     method: 'put',
-    params: { password },
+    data: { password },
   })
 }
 

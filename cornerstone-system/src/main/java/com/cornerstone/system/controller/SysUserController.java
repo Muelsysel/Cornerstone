@@ -127,17 +127,19 @@ public class SysUserController {
         return Result.success();
     }
 
-    /** 重置密码 */
+    /** 重置密码（密码走请求体，避免明文进 URL 被访问日志/浏览器历史记录） */
     @Operation(summary = "重置用户密码")
     @PutMapping("/{userId}/password")
     @OperLog(title = "用户管理", businessType = BusinessType.UPDATE)
     @PreAuthorize("hasAuthority('system:user:edit')")
     public Result<Void> resetPassword(
-            @PathVariable(name = "userId") Long userId,
-            @RequestParam(name = "password") String password) {
-        userService.resetPassword(userId, password);
+            @PathVariable(name = "userId") Long userId, @RequestBody PasswordResetRequest request) {
+        userService.resetPassword(userId, request.password());
         return Result.success();
     }
+
+    /** 重置密码请求体 */
+    public record PasswordResetRequest(String password) {}
 
     /** 分配角色（全量覆盖：先清后插） */
     @Operation(summary = "分配用户角色", description = "全量覆盖：先清后插")
