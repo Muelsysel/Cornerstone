@@ -102,9 +102,16 @@ public class TokenAuthGlobalFilter implements GlobalFilter, Ordered {
                                     if (username != null) {
                                         h.add(UserContext.HEADER_USERNAME, username);
                                     }
-                                    Object scope = jwt.getClaim("scope");
-                                    if (scope != null) {
-                                        h.add(UserContext.HEADER_ROLES, flatten(scope));
+                                    // 角色透传：优先 JWT 的 roles 声明（真实角色，供数据权限/审计按角色解析），
+                                    // client_credentials 令牌无 roles 时兜底用 scope（兼容服务身份）
+                                    Object roles = jwt.getClaim("roles");
+                                    if (roles != null) {
+                                        h.add(UserContext.HEADER_ROLES, flatten(roles));
+                                    } else {
+                                        Object scope = jwt.getClaim("scope");
+                                        if (scope != null) {
+                                            h.add(UserContext.HEADER_ROLES, flatten(scope));
+                                        }
                                     }
                                 })
                         .build();
