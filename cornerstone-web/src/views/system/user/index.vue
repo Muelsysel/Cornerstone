@@ -231,7 +231,7 @@ const rules: FormRules<UserForm> = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [
     { required: true, message: '请输入初始密码', trigger: 'blur' },
-    { min: 6, message: '密码至少 6 位', trigger: 'blur' },
+    { min: 6, max: 72, message: '密码长度需在 6-72 位之间', trigger: 'blur' },
   ],
 }
 
@@ -325,7 +325,7 @@ const pwdResetFormRef = ref<FormInstance>()
 const pwdResetForm = reactive({ password: '' })
 const pwdResetRules: FormRules = {
   password: [
-    { required: true, min: 6, message: '新密码至少 6 位', trigger: 'blur' },
+    { required: true, min: 6, max: 72, message: '新密码长度需在 6-72 位之间', trigger: 'blur' },
   ],
 }
 

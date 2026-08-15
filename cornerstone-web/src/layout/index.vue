@@ -191,7 +191,9 @@ const pwdFormRef = ref<FormInstance>()
 const pwdForm = reactive({ oldPassword: '', newPassword: '', confirmPassword: '' })
 const pwdRules: FormRules = {
   oldPassword: [{ required: true, message: '请输入旧密码', trigger: 'blur' }],
-  newPassword: [{ required: true, min: 6, message: '新密码至少 6 位', trigger: 'blur' }],
+  newPassword: [
+    { required: true, min: 6, max: 72, message: '新密码长度需在 6-72 位之间', trigger: 'blur' },
+  ],
   confirmPassword: [
     { required: true, message: '请再次输入新密码', trigger: 'blur' },
     {
