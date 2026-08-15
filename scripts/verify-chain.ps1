@@ -301,6 +301,16 @@ try {
         }
         Assert 'Offline announcement POST /{id}/offline 200' $offOk 'OK'
 
+        # 7c. 状态机防护：已下线公告再次下线/已发布公告再次发布都应被拒（单向流转）
+        $flowOk = 'FAIL'
+        $flowResp = curl.exe -s --max-time 20 -X POST "http://localhost:8080/demo/announcement/$draftId/offline" `
+            -H "Authorization: Bearer $adminToken"
+        try {
+            $flowCode = ($flowResp | ConvertFrom-Json).code
+            if ($flowCode -eq 1001) { $flowOk = 'OK' }
+        } catch {}
+        Assert 'State machine rejects illegal transition (1001)' $flowOk 'OK'
+
         # 8. 隐私契约：游客访问非已发布（草稿/已下线）详情 -> 业务码非 200（按不存在处理，防泄露）
         $guestDetail = curl.exe -s --max-time 20 "http://localhost:8080/demo/announcement/$draftId"
         $guestCode = $null
