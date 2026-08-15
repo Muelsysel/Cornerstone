@@ -72,7 +72,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
     @Override
     public void delete(Long userId) {
         if (userId != null && userId == 1L) {
-            throw new BusinessException(1008, "不允许删除内置管理员");
+            throw new BusinessException(SystemErrorCode.DELETE_BUILTIN_USER);
         }
         this.removeById(userId);
     }

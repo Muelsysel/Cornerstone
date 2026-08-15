@@ -107,10 +107,7 @@ public class OperLogAspect {
         }
     }
 
-    /**
-     * 脱敏序列化：递归屏蔽敏感字段（password/secret/token 等）后再输出 JSON。
-     * 防止修改密码/用户管理/重置密码等操作把明文口令写入操作日志。
-     */
+    /** 脱敏序列化：递归屏蔽敏感字段（password/secret/token 等）后再输出 JSON。 防止修改密码/用户管理/重置密码等操作把明文口令写入操作日志。 */
     private String serializeMasked(Object value) {
         try {
             return objectMapper.writeValueAsString(maskSensitive(value));

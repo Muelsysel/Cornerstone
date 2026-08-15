@@ -164,7 +164,7 @@ onMounted(loadData)
 }
 .table-toolbar {
   margin-bottom: 12px;
-  color: #606266;
+  color: var(--cs-text-secondary);
 }
 .pagination {
   margin-top: 16px;
@@ -175,14 +175,14 @@ onMounted(loadData)
   white-space: pre-wrap;
   word-break: break-all;
   font-size: 12px;
-  color: #606266;
+  color: var(--cs-text-secondary);
   max-height: 160px;
   overflow: auto;
-  background: #f5f7fa;
+  background: var(--cs-log-bg);
   padding: 8px;
   border-radius: 4px;
 }
 .detail-pre.error {
-  color: #f56c6c;
+  color: var(--cs-danger);
 }
 </style>

@@ -33,7 +33,7 @@ function goHome() {
 }
 .error-desc {
   margin: 16px 0 24px;
-  color: #606266;
+  color: var(--cs-text-secondary);
   font-size: 16px;
 }
 </style>

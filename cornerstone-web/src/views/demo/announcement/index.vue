@@ -225,7 +225,7 @@ onMounted(loadData)
 }
 .tip {
   font-size: 12px;
-  color: #909399;
+  color: var(--cs-text-secondary);
 }
 .pagination {
   margin-top: 16px;

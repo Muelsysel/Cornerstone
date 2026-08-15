@@ -211,7 +211,7 @@ async function submitPassword() {
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  background: linear-gradient(135deg, var(--cs-primary), #7c3aed);
+  background: var(--cs-gradient);
   color: #fff;
   font-size: 15px;
   font-weight: 700;
@@ -298,7 +298,7 @@ async function submitPassword() {
   transition: background 0.2s ease;
 }
 .user-info:hover {
-  background: #f3f4f6;
+  background: var(--cs-hover-bg);
 }
 
 /* ---------- 内容区 ---------- */

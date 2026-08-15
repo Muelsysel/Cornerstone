@@ -64,7 +64,7 @@ public class SysDeptServiceImpl implements SysDeptService {
                 deptMapper.selectCount(
                         new LambdaQueryWrapper<SysDept>().eq(SysDept::getParentId, deptId));
         if (children > 0) {
-            throw new BusinessException(1011, "存在子部门,不允许删除");
+            throw new BusinessException(SystemErrorCode.DELETE_WITH_CHILD_DEPT);
         }
         deptMapper.deleteById(deptId);
     }

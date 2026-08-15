@@ -50,6 +50,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public SysRole add(SysRole role) {
         long exists =
                 this.count(
@@ -64,6 +65,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public SysRole update(SysRole role) {
         SysRole exist = this.getById(role.getId());
         if (exist == null) {
@@ -74,8 +76,10 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
         return this.getById(role.getId());
     }
 
-    /** 数据范围=自定义(2)时维护 role_dept 关联；其他范围清空关联 */
-    @Transactional(rollbackFor = Exception.class)
+    /**
+     * 数据范围=自定义(2)时维护 role_dept 关联；其他范围清空关联。 注意：事务由调用方 add/update 上的 {@link Transactional}
+     * 保证（self-invocation 不经过代理）。
+     */
     protected void saveDataScopeDepts(SysRole role) {
         if (role.getId() == null) {
             return;
@@ -96,7 +100,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
     @Override
     public void delete(Long roleId) {
         if (roleId != null && roleId == 1L) {
-            throw new BusinessException(1009, "不允许删除内置超级管理员角色");
+            throw new BusinessException(SystemErrorCode.DELETE_BUILTIN_ROLE);
         }
         this.removeById(roleId);
     }

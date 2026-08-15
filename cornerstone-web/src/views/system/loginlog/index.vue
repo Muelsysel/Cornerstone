@@ -133,7 +133,7 @@ onMounted(loadData)
 }
 .table-toolbar {
   margin-bottom: 12px;
-  color: #606266;
+  color: var(--cs-text-secondary);
 }
 .pagination {
   margin-top: 16px;

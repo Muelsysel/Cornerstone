@@ -72,7 +72,7 @@ function go(path: string) {
   margin: 0 0 8px;
 }
 .desc {
-  color: #606266;
+  color: var(--cs-text-secondary);
   font-size: 14px;
   margin: 0;
 }
@@ -91,7 +91,7 @@ function go(path: string) {
   margin-bottom: 4px;
 }
 .card-desc {
-  color: #909399;
+  color: var(--cs-text-secondary);
   font-size: 12px;
   line-height: 1.6;
 }

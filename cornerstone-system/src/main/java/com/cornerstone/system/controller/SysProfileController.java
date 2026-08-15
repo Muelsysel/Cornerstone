@@ -8,6 +8,7 @@ import com.cornerstone.common.security.UserContextHolder;
 import com.cornerstone.system.annotation.OperLog;
 import com.cornerstone.system.constant.BusinessType;
 import com.cornerstone.system.domain.entity.SysUser;
+import com.cornerstone.system.exception.SystemErrorCode;
 import com.cornerstone.system.service.SysUserService;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,7 +51,7 @@ public class SysProfileController {
         Long userId = requireUserId();
         SysUser user = userService.getById(userId);
         if (user == null || !passwordEncoder.matches(request.oldPassword(), user.getPassword())) {
-            throw new BusinessException(1003, "旧密码错误");
+            throw new BusinessException(SystemErrorCode.OLD_PASSWORD_ERROR);
         }
         SysUser update = new SysUser();
         update.setId(userId);

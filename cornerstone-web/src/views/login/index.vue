@@ -106,7 +106,7 @@ async function handleLogin() {
   align-items: center;
   justify-content: center;
   gap: 72px;
-  background: linear-gradient(135deg, #0b1120 0%, #111827 55%, #1e1b4b 100%);
+  background: var(--cs-login-bg);
   overflow: hidden;
 }
 /* 背景光晕：两个柔和的品牌色圆，营造纵深又不抢主体 */
@@ -143,7 +143,7 @@ async function handleLogin() {
   width: 54px;
   height: 54px;
   border-radius: 14px;
-  background: linear-gradient(135deg, var(--cs-primary), #7c3aed);
+  background: var(--cs-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -194,7 +194,7 @@ async function handleLogin() {
 }
 .login-tip {
   margin-top: 6px;
-  color: #9ca3af;
+  color: var(--cs-text-placeholder);
   font-size: 12px;
   line-height: 1.7;
   text-align: center;

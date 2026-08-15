@@ -31,6 +31,14 @@
   --cs-border: #e5e7eb;
   --cs-text: #1f2329;
   --cs-text-secondary: #6b7280;
+  --cs-text-placeholder: #9ca3af;
+  --cs-hover-bg: #f3f4f6;
+  --cs-log-bg: #f5f7fa;
+  --cs-danger: #f56c6c;
+
+  /* ---------- 品牌渐变 ---------- */
+  --cs-gradient: linear-gradient(135deg, var(--cs-primary), #7c3aed);
+  --cs-login-bg: linear-gradient(135deg, #0b1120 0%, #111827 55%, #1e1b4b 100%);
 
   /* ---------- Element Plus 细节 ---------- */
   --el-border-radius-base: 6px;

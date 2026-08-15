@@ -56,7 +56,7 @@ public class SysMenuServiceImpl implements SysMenuService {
                 menuMapper.selectCount(
                         new LambdaQueryWrapper<SysMenu>().eq(SysMenu::getParentId, menuId));
         if (children > 0) {
-            throw new BusinessException(1010, "存在子菜单,不允许删除");
+            throw new BusinessException(SystemErrorCode.DELETE_WITH_CHILD_MENU);
         }
         menuMapper.deleteById(menuId);
     }
