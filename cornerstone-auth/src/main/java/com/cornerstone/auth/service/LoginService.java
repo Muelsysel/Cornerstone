@@ -72,9 +72,11 @@ public class LoginService {
     public LoginResponse login(LoginRequest request, String clientIp) {
         String username = request.username();
         if (isLocked(username)) {
-            // 锁定拒绝同样落登录日志（审计完整性）
+            // 锁定拒绝同样落登录日志（审计完整性）；提示剩余锁定时间（秒）便于用户等待
             recordLog(username, clientIp, "1", "登录失败次数过多，已锁定");
-            throw new BusinessException(ErrorCode.UNAUTHORIZED, "登录失败次数过多，请稍后再试");
+            Long remaining = remainingLockSeconds(username);
+            String msg = remaining != null ? "登录失败次数过多，请 " + remaining + " 秒后再试" : "登录失败次数过多，请稍后再试";
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, msg);
         }
         UserAuthDTO user = findUser(username);
         if (user == null || !passwordEncoder.matches(request.password(), user.getPassword())) {
@@ -115,6 +117,16 @@ public class LoginService {
             return fails != null && Integer.parseInt(fails) >= MAX_FAILS;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    /** 锁定剩余秒数（Redis key TTL）；Redis 不可用或无 TTL 时返回 null（提示不含时间） */
+    private Long remainingLockSeconds(String username) {
+        try {
+            Long ttl = redis.getExpire(FAIL_KEY_PREFIX + username);
+            return (ttl != null && ttl > 0) ? ttl : null;
+        } catch (Exception e) {
+            return null;
         }
     }
 

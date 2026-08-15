@@ -143,6 +143,7 @@ class LoginControllerTest {
     void lockedAccount_shouldRejectWithLockMessage() throws Exception {
         // 连续失败 >= 5 次触发锁定（Redis 计数），即使密码正确也拒绝
         when(redisValues.get("login:fail:admin")).thenReturn("5");
+        when(redis.getExpire("login:fail:admin")).thenReturn(180L);
         when(authUserClient.findByUsername("admin")).thenReturn(Result.success(adminUser()));
 
         mockMvc.perform(
@@ -151,7 +152,8 @@ class LoginControllerTest {
                                 .content("{\"username\":\"admin\",\"password\":\"admin123\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(401))
-                .andExpect(jsonPath("$.message").value("登录失败次数过多，请稍后再试"));
+                // 锁定提示带剩余秒数（UX：用户知道要等多久）
+                .andExpect(jsonPath("$.message").value("登录失败次数过多，请 180 秒后再试"));
 
         // 锁定拒绝同样落登录日志（审计完整）
         ArgumentCaptor<LoginLogDTO> captor = ArgumentCaptor.forClass(LoginLogDTO.class);
