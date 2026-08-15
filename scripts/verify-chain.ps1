@@ -383,6 +383,13 @@ try {
             'http://localhost:8080/system/user/info?userId=2'
         try { $selfCode = ($selfResp | ConvertFrom-Json).code } catch {}
         Assert 'IDOR allowed: self info 200' $(if ($selfCode -eq 200) { 'OK' } else { 'FAIL' }) 'OK'
+
+        # 9c. 缺参契约：/system/user/info 不传必填 userId → 业务码 400（回归：曾走兜底 500）
+        $missCode = $null
+        $missResp = curl.exe -s --max-time 20 -H "Authorization: Bearer $testToken" `
+            'http://localhost:8080/system/user/info'
+        try { $missCode = ($missResp | ConvertFrom-Json).code } catch {}
+        Assert 'Missing required param returns 400 (not 500)' $(if ($missCode -eq 400) { 'OK' } else { 'FAIL' }) 'OK'
     } else {
         Assert 'Login test user' 'FAIL' 'OK'
     }
