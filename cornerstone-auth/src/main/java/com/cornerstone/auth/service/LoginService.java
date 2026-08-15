@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
@@ -46,27 +47,41 @@ public class LoginService {
     private final LoginLogClient loginLogClient;
     private final JwtEncoder jwtEncoder;
     private final PasswordEncoder passwordEncoder;
+    private final StringRedisTemplate redis;
 
     public LoginService(
             AuthUserClient authUserClient,
             LoginLogClient loginLogClient,
             JwtEncoder jwtEncoder,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            StringRedisTemplate redis) {
         this.authUserClient = authUserClient;
         this.loginLogClient = loginLogClient;
         this.jwtEncoder = jwtEncoder;
         this.passwordEncoder = passwordEncoder;
+        this.redis = redis;
     }
+
+    /** 登录失败锁定：连续失败上限与锁定窗口 */
+    private static final String FAIL_KEY_PREFIX = "login:fail:";
+
+    private static final int MAX_FAILS = 5;
+    private static final Duration LOCK_WINDOW = Duration.ofMinutes(5);
 
     /** 用户名密码登录；成功返回含 access_token 的响应，失败抛业务异常（401）。登录日志经 {@link LoginLogClient} 投递 system。 */
     public LoginResponse login(LoginRequest request, String clientIp) {
         String username = request.username();
+        if (isLocked(username)) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "登录失败次数过多，请稍后再试");
+        }
         UserAuthDTO user = findUser(username);
         if (user == null || !passwordEncoder.matches(request.password(), user.getPassword())) {
             // 用户不存在时用请求中的用户名记录失败日志
+            recordFailure(username);
             recordLog(username, clientIp, "1", "用户名或密码错误");
             throw new BusinessException(ErrorCode.UNAUTHORIZED, "用户名或密码错误");
         }
+        clearFails(username);
         Jwt jwt = issueToken(user);
         recordLog(username, clientIp, "0", "登录成功");
         return new LoginResponse(
@@ -76,6 +91,38 @@ public class LoginService {
                 user.getUserId(),
                 user.getUsername(),
                 user.getRoles());
+    }
+
+    /** 登录失败计数 +1（Redis，TTL 锁定窗口；Redis 不可用降级不阻塞登录） */
+    private void recordFailure(String username) {
+        try {
+            String key = FAIL_KEY_PREFIX + username;
+            Long count = redis.opsForValue().increment(key);
+            if (count != null && count == 1) {
+                redis.expire(key, LOCK_WINDOW);
+            }
+        } catch (Exception e) {
+            log.warn("登录失败计数失败（Redis 不可用，降级）username={}", username, e);
+        }
+    }
+
+    /** 是否已触发锁定（连续失败 >= MAX_FAILS；Redis 不可用时放行） */
+    private boolean isLocked(String username) {
+        try {
+            String fails = redis.opsForValue().get(FAIL_KEY_PREFIX + username);
+            return fails != null && Integer.parseInt(fails) >= MAX_FAILS;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /** 登录成功清除失败计数 */
+    private void clearFails(String username) {
+        try {
+            redis.delete(FAIL_KEY_PREFIX + username);
+        } catch (Exception e) {
+            // 忽略：清理失败不阻塞登录
+        }
     }
 
     /** 把一条登录日志投递 system 落库。日志记录失败不阻塞登录主流程。 */

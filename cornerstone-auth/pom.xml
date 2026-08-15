@@ -33,6 +33,11 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-authorization-server</artifactId>
         </dependency>
+        <!-- Redis：登录失败计数与临时锁定（防账号爆破；Redis 不可用时降级不阻塞登录） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
         <!-- Nacos 服务注册 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>

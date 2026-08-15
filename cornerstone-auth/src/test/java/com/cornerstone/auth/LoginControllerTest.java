@@ -16,12 +16,15 @@ import com.cornerstone.api.dto.UserAuthDTO;
 import com.cornerstone.common.core.Result;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -46,6 +49,17 @@ class LoginControllerTest {
     @MockBean private AuthUserClient authUserClient;
 
     @MockBean private LoginLogClient loginLogClient;
+
+    @MockBean private StringRedisTemplate redis;
+
+    @MockBean private ValueOperations<String, String> redisValues;
+
+    @BeforeEach
+    void stubRedis() {
+        when(redis.opsForValue()).thenReturn(redisValues);
+        when(redisValues.get(any())).thenReturn(null);
+        when(redisValues.increment(any())).thenReturn(1L);
+    }
 
     @Test
     void validCredentials_shouldReturnTokenWithPermissions() throws Exception {
