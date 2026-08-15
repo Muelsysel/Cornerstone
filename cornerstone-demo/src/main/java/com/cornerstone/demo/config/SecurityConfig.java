@@ -56,6 +56,9 @@ public class SecurityConfig {
                                         .permitAll()
                                         .requestMatchers(PUBLIC_OTHER_PATHS)
                                         .permitAll()
+                                        // CORS 预检放行（直连服务/跳过网关时预检无凭据头）
+                                        .requestMatchers(HttpMethod.OPTIONS, "/**")
+                                        .permitAll()
                                         .anyRequest()
                                         .authenticated())
                 .oauth2ResourceServer(

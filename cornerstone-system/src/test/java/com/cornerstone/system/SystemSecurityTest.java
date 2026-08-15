@@ -54,6 +54,15 @@ class SystemSecurityTest {
     }
 
     @Test
+    void optionsPreflight_shouldBePermittedWithoutToken() throws Exception {
+        // CORS 预检（OPTIONS 无凭据头）必须放行，否则直连服务/跳过网关时跨域请求预检 401
+        mockMvc.perform(
+                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options(
+                                "/system/user/page"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void withPermission_shouldReturnOk() throws Exception {
         // 模拟服务层返回空分页，验证整条 认证→授权→接口 链路
         Page<SysUser> page = new Page<>(1, 10);

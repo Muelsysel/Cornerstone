@@ -48,6 +48,10 @@ public class ResourceServerConfig {
                                                 "/swagger-ui/**",
                                                 "/swagger-ui.html")
                                         .permitAll()
+                                        // CORS 预检（OPTIONS 无凭据头）必须放行，否则直连服务/跳过网关的跨域请求预检 401
+                                        .requestMatchers(
+                                                org.springframework.http.HttpMethod.OPTIONS, "/**")
+                                        .permitAll()
                                         .anyRequest()
                                         .authenticated())
                 .addFilterBefore(internalTokenFilter, UsernamePasswordAuthenticationFilter.class)

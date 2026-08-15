@@ -59,6 +59,10 @@ public class SecurityConfig {
                                                 "/swagger-ui/**",
                                                 "/swagger-ui.html")
                                         .permitAll()
+                                        // CORS 预检放行（直连服务/跳过网关时预检无凭据头）
+                                        .requestMatchers(
+                                                org.springframework.http.HttpMethod.OPTIONS, "/**")
+                                        .permitAll()
                                         .anyRequest()
                                         .authenticated())
                 // 禁用内置 LogoutFilter：无状态 JWT 下由 LogoutController 提供契约端点（避免内置过滤器消费 POST /logout 导致
