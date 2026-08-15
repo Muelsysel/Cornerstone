@@ -86,4 +86,24 @@ class GlobalExceptionHandlerTest {
 
         assertThat(result.getCode()).isEqualTo(ErrorCode.BAD_REQUEST.getCode());
     }
+
+    @Test
+    void methodNotSupportedReturns405() {
+        Result<Void> result =
+                handler.handleMethodNotSupported(
+                        new org.springframework.web.HttpRequestMethodNotSupportedException(
+                                "POST", List.of("GET")));
+
+        assertThat(result.getCode()).isEqualTo(ErrorCode.METHOD_NOT_ALLOWED.getCode());
+    }
+
+    @Test
+    void mediaTypeNotSupportedReturns415() {
+        Result<Void> result =
+                handler.handleMediaTypeNotSupported(
+                        new org.springframework.web.HttpMediaTypeNotSupportedException(
+                                "text/plain"));
+
+        assertThat(result.getCode()).isEqualTo(ErrorCode.UNSUPPORTED_MEDIA_TYPE.getCode());
+    }
 }
