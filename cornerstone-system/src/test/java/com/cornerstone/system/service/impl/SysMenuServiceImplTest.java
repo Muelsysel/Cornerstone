@@ -109,6 +109,23 @@ class SysMenuServiceImplTest {
     }
 
     @Test
+    void updateRejectsOwnDescendantAsParent() {
+        // 树：1(根) → 2 → 3。把 1 的父节点改为 3（自己的子孙）会成环 → 拒绝
+        SysMenu root = menu(1L, 0L, "系统管理", 1);
+        SysMenu child = menu(2L, 1L, "用户管理", 1);
+        SysMenu grandchild = menu(3L, 2L, "用户查询", 1);
+        when(menuMapper.selectById(1L)).thenReturn(root);
+        when(menuMapper.selectList(null)).thenReturn(List.of(root, child, grandchild));
+        SysMenu m = menu(1L, 3L, "系统管理", 1);
+
+        assertThatThrownBy(() -> service.update(m))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getCode())
+                .isEqualTo(SystemErrorCode.INVALID_PARENT.getCode());
+        verify(menuMapper, never()).updateById(any(SysMenu.class));
+    }
+
+    @Test
     void updateReturnsRefreshedMenu() {
         SysMenu m = menu(1L, 0L, "改名", 1);
         SysMenu refreshed = menu(1L, 0L, "改名后", 1);

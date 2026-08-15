@@ -46,8 +46,32 @@ public class SysMenuServiceImpl implements SysMenuService {
         if (exist == null) {
             throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
         }
+        // 父节点不能选自己或自身子节点（选子节点会形成环，破坏菜单树）
+        Long newParent = menu.getParentId();
+        if (newParent != null
+                && (newParent.equals(menu.getId()) || isDescendant(menu.getId(), newParent))) {
+            throw new BusinessException(SystemErrorCode.INVALID_PARENT);
+        }
         menuMapper.updateById(menu);
         return menuMapper.selectById(menu.getId());
+    }
+
+    /** candidateParentId 是否为 nodeId 的子孙节点（全量查询本地遍历，菜单数量级小可接受） */
+    private boolean isDescendant(Long nodeId, Long candidateParentId) {
+        List<SysMenu> all = menuMapper.selectList(null);
+        java.util.Set<Long> descendants = new java.util.HashSet<>();
+        collectDescendants(all, nodeId, descendants);
+        return descendants.contains(candidateParentId);
+    }
+
+    private void collectDescendants(
+            List<SysMenu> all, Long parentId, java.util.Set<Long> descendants) {
+        for (SysMenu menu : all) {
+            if (java.util.Objects.equals(menu.getParentId(), parentId)
+                    && descendants.add(menu.getId())) {
+                collectDescendants(all, menu.getId(), descendants);
+            }
+        }
     }
 
     @Override
