@@ -1,0 +1,57 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: cornerstone-demo
+  # Nacos 服务注册
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        # 演示环境单机模式
+        username: nacos
+        password: nacos
+  # 数据源 + Flyway
+  datasource:
+    url: jdbc:mysql://localhost:3306/cornerstone_demo?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: cornerstone
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+# MyBatis-Plus：驼峰映射、逻辑删除、分页插件见 MybatisPlusConfig
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    banner: false
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# 资源服务器：与 auth 签发的令牌对齐的 RSA 公钥（与 cornerstone-auth/rsa-public.pem 相同）。
+# 注意：gateway/auth/system/demo 四处必须使用同一对密钥；测试用密钥见 application-test.yml。
+cornerstone:
+  security:
+    public-key: |
+      -----BEGIN PUBLIC KEY-----
+      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzEhquRg94PjhyP4ctuBe
+      g49dhbaafMiv2rZ41vKOdIj2pnxWSp0IzMWZusIQawRQxtkVPj16/P1U/u1gDBXl
+      FwnovW9bkScAUgHGcRU8/fVUFvZsvzyM8HxccTpACmT1kmfXqFqLy9loU/0vBXLQ
+      SjgnJSK+NB2i514plGnr2NHkOPtfF80gihS+qzRF+nJI8cC+McQwHNg4M2ND5ibn
+      2cR8N+Zg5KGj2GnoEoK7GffBTLB38SGy/dfOxvqZjd/TAp7FULmH2oee/ERXgg1p
+      AVvtSLd+ZSqi3qbmA5W+M4ygAZyg/TWS4slH6PHg5d8d9DGxr5hdNKooqc6/pwSc
+      6wIDAQAB
+      -----END PUBLIC KEY-----
+
+# OpenAPI / Swagger UI
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs

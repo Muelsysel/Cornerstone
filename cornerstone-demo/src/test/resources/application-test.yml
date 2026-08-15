@@ -1,0 +1,29 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        # 测试不连 Nacos
+        enabled: false
+  datasource:
+    # H2 MySQL 兼容模式跑 Flyway：测试不依赖真实 MySQL
+    url: jdbc:h2:mem:demo;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE;NON_KEYWORDS=USER
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+# 测试隔离：用测试密钥对，与主配置（生产公钥）解耦
+cornerstone:
+  security:
+    public-key: |
+      -----BEGIN PUBLIC KEY-----
+      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvaE4L1y11IP4R1t6ZIKK
+      1YJVHJ55ZMOhJyy5Ei8ZfBH/3qtEJd0UbFhkoOMGxtVUvmDjQz3c3mdb5Oyl2aKz
+      Gm7ymyMkqUdZ7UzfGfF4dZr0CeU/HdOGuU3ijHZbjuycnw8evD6zxFRgDPXs/qyH
+      QucDOGcHg47wDNhbk+WFENo7SlsjoS8Yn1yj6aNjHpd385kfi3xayyBsrDBTWNLd
+      v2WhtnnoBarm+m2RNYOzfSagTI/sXW3Bf0dlpsXNFDIf40mwEfVn0sAKNePDsWu0
+      R1mhPS5G1AXmUIky+s79iyty8Ox5xgtU3cAo9A9MY6QjgHMUV4tuF7iqQm0V5gh+
+      VQIDAQAB
+      -----END PUBLIC KEY-----

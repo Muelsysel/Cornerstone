@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  flyway:
+    enabled: false
+  cloud:
+    nacos:
+      discovery:
+        enabled: false
+  autoconfigure:
+    # 测试环境不注册/发现服务，避免依赖 Nacos
+    exclude:
+      - org.springframework.cloud.client.discovery.simple.SimpleDiscoveryClientAutoConfiguration
+
+# 测试专用 RSA 公钥（与 test-private.pem 配对），覆盖 application.yml 默认公钥
+cornerstone:
+  security:
+    public-key: |
+      -----BEGIN PUBLIC KEY-----
+      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn786cyqh9Tv8dRhIsWur
+      3BLlTnXN90fh50ShMj+48OI08O31wkTmXRl+GL7A9Dhs+cAZv2/xlzGdn3bEybxY
+      ZZ9bE3qTibP3Y8aAxmhnZPEfF2l0fJE6AWsu3n7606daQUaGCU7En8xAFDVG8c1g
+      ATYdPKRsUZ49dKxywukV8tMayWqIBphwtARuD2m47dr3A4tEF7Du6RqaL8QxxQPG
+      5CLIqECoQNGJxKfgC/EL4SNSX47hTRjA1i8kY4MYARBX7byGUlSvwWN/BuMMXh+7
+      jWgNGBVdZluh1iI7mx4JS/DZ2JQpvOPLaIeZ8oSFKlBUsQQrwjyCdBYCUzdGpHW0
+      GQIDAQAB
+      -----END PUBLIC KEY-----
+
+logging:
+  level:
+    com.cornerstone.system: warn

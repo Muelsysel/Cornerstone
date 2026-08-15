@@ -1,0 +1,60 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: cornerstone-system
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        namespace: public
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/cornerstone_system?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: cornerstone
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    banner: false
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# 资源服务器：JWT 校验公钥（与 auth/gateway 对齐，SPKI PEM 格式）
+cornerstone:
+  security:
+    public-key: |
+      -----BEGIN PUBLIC KEY-----
+      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzEhquRg94PjhyP4ctuBe
+      g49dhbaafMiv2rZ41vKOdIj2pnxWSp0IzMWZusIQawRQxtkVPj16/P1U/u1gDBXl
+      FwnovW9bkScAUgHGcRU8/fVUFvZsvzyM8HxccTpACmT1kmfXqFqLy9loU/0vBXLQ
+      SjgnJSK+NB2i514plGnr2NHkOPtfF80gihS+qzRF+nJI8cC+McQwHNg4M2ND5ibn
+      2cR8N+Zg5KGj2GnoEoK7GffBTLB38SGy/dfOxvqZjd/TAp7FULmH2oee/ERXgg1p
+      AVvtSLd+ZSqi3qbmA5W+M4ygAZyg/TWS4slH6PHg5d8d9DGxr5hdNKooqc6/pwSc
+      6wIDAQAB
+      -----END PUBLIC KEY-----
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    com.cornerstone.system: info

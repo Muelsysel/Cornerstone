@@ -1,0 +1,143 @@
+package com.cornerstone.system.service.impl;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.cornerstone.common.exception.BusinessException;
+import com.cornerstone.system.constant.CacheConstants;
+import com.cornerstone.system.domain.entity.SysDictData;
+import com.cornerstone.system.domain.entity.SysDictType;
+import com.cornerstone.system.domain.mapper.SysDictDataMapper;
+import com.cornerstone.system.domain.mapper.SysDictTypeMapper;
+import com.cornerstone.system.exception.SystemErrorCode;
+import com.cornerstone.system.service.SysDictService;
+import com.cornerstone.system.util.JsonCache;
+import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/** 字典服务实现。 字典数据按 dict_type 缓存到 Redis（key: cornerstone:dict:{dictType}）。 Redis 不可用时降级直查库，保证功能可用。 */
+@Service
+public class SysDictServiceImpl implements SysDictService {
+
+    private final SysDictTypeMapper typeMapper;
+    private final SysDictDataMapper dataMapper;
+    private final JsonCache jsonCache;
+
+    public SysDictServiceImpl(
+            SysDictTypeMapper typeMapper, SysDictDataMapper dataMapper, JsonCache jsonCache) {
+        this.typeMapper = typeMapper;
+        this.dataMapper = dataMapper;
+        this.jsonCache = jsonCache;
+    }
+
+    @Override
+    public Page<SysDictType> pageType(
+            long current, long size, String dictName, String dictType, String status) {
+        LambdaQueryWrapper<SysDictType> wrapper =
+                new LambdaQueryWrapper<SysDictType>()
+                        .like(hasText(dictName), SysDictType::getDictName, dictName)
+                        .like(hasText(dictType), SysDictType::getDictType, dictType)
+                        .eq(hasText(status), SysDictType::getStatus, status)
+                        .orderByAsc(SysDictType::getId);
+        Page<SysDictType> page = new Page<>(current, size);
+        typeMapper.selectPage(page, wrapper);
+        return page;
+    }
+
+    @Override
+    public SysDictType addType(SysDictType type) {
+        long exists =
+                typeMapper.selectCount(
+                        new LambdaQueryWrapper<SysDictType>()
+                                .eq(SysDictType::getDictType, type.getDictType()));
+        if (exists > 0) {
+            throw new BusinessException(SystemErrorCode.DICT_TYPE_EXISTS);
+        }
+        typeMapper.insert(type);
+        return type;
+    }
+
+    @Override
+    public SysDictType updateType(SysDictType type) {
+        if (typeMapper.selectById(type.getId()) == null) {
+            throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
+        }
+        typeMapper.updateById(type);
+        return typeMapper.selectById(type.getId());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteType(Long typeId) {
+        SysDictType type = typeMapper.selectById(typeId);
+        if (type == null) {
+            throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
+        }
+        typeMapper.deleteById(typeId);
+        dataMapper.delete(
+                new LambdaQueryWrapper<SysDictData>()
+                        .eq(SysDictData::getDictType, type.getDictType()));
+        jsonCache.evict(String.format(CacheConstants.DICT_KEY, type.getDictType()));
+    }
+
+    @Override
+    public List<SysDictData> listData(String dictType) {
+        String key = String.format(CacheConstants.DICT_KEY, dictType);
+        List<SysDictData> cached = jsonCache.getList(key, SysDictData.class);
+        if (cached != null) {
+            return cached;
+        }
+        List<SysDictData> data =
+                dataMapper.selectList(
+                        new LambdaQueryWrapper<SysDictData>()
+                                .eq(SysDictData::getDictType, dictType)
+                                .eq(SysDictData::getStatus, "0")
+                                .orderByAsc(SysDictData::getDictSort));
+        jsonCache.setList(key, data);
+        return data;
+    }
+
+    @Override
+    public Page<SysDictData> pageData(
+            long current, long size, String dictType, String dictLabel, String status) {
+        LambdaQueryWrapper<SysDictData> wrapper =
+                new LambdaQueryWrapper<SysDictData>()
+                        .eq(hasText(dictType), SysDictData::getDictType, dictType)
+                        .like(hasText(dictLabel), SysDictData::getDictLabel, dictLabel)
+                        .eq(hasText(status), SysDictData::getStatus, status)
+                        .orderByAsc(SysDictData::getDictSort);
+        Page<SysDictData> page = new Page<>(current, size);
+        dataMapper.selectPage(page, wrapper);
+        return page;
+    }
+
+    @Override
+    public SysDictData addData(SysDictData data) {
+        dataMapper.insert(data);
+        jsonCache.evict(String.format(CacheConstants.DICT_KEY, data.getDictType()));
+        return data;
+    }
+
+    @Override
+    public SysDictData updateData(SysDictData data) {
+        if (dataMapper.selectById(data.getId()) == null) {
+            throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
+        }
+        dataMapper.updateById(data);
+        jsonCache.evict(String.format(CacheConstants.DICT_KEY, data.getDictType()));
+        return dataMapper.selectById(data.getId());
+    }
+
+    @Override
+    public void deleteData(Long dataId) {
+        SysDictData data = dataMapper.selectById(dataId);
+        if (data != null) {
+            dataMapper.deleteById(dataId);
+            jsonCache.evict(String.format(CacheConstants.DICT_KEY, data.getDictType()));
+        }
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
+    }
+}

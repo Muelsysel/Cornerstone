@@ -1,0 +1,7 @@
+# 测试专用：关闭 Nacos 注册，避免测试环境依赖本地 Nacos
+spring:
+  cloud:
+    nacos:
+      discovery:
+        enabled: false
+        register-enabled: false

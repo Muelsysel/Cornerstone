@@ -1,0 +1,26 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: cornerstone-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        enabled: true
+    gateway:
+      # 全局 CORS：v1 演示放开所有来源（TODO v2 按域名收紧）
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origin-patterns: '*'
+            allowed-methods: '*'
+            allowed-headers: '*'
+            allow-credentials: true
+
+# 网关 JWT 校验公钥（与认证中心信号同一 RSA 公钥）
+cornerstone:
+  gateway:
+    jwt:
+      public-key: classpath:rsa-public.pem

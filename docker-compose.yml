@@ -1,0 +1,45 @@
+services:
+  nacos:
+    image: nacos/nacos-server:v2.3.2
+    container_name: cornerstone-nacos
+    environment:
+      - MODE=standalone
+      - NACOS_AUTH_ENABLE=false
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    networks:
+      - cornerstone-net
+
+  mysql:
+    image: mysql:8.0
+    container_name: cornerstone-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=cornerstone
+      - TZ=Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - cornerstone-mysql-data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - cornerstone-net
+
+  redis:
+    image: redis:7
+    container_name: cornerstone-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - cornerstone-redis-data:/data
+    networks:
+      - cornerstone-net
+
+volumes:
+  cornerstone-mysql-data:
+  cornerstone-redis-data:
+
+networks:
+  cornerstone-net:
+    driver: bridge
