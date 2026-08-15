@@ -2,10 +2,15 @@ package com.cornerstone.demo.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cornerstone.common.core.Result;
+import com.cornerstone.common.exception.BusinessException;
+import com.cornerstone.common.security.UserContextHolder;
 import com.cornerstone.demo.domain.Announcement;
+import com.cornerstone.demo.domain.AnnouncementStatus;
+import com.cornerstone.demo.domain.DemoErrorCode;
 import com.cornerstone.demo.service.AnnouncementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Objects;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -44,11 +49,18 @@ public class AnnouncementController {
         return Result.success(announcementService.page(pageNum, pageSize, title, status));
     }
 
-    /** 公开接口：详情，无需登录 */
+    /** 公开接口：详情，无需登录。游客只能查看已发布公告（防草稿/下线泄露）。 */
     @Operation(summary = "公告详情")
     @GetMapping("/{id}")
     public Result<Announcement> detail(@PathVariable("id") Long id) {
-        return Result.success(announcementService.getById(id));
+        Announcement announcement = announcementService.getById(id);
+        // 游客（无用户上下文）访问非已发布公告按不存在处理
+        if (UserContextHolder.get() == null
+                && !Objects.equals(
+                        announcement.getStatus(), AnnouncementStatus.PUBLISHED.getCode())) {
+            throw new BusinessException(DemoErrorCode.ANNOUNCEMENT_NOT_FOUND);
+        }
+        return Result.success(announcement);
     }
 
     /** 受保护接口：新增草稿，需编辑权限 */
