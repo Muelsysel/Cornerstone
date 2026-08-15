@@ -21,9 +21,9 @@ Cornerstone 的定位：**快速使用 AI 开发 Spring Cloud 项目的基石**�
 ## 项目速览
 
 - 定位：面向多 AI 协作的 Spring Cloud 脚手架基石，ruoyi 思想借鉴、零代码借鉴
-- 技术栈：Java 17 · Spring Boot 3.2 · Spring Cloud 2023 · Spring Cloud Alibaba (Nacos) · Spring Cloud Gateway · OpenFeign · Spring Security + OAuth2 · MyBatis-Plus · Redis · MySQL · Vue3 (cornerstone-web)
+- 技术栈：Java 17 · Spring Boot 3.2 · Spring Cloud 2023 · Spring Cloud Alibaba (Nacos) · Spring Cloud Gateway · OpenFeign · Spring Security + OAuth2 · MyBatis-Plus · Redis · MySQL · Vue3 + Vite 7 + Element Plus（按需引入，Vitest 单测，cornerstone-web）
 - 模块：`cornerstone-gateway`（网关）· `cornerstone-auth`（认证中心，含用户登录）· `cornerstone-system`（系统服务：RBAC + 数据权限）· `cornerstone-demo`（演示业务）· `cornerstone-common`（公共）· `cornerstone-api`（跨服务契约）· `cornerstone-web`（前端）
-- 已实现能力：client_credentials 认证 · 用户名密码登录（POST /auth/login，admin/admin123）· RBAC（用户/角色/菜单/部门/字典/参数/日志）· 部门数据权限 · 公告演示 · 管理后台 · Nginx 容器化部署（前后端分离）
+- 已实现能力：client_credentials 认证 · 用户名密码登录（POST /auth/login，admin/admin123，网关独立限流防爆破）· RBAC（用户/角色/菜单/部门/字典/参数/日志）· 部门数据权限 · 操作/登录日志（含密码脱敏）· 公告演示 · 管理后台 · Nginx 容器化部署（前后端分离）· 一键启动脚本 scripts/start-all.ps1
 - 文档体系：根 `CONTEXT-MAP.md` 是模块地图；每个模块自带 `CONTEXT.md` + `CHANGELOG.md`；`docs/adr/` 记录难逆决策
 
 ## Agent skills

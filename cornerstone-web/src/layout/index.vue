@@ -307,4 +307,14 @@ async function submitPassword() {
   padding: 16px 20px 20px;
   overflow-y: auto;
 }
+
+/* ---------- 窄屏：收紧内容区留白（管理后台仍以桌面为主） ---------- */
+@media (max-width: 768px) {
+  .layout-main {
+    padding: 12px;
+  }
+  .layout-header {
+    padding: 0 12px;
+  }
+}
 </style>

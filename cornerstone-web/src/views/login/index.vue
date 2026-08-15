@@ -205,4 +205,29 @@ async function handleLogin() {
   line-height: 1.7;
   text-align: center;
 }
+
+/* ---------- 窄屏适配（手机/平板）：品牌区置顶居中，卡片全宽 ---------- */
+@media (max-width: 768px) {
+  .login-page {
+    gap: 28px;
+    padding: 24px 16px;
+    flex-direction: column;
+    justify-content: center;
+    overflow-y: auto;
+  }
+  .login-brand {
+    text-align: center;
+    max-width: 100%;
+  }
+  .login-logo {
+    margin: 0 auto 16px;
+  }
+  .login-brand h1 {
+    font-size: 24px;
+  }
+  .login-card {
+    width: 100%;
+    max-width: 400px;
+  }
+}
 </style>
