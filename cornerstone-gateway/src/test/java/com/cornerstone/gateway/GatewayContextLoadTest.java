@@ -43,8 +43,7 @@ class GatewayContextLoadTest {
 
     /** 反射读取 RedisRateLimiter 私有 defaultConfig（构造参数即文档契约的限流数值） */
     private RedisRateLimiter.Config defaultConfig(RedisRateLimiter limiter) throws Exception {
-        java.lang.reflect.Field field =
-                RedisRateLimiter.class.getDeclaredField("defaultConfig");
+        java.lang.reflect.Field field = RedisRateLimiter.class.getDeclaredField("defaultConfig");
         field.setAccessible(true);
         return (RedisRateLimiter.Config) field.get(limiter);
     }
