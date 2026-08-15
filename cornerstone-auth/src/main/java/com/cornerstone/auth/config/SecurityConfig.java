@@ -40,14 +40,20 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /** 应用默认链：/login 放行（用户名密码登录换 JWT），/error 放行避免错误派发被拦截，/actuator/** 放行健康检查，其余路径要求认证。 */
+    /** 应用默认链：/login 放行（用户名密码登录换 JWT），/error、/actuator/**、OpenAPI 文档放行，其余路径要求认证。 */
     @Bean
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(
                         auth ->
-                                auth.requestMatchers("/login", "/error", "/actuator/**")
+                                auth.requestMatchers(
+                                                "/login",
+                                                "/error",
+                                                "/actuator/**",
+                                                "/v3/api-docs/**",
+                                                "/swagger-ui/**",
+                                                "/swagger-ui.html")
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated())

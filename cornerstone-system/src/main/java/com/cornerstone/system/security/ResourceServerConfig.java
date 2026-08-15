@@ -43,8 +43,13 @@ public class ResourceServerConfig {
                 .authorizeHttpRequests(
                         auth ->
                                 // /system/auth/** 为服务间内部接口（认证中心登录契约），网关白名单不含 /system/** 已隔离外部；
-                                // 另有 InternalTokenFilter 校验共享内部令牌；/actuator/** 放行健康检查
-                                auth.requestMatchers("/system/auth/**", "/actuator/**")
+                                // 另有 InternalTokenFilter 校验共享内部令牌；/actuator/** 与 OpenAPI 文档放行
+                                auth.requestMatchers(
+                                                "/system/auth/**",
+                                                "/actuator/**",
+                                                "/v3/api-docs/**",
+                                                "/swagger-ui/**",
+                                                "/swagger-ui.html")
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated())
