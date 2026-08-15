@@ -49,9 +49,12 @@
         </el-table-column>
         <el-table-column prop="method" label="请求方法" min-width="200" show-overflow-tooltip />
         <el-table-column prop="operTime" label="操作时间" min-width="170" />
-        <el-table-column label="操作" width="80" fixed="right">
+        <el-table-column label="操作" width="130" fixed="right">
           <template #default="{ row }: { row: any }">
             <el-button link type="primary" @click="handleDetail(row)">详情</el-button>
+            <el-button v-permission="'system:log:remove'" link type="danger" @click="handleDelete(row)">
+              删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -103,7 +106,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Delete, Refresh, Search } from '@element-plus/icons-vue'
-import { clearOperLog, getOperLogPage } from '@/api/system'
+import { clearOperLog, deleteOperLog, getOperLogPage } from '@/api/system'
 import type { OperLog, OperLogQuery } from '@/types/system'
 
 const loading = ref(false)
@@ -165,6 +168,21 @@ function businessTypeText(type: number | undefined): string {
     9: '查询',
   }
   return type !== undefined && type in map ? map[type] : '其他'
+}
+
+async function handleDelete(row: OperLog) {
+  await ElMessageBox.confirm('确认删除该条操作日志吗？', '提示', {
+    type: 'warning',
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+  }).catch(() => Promise.reject(new Error('canceled')))
+  try {
+    await deleteOperLog(row.operId)
+    ElMessage.success('删除成功')
+    loadData()
+  } catch (e) {
+    if (e instanceof Error && e.message === 'canceled') return
+  }
 }
 
 async function handleClean() {

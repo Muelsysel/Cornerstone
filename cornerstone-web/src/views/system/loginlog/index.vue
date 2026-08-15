@@ -46,9 +46,12 @@
         </el-table-column>
         <el-table-column prop="msg" label="描述" min-width="160" show-overflow-tooltip />
         <el-table-column prop="loginTime" label="登录时间" min-width="170" />
-        <el-table-column label="操作" width="80" fixed="right">
+        <el-table-column label="操作" width="130" fixed="right">
           <template #default="{ row }: { row: any }">
             <el-button link type="primary" @click="handleDetail(row)">详情</el-button>
+            <el-button v-permission="'system:log:remove'" link type="danger" @click="handleDelete(row)">
+              删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -87,7 +90,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Delete, Refresh, Search } from '@element-plus/icons-vue'
-import { clearLoginLog, getLoginLogPage } from '@/api/system'
+import { clearLoginLog, deleteLoginLog, getLoginLogPage } from '@/api/system'
 import type { LoginLog, LoginLogQuery } from '@/types/system'
 
 const loading = ref(false)
@@ -134,6 +137,21 @@ const detail = ref<LoginLog | null>(null)
 function handleDetail(row: LoginLog) {
   detail.value = row
   detailVisible.value = true
+}
+
+async function handleDelete(row: LoginLog) {
+  await ElMessageBox.confirm('确认删除该条登录日志吗？', '提示', {
+    type: 'warning',
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+  }).catch(() => Promise.reject(new Error('canceled')))
+  try {
+    await deleteLoginLog(row.infoId)
+    ElMessage.success('删除成功')
+    loadData()
+  } catch (e) {
+    if (e instanceof Error && e.message === 'canceled') return
+  }
 }
 
 async function handleClean() {
