@@ -43,6 +43,11 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
+        <!-- Caffeine：LoadBalancer 服务实例缓存（默认 SimpleCache 仅开发用，生产有警告） -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
         <!-- Redis Reactive：RequestRateLimiter 限流（基于 Redis） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
