@@ -35,4 +35,12 @@ public class LoginController {
         }
         return request.getRemoteAddr();
     }
+
+    /**
+     * 退出登录端点（契约闭环）：JWT 为无状态令牌，服务端无会话可销毁；此端点供前端统一调用， 返回成功后由前端清理本地会话。未来引入令牌黑名单（如 Redis）时可在此实现失效逻辑。
+     */
+    @PostMapping("/logout")
+    public Result<Void> logout() {
+        return Result.success();
+    }
 }

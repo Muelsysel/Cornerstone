@@ -2,6 +2,11 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.0.4] - 2026-08-15
+
+- feat: `POST /auth/logout` 契约端点（前端已调用但后端缺失 → 404；无状态 JWT 下返回成功，未来可接令牌黑名单）；禁用内置 LogoutFilter 避免消费冲突（曾致带认证登出 500）
+- fix: `/logout` 加入默认链放行
+
 ## [1.0.3] - 2026-08-15
 
 - refactor: RSA 密钥对加载改用 common `RsaKeyUtils`（私钥 PKCS8/公钥 SPKI，与 gateway/system/demo 统一）

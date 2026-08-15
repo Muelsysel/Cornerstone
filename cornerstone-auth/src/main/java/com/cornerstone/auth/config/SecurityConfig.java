@@ -40,7 +40,10 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /** 应用默认链：/login 放行（用户名密码登录换 JWT），/error、/actuator/**、OpenAPI 文档放行，其余路径要求认证。 */
+    /**
+     * 应用默认链：/login、/logout 放行（用户名密码登录换 JWT；logout 为无状态契约端点），/error、/actuator/**、OpenAPI
+     * 文档放行，其余路径要求认证。
+     */
     @Bean
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -49,6 +52,7 @@ public class SecurityConfig {
                         auth ->
                                 auth.requestMatchers(
                                                 "/login",
+                                                "/logout",
                                                 "/error",
                                                 "/actuator/**",
                                                 "/v3/api-docs/**",
@@ -57,6 +61,9 @@ public class SecurityConfig {
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated())
+                // 禁用内置 LogoutFilter：无状态 JWT 下由 LogoutController 提供契约端点（避免内置过滤器消费 POST /logout 导致
+                // 500）
+                .logout(logout -> logout.disable())
                 .httpBasic(basic -> basic.disable())
                 .formLogin(form -> form.disable());
         return http.build();
