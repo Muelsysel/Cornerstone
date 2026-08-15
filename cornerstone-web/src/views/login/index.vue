@@ -87,6 +87,7 @@ const rules: FormRules<LoginForm> = {
 }
 
 async function handleLogin() {
+  if (loading.value) return // 防重复提交（按钮 loading + 回车连发双保险）
   if (!formRef.value) return
   const valid = await formRef.value.validate().catch(() => false)
   if (!valid) return

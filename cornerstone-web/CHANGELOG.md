@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.4.31] - 2026-08-16
+
+- fix(ux): 登录提交加 loading 早退守卫——按钮 loading 之外，回车连发/快速双击不再触发重复登录请求
+
+**测试方法**：`npm test`（34 用例）+ `npm run build`。
+
 ## [1.4.30] - 2026-08-16
 
 - fix(security): nginx 补安全响应头——X-Frame-Options（防点击劫持）/ X-Content-Type-Options（防 MIME 嗅探）/ Referrer-Policy / CSP（禁外部脚本资源，Element Plus 需 style unsafe-inline）；实测页面与 API 均正常
