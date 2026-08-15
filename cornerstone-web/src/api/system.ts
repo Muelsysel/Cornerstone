@@ -44,6 +44,16 @@ export function changeUserStatus(userId: number, status: string): Promise<unknow
   return request({ url: `/system/user/${userId}/status`, method: 'put', params: { status } })
 }
 
+/** 查询用户已分配的角色 ID（分配角色弹窗回显） */
+export function getUserRoleIds(userId: number): Promise<{ roleIds: number[] }> {
+  return request({ url: `/system/user/${userId}/roles`, method: 'get' })
+}
+
+/** 分配用户角色（全量覆盖） */
+export function assignUserRoles(userId: number, roleIds: number[]): Promise<unknown> {
+  return request({ url: `/system/user/${userId}/roles`, method: 'put', data: roleIds })
+}
+
 // ---------------------------------- 个人中心 ----------------------------------
 
 export function getProfile(): Promise<User> {
@@ -61,6 +71,11 @@ export function updatePassword(data: {
 
 export function getRolePage(params: RoleQuery): Promise<PageResult<Role>> {
   return request({ url: '/system/role/page', method: 'get', params })
+}
+
+/** 角色列表（用户分配角色弹窗用） */
+export function getRoleList(): Promise<Role[]> {
+  return request({ url: '/system/role/list', method: 'get' })
 }
 
 export function createRole(data: Partial<Role>): Promise<unknown> {

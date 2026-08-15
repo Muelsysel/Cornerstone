@@ -16,4 +16,7 @@ public interface SysUserRoleMapper {
 
     /** 查询用户拥有的角色标识 */
     java.util.Set<String> selectRoleKeysByUserId(Long userId);
+
+    /** 查询用户已分配的角色 ID 集合（分配弹窗回显） */
+    List<Long> selectRoleIdsByUserId(Long userId);
 }

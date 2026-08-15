@@ -10,6 +10,7 @@ import com.cornerstone.system.domain.entity.SysUser;
 import com.cornerstone.system.exception.SystemErrorCode;
 import com.cornerstone.system.service.SysUserService;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -117,5 +118,24 @@ public class SysUserController {
             @RequestParam(name = "password") String password) {
         userService.resetPassword(userId, password);
         return Result.success();
+    }
+
+    /** 分配角色（全量覆盖：先清后插） */
+    @PutMapping("/{userId}/roles")
+    @OperLog(title = "用户管理", businessType = BusinessType.UPDATE)
+    @PreAuthorize("hasAuthority('system:user:edit')")
+    public Result<Void> assignRoles(
+            @PathVariable(name = "userId") Long userId, @RequestBody List<Long> roleIds) {
+        userService.assignRoles(userId, roleIds);
+        return Result.success();
+    }
+
+    /** 查询用户已分配的角色 ID（分配弹窗回显） */
+    @GetMapping("/{userId}/roles")
+    @PreAuthorize("hasAuthority('system:user:list')")
+    public Result<Map<String, Object>> userRoles(@PathVariable(name = "userId") Long userId) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("roleIds", userService.getRoleIdsByUserId(userId));
+        return Result.success(data);
     }
 }

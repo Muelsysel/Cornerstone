@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.4.1] - 2026-08-15（功能补全）
+
+- feat: 用户管理页「分配角色」——行操作按钮 + 多选弹窗（角色列表/已分配回显/全量覆盖），配套后端 `PUT/GET /system/user/{userId}/roles`
+
+**测试方法**：`npm run build`（vue-tsc 类型检查 + vite 构建，须通过）；`npm test`（vitest 单测，12 用例）。
+
 ## [1.4.0] - 2026-08-15（构建工具升级）
 
 - build: Vite 5 → **7**、@vitejs/plugin-vue 5 → 6（需 Node ≥ 20.19/22.12），`npm audit` 归零（修复 esbuild dev server 漏洞）；构建产物体积持平（主包 gzip ≈ 130KB）；Dockerfile/CI 构建节点同步 node 22

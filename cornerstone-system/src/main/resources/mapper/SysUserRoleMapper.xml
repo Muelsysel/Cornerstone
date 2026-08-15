@@ -23,4 +23,8 @@
           AND r.deleted = 0
     </select>
 
+    <select id="selectRoleIdsByUserId" resultType="java.lang.Long">
+        SELECT role_id FROM sys_user_role WHERE user_id = #{userId}
+    </select>
+
 </mapper>

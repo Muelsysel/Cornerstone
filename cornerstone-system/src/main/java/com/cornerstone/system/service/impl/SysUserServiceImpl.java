@@ -6,10 +6,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cornerstone.common.exception.BusinessException;
 import com.cornerstone.system.domain.entity.SysUser;
 import com.cornerstone.system.domain.mapper.SysUserMapper;
+import com.cornerstone.system.domain.mapper.SysUserRoleMapper;
 import com.cornerstone.system.exception.SystemErrorCode;
 import com.cornerstone.system.service.SysUserService;
+import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /** 用户服务实现。 */
 @Service
@@ -17,9 +20,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
         implements SysUserService {
 
     private final PasswordEncoder passwordEncoder;
+    private final SysUserRoleMapper userRoleMapper;
 
-    public SysUserServiceImpl(PasswordEncoder passwordEncoder) {
+    public SysUserServiceImpl(PasswordEncoder passwordEncoder, SysUserRoleMapper userRoleMapper) {
         this.passwordEncoder = passwordEncoder;
+        this.userRoleMapper = userRoleMapper;
     }
 
     @Override
@@ -95,6 +100,23 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
         patch.setId(userId);
         patch.setPassword(passwordEncoder.encode(password));
         this.updateById(patch);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void assignRoles(Long userId, List<Long> roleIds) {
+        if (this.getById(userId) == null) {
+            throw new BusinessException(SystemErrorCode.USER_NOT_FOUND);
+        }
+        userRoleMapper.deleteUserRoleByUserId(userId);
+        if (roleIds != null && !roleIds.isEmpty()) {
+            userRoleMapper.batchInsertUserRole(userId, roleIds);
+        }
+    }
+
+    @Override
+    public List<Long> getRoleIdsByUserId(Long userId) {
+        return userRoleMapper.selectRoleIdsByUserId(userId);
     }
 
     private boolean hasText(String value) {

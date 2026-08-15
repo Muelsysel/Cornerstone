@@ -2,6 +2,7 @@ package com.cornerstone.system.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cornerstone.system.domain.entity.SysUser;
+import java.util.List;
 
 /** 用户服务接口。 */
 public interface SysUserService {
@@ -26,4 +27,10 @@ public interface SysUserService {
 
     /** 重置密码 */
     void resetPassword(Long userId, String password);
+
+    /** 分配角色（全量覆盖：先清后插，事务保证原子） */
+    void assignRoles(Long userId, List<Long> roleIds);
+
+    /** 查询用户已分配的角色 ID 集合 */
+    List<Long> getRoleIdsByUserId(Long userId);
 }

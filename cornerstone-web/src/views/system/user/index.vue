@@ -42,10 +42,13 @@
             />
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="160" fixed="right">
+        <el-table-column label="操作" width="220" fixed="right">
           <template #default="{ row }: { row: any }">
             <el-button v-permission="'system:user:edit'" link type="primary" @click="handleEdit(row)">
               编辑
+            </el-button>
+            <el-button v-permission="'system:user:edit'" link type="primary" @click="handleAssignRoles(row)">
+              分配角色
             </el-button>
             <el-button v-permission="'system:user:remove'" link type="danger" @click="handleDelete(row)">
               删除
@@ -66,6 +69,24 @@
         @current-change="loadData"
       />
     </el-card>
+
+    <!-- 分配角色弹窗 -->
+    <el-dialog v-model="rolesVisible" title="分配角色" width="420px" destroy-on-close>
+      <el-select
+        v-model="selectedRoleIds"
+        v-loading="rolesLoading"
+        multiple
+        filterable
+        placeholder="请选择角色（可多选，全量覆盖）"
+        style="width: 100%"
+      >
+        <el-option v-for="role in roleList" :key="role.roleId" :label="role.roleName" :value="role.roleId" />
+      </el-select>
+      <template #footer>
+        <el-button @click="rolesVisible = false">取消</el-button>
+        <el-button type="primary" :loading="rolesSaving" @click="submitAssignRoles">确定</el-button>
+      </template>
+    </el-dialog>
 
     <!-- 新增/编辑弹窗 -->
     <el-dialog
@@ -113,13 +134,16 @@ import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { Plus, Refresh, Search } from '@element-plus/icons-vue'
 import {
+  assignUserRoles,
   changeUserStatus,
   createUser,
   deleteUser,
+  getRoleList,
   getUserPage,
+  getUserRoleIds,
   updateUser,
 } from '@/api/system'
-import type { User, UserQuery } from '@/types/system'
+import type { Role, User, UserQuery } from '@/types/system'
 
 interface UserForm {
   userId?: number
@@ -231,6 +255,44 @@ async function handleSubmit() {
     // 错误提示已由请求拦截器统一处理
   } finally {
     submitting.value = false
+  }
+}
+
+// ---------------- 分配角色 ----------------
+const rolesVisible = ref(false)
+const rolesLoading = ref(false)
+const rolesSaving = ref(false)
+const roleList = ref<Role[]>([])
+const selectedRoleIds = ref<number[]>([])
+let assignUserId = 0
+
+async function handleAssignRoles(row: User) {
+  assignUserId = row.userId
+  rolesVisible.value = true
+  rolesLoading.value = true
+  selectedRoleIds.value = []
+  try {
+    roleList.value = (await getRoleList()) || []
+    const { roleIds } = await getUserRoleIds(row.userId)
+    selectedRoleIds.value = roleIds || []
+  } catch {
+    roleList.value = []
+  } finally {
+    rolesLoading.value = false
+  }
+}
+
+async function submitAssignRoles() {
+  rolesSaving.value = true
+  try {
+    await assignUserRoles(assignUserId, selectedRoleIds.value)
+    ElMessage.success('角色分配成功')
+    rolesVisible.value = false
+    loadData()
+  } catch {
+    // 错误提示已由请求拦截器统一处理
+  } finally {
+    rolesSaving.value = false
   }
 }
 

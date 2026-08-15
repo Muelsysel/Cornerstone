@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.1.3] - 2026-08-15
+
+- feat: 用户分配角色——`PUT/GET /system/user/{userId}/roles`（全量覆盖，事务保证；补 selectRoleIdsByUserId 查询），消除用户管理无法维护角色关联的功能缺口
+
+**测试方法**：`mvn test -pl cornerstone-system`（CornerstoneDataPermissionHandlerTest / SysAuthUserControllerTest / SystemSecurityTest / SystemExtensionTest / DataScopeServiceTest / OperLogAspectTest / AuthUserSupportServiceTest）。
+
 ## [1.1.2] - 2026-08-15
 
 - test: `AuthUserSupportServiceTest`（认证核心组装：用户不存在/角色权限组装/空角色/菜单 perms 与状态过滤）
