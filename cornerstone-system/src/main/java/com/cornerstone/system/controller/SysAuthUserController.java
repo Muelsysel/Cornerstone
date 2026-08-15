@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
  * 认证支持接口：为认证中心登录提供服务。
  *
  * <p>实现 {@link AuthUserClient} 契约（GET /system/auth/user/{username}），响应含密码哈希，仅供服务间内部调用； 并实现 {@link
- * LoginLogClient} 契约（POST /system/auth/login-log）接收登录日志落库。 服务间内部接口，v1 简化匿名访问（网关白名单不含
- * /system/**，已隔离外部）；生产环境需服务间认证。
+ * LoginLogClient} 契约（POST /system/auth/login-log）接收登录日志落库。 服务间内部接口：网关白名单不含 /system/** 已隔离外部， 另由
+ * {@code InternalTokenFilter} 校验共享内部令牌（见 ADR-0007）。
  */
 @RestController
 @RequestMapping("/system/auth")

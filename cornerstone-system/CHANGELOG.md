@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.6] - 2026-08-15
+
+- docs: SysAuthUserController 类注释同步 ADR-0007（内部令牌已实现，移除"生产环境需服务间认证"过时表述）
+
+**测试方法**：`mvn test -pl cornerstone-system`。
+
 ## [1.2.5] - 2026-08-15
 
 - test: `SysRoleServiceImplTest` 扩至 10 用例（新增 update 自定义数据范围重建 dept 关联、update 全局范围清空 dept 关联）
