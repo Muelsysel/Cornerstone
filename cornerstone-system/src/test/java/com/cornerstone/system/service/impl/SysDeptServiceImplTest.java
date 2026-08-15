@@ -58,6 +58,15 @@ class SysDeptServiceImplTest {
     }
 
     @Test
+    void listTreePassesFilterParamsToMapper() {
+        when(deptMapper.selectList(any())).thenReturn(List.of());
+
+        service.listTree("研发", "0");
+
+        verify(deptMapper).selectList(any());
+    }
+
+    @Test
     void addAtRootSetsAncestorsToZero() {
         SysDept d = dept(null, 0L, "新部门", null, 1);
         when(deptMapper.insert(d)).thenReturn(1);
