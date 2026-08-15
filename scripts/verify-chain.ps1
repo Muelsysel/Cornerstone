@@ -385,6 +385,44 @@ try {
     }
     Assert 'Password binding: custom init password works' $pwOk 'OK'
 
+    # 13. 密码策略契约：重置密码（6-72 校验）→ 新密码登录成功；过短密码被 400 拒绝
+    #     回归：曾因 @Valid 缺失，改密/重置可提交弱密码（绕过前端 min 6）
+    $rpUser = "verify-rp-$ts"
+    $rpPass1 = 'RpP@ss!2026'
+    $rpPass2 = 'RpP@ss!2027'
+    $rpOk = 'FAIL'
+    Write-JsonBody "{`"username`":`"$rpUser`",`"password`":`"$rpPass1`",`"status`":`"0`"}"
+    $rpCreate = curl.exe -s --max-time 20 -X POST 'http://localhost:8080/system/user' `
+        -H "Authorization: Bearer $adminToken" -H 'Content-Type: application/json' --data-binary "@$tmpJson"
+    try { $rpId = ($rpCreate | ConvertFrom-Json).data.userId } catch {}
+    if ($rpId) {
+        # 过短密码重置必须被拒（业务码 400，密码不变）
+        Write-JsonBody "{`"password`":`"short`"}"
+        $shortResp = curl.exe -s --max-time 20 -X PUT "http://localhost:8080/system/user/$rpId/password" `
+            -H "Authorization: Bearer $adminToken" -H 'Content-Type: application/json' --data-binary "@$tmpJson"
+        $shortCode = $null
+        try { $shortCode = ($shortResp | ConvertFrom-Json).code } catch {}
+        # 合法重置 → 新密码登录成功
+        if ($shortCode -eq 400) {
+            Write-JsonBody "{`"password`":`"$rpPass2`"}"
+            $rpReset = curl.exe -s --max-time 20 -X PUT "http://localhost:8080/system/user/$rpId/password" `
+                -H "Authorization: Bearer $adminToken" -H 'Content-Type: application/json' --data-binary "@$tmpJson"
+            $rpLoginCode = $null
+            for ($attempt = 1; $attempt -le 2 -and $rpLoginCode -ne 200; $attempt++) {
+                Write-JsonBody "{`"username`":`"$rpUser`",`"password`":`"$rpPass2`"}"
+                $rpLogin = curl.exe -s --max-time 20 -X POST 'http://localhost:8080/auth/login' `
+                    -H 'Content-Type: application/json' --data-binary "@$tmpJson"
+                try { $rpLoginCode = ($rpLogin | ConvertFrom-Json).code } catch {}
+                if ($rpLoginCode -ne 200 -and $attempt -lt 2) { Start-Sleep -Milliseconds 500 }
+            }
+            if ($rpLoginCode -eq 200) { $rpOk = 'OK' }
+        }
+        # 清理临时用户
+        curl.exe -s -o NUL --max-time 20 -X DELETE "http://localhost:8080/system/user/$rpId" `
+            -H "Authorization: Bearer $adminToken"
+    }
+    Assert 'Password policy: short rejected + reset works' $rpOk 'OK'
+
     if ($script:fail -eq 0) {
         Write-Host ''
         Write-Host '=== End-to-end verification PASSED ==='
