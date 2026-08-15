@@ -100,6 +100,6 @@ cornerstone-demo/
     │   └── controller/              ← 公告接口（公开 + 受保护）
     └── resources/
         ├── application.yml
-        └── db/migration/            ← V1__baseline.sql / V2__seed.sql / V3__author_column.sql
+        └── db/migration/            ← V1__baseline.sql / V2__seed.sql / V3__author_column.sql / V4__create_time_index.sql
 └── src/test/                        ← MockMvc 集成测试（H2 跑 Flyway）
 ```
