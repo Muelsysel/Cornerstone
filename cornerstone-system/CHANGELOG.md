@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.1] - 2026-08-15
+
+- test: `InternalTokenFilterTest` 4 用例（内部令牌正确放行/错误 401/缺失 401/非内部路径放行——安全逻辑回归）
+
+**测试方法**：`mvn test -pl cornerstone-system`（CornerstoneDataPermissionHandlerTest / SysAuthUserControllerTest / SystemSecurityTest / SystemExtensionTest / DataScopeServiceTest / OperLogAspectTest / AuthUserSupportServiceTest / SysUserServiceImplTest / SysRoleServiceImplTest / SysConfigServiceImplTest / SysDictServiceImplTest / InternalTokenFilterTest）。
+
 ## [1.2.0] - 2026-08-15
 
 - perf: V10 迁移补查询/排序索引（日志 oper_time/oper_name、login_time/username、字典 dict_type、用户 dept_id、角色 role_key）——大日志表分页排序与数据权限/关联查询提速
