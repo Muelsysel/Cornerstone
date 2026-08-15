@@ -50,7 +50,7 @@ public class SysConfigController {
     /** 按键名查参数值（读缓存） */
     @Operation(summary = "按键名查询参数值", description = "读 Redis 缓存，未命中回源并回填")
     @GetMapping("/value/{configKey}")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAuthority('system:config:list')")
     public Result<Map<String, String>> valueByKey(
             @PathVariable(name = "configKey") String configKey) {
         Map<String, String> data = new HashMap<>();

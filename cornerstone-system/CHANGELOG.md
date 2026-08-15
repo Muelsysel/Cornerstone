@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.44] - 2026-08-16
+
+- fix(security): 参数值查询接口 `GET /system/config/value/{configKey}` 权限收紧——`isAuthenticated()` → `system:config:list`（任意登录者含 client_credentials 此前可读任意参数值，如默认初始密码）
+
+**测试方法**：`mvn test -pl cornerstone-system`（157 用例）。
+
 ## [1.2.43] - 2026-08-16
 
 - feat(ux): 用户分页列表按 deptId 批量回填部门名（`SysUser.deptName` 非表字段，`enrichDeptNames` 避免 N+1）——用户管理页新增「部门」列
