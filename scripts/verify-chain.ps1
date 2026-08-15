@@ -472,6 +472,24 @@ try {
     } catch {}
     Assert 'Login log exposes infoId (frontend contract)' $logIdOk 'OK'
 
+    # 15. 审计脱敏契约：操作日志绝不包含明文密码（AOP maskSensitive 屏蔽 password/secret）
+    $maskOk = 'FAIL'
+    $opPage = curl.exe -s --max-time 20 -H "Authorization: Bearer $adminToken" `
+        'http://localhost:8080/system/operlog/page?pageNum=1&pageSize=20'
+    try {
+        $opRecs = ($opPage | ConvertFrom-Json).data.records
+        $leak = $false
+        if ($opRecs -is [array]) {
+            foreach ($op in $opRecs) {
+                $raw = [string]$op.operParam
+                if ($raw -match 'admin123' -or $raw -match 'Passw0rd|VrfyP@ss|RpP@ss') { $leak = $true; break }
+                if ($raw -match '"password":"(?!\*\*\*)') { $leak = $true; break }
+            }
+        }
+        if (-not $leak) { $maskOk = 'OK' }
+    } catch {}
+    Assert 'Oper log masks passwords (no plaintext leak)' $maskOk 'OK'
+
     if ($script:fail -eq 0) {
         Write-Host ''
         Write-Host '=== End-to-end verification PASSED ==='
