@@ -142,7 +142,7 @@ curl -u "cornerstone-client:cornerstone-secret" -X POST \
 | --- | --- |
 | 了解整个项目怎么运转 | [CONTEXT-MAP.md](CONTEXT-MAP.md)（模块地图 + 词汇表 + 测试总览） |
 | 在某个模块里开发 | 该模块的 `CONTEXT.md` + 相关 ADR |
-| 理解为什么这么设计 | [docs/adr/](docs/adr/)（8 条决策记录） |
+| 理解为什么这么设计 | [docs/adr/](docs/adr/)（9 条决策记录） |
 | 让 AI 按项目工作流开发 | `skills/cornerstone-dev/SKILL.md` |
 | 工程技能如何读这些文档 | [docs/agents/](docs/agents/) |
 | 一键跑通演示 | [docs/guides/run-demo.md](docs/guides/run-demo.md) |
