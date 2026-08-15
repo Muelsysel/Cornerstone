@@ -141,6 +141,28 @@ class TokenAuthGlobalFilterTest {
         assertThat(forwarded.getFirst(UserContext.HEADER_ROLES)).isEqualTo("read,write");
     }
 
+    /** 转发请求附加内部令牌（下游 UserContextFilter 凭此证明经网关转发，防直连伪造身份头） */
+    @Test
+    void forwardAddsInternalTokenAndStripsClientSupplied() {
+        String token = issueToken(Map.of("username", "admin", "scope", List.of("read")));
+        // 客户端伪造的内部令牌必须被剥除
+        MockServerWebExchange exchange =
+                MockServerWebExchange.from(
+                        MockServerHttpRequest.get("/system/user/1")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                                .header("X-Internal-Token", "forged"));
+        ServerWebExchangeMutator mutator = new ServerWebExchangeMutator();
+
+        new TokenAuthGlobalFilter(jwtDecoder, new ObjectMapper(), "cornerstone-internal-secret")
+                .filter(exchange, mutator)
+                .block();
+
+        HttpHeaders forwarded = mutator.getMutatedHeaders();
+        // 网关盖章的内部令牌（而非客户端伪造值）
+        assertThat(forwarded.get("X-Internal-Token"))
+                .containsExactly("cornerstone-internal-secret");
+    }
+
     /** 无效令牌返回 401 */
     @Test
     void invalidTokenReturns401() {

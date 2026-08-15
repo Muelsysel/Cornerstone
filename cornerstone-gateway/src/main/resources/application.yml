@@ -26,6 +26,9 @@ spring:
 
 # 网关 JWT 校验公钥（与认证中心使用同一 RSA 公钥）
 cornerstone:
+  # 服务间内部令牌（与 auth/system/demo 一致）：网关转发时附加 X-Internal-Token，
+  # 下游 UserContextFilter 据此证明请求经网关转发（防直连服务端口伪造身份头）
+  internal-token: cornerstone-internal-secret
   gateway:
     jwt:
       public-key: classpath:rsa-public.pem

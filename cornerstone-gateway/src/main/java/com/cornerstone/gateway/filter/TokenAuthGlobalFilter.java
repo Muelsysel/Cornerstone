@@ -36,10 +36,22 @@ public class TokenAuthGlobalFilter implements GlobalFilter, Ordered {
 
     private final ReactiveJwtDecoder jwtDecoder;
     private final ObjectMapper objectMapper;
+    private final String internalToken;
 
     public TokenAuthGlobalFilter(ReactiveJwtDecoder jwtDecoder, ObjectMapper objectMapper) {
+        this(jwtDecoder, objectMapper, null);
+    }
+
+    /** 装配用主构造（@Autowired 消歧：类上有多个构造器）；测试可直传令牌。 */
+    @org.springframework.beans.factory.annotation.Autowired
+    public TokenAuthGlobalFilter(
+            ReactiveJwtDecoder jwtDecoder,
+            ObjectMapper objectMapper,
+            @org.springframework.beans.factory.annotation.Value("${cornerstone.internal-token:}")
+                    String internalToken) {
         this.jwtDecoder = jwtDecoder;
         this.objectMapper = objectMapper;
+        this.internalToken = internalToken;
     }
 
     @Override
@@ -73,7 +85,7 @@ public class TokenAuthGlobalFilter implements GlobalFilter, Ordered {
                 .onErrorResume(e -> unauthorized(stripped));
     }
 
-    /** 剥除客户端可控的透传上下文头（X-Cornerstone-*），防止伪造身份透传到下游服务 */
+    /** 剥除客户端可控的透传上下文头（X-Cornerstone-*）与内部令牌（X-Internal-Token），防伪造身份透传到下游服务 */
     private ServerHttpRequest stripPassthroughHeaders(ServerHttpRequest request) {
         return request.mutate()
                 .headers(
@@ -82,6 +94,7 @@ public class TokenAuthGlobalFilter implements GlobalFilter, Ordered {
                             h.remove(UserContext.HEADER_USERNAME);
                             h.remove(UserContext.HEADER_DEPT_ID);
                             h.remove(UserContext.HEADER_ROLES);
+                            h.remove("X-Internal-Token");
                         })
                 .build();
     }
@@ -106,13 +119,17 @@ public class TokenAuthGlobalFilter implements GlobalFilter, Ordered {
         return header.substring("Bearer ".length()).trim();
     }
 
-    /** 把 JWT 声明映射为透传上下文头，构造新请求继续转发 */
+    /** 把 JWT 声明映射为透传上下文头，构造新请求继续转发（附加内部令牌证明经网关转发） */
     private ServerWebExchange forwardWithHeaders(ServerWebExchange exchange, Jwt jwt) {
         ServerHttpRequest mutated =
                 exchange.getRequest()
                         .mutate()
                         .headers(
                                 h -> {
+                                    // 内部令牌：下游 UserContextFilter 仅在令牌有效时采信透传头（防直连伪造）
+                                    if (internalToken != null && !internalToken.isBlank()) {
+                                        h.add("X-Internal-Token", internalToken);
+                                    }
                                     String sub = jwt.getSubject();
                                     if (sub != null) {
                                         // 用户令牌：sub 为数字用户 ID；client_credentials 令牌：sub 为

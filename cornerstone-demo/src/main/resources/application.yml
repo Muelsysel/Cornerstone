@@ -37,6 +37,9 @@ mybatis-plus:
 # 资源服务器：与 auth 签发的令牌对齐的 RSA 公钥（与 cornerstone-auth/rsa-public.pem 相同）。
 # 注意：gateway/auth/system/demo 四处必须使用同一对密钥；测试用密钥见 application-test.yml。
 cornerstone:
+  # 服务间内部令牌（与 gateway/auth/system 一致）：UserContextFilter 仅采信携带有效令牌的透传头，
+  # 防止直连服务端口伪造 X-Cornerstone-* 身份头
+  internal-token: cornerstone-internal-secret
   security:
     public-key: |
       -----BEGIN PUBLIC KEY-----
