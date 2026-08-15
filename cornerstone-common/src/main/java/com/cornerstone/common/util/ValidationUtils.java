@@ -2,6 +2,7 @@ package com.cornerstone.common.util;
 
 import com.cornerstone.common.core.ErrorCode;
 import com.cornerstone.common.exception.BusinessException;
+import java.util.Arrays;
 
 /**
  * 参数校验工具。字段长度上限与 DB 列定义（varchar(n)）保持一致： 超长会触发 MySQL DataTruncation → 500，业务层先校验返回友好 400。null
@@ -22,6 +23,14 @@ public final class ValidationUtils {
     public static void required(String value, String fieldName) {
         if (value == null || value.isBlank()) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, fieldName + "不能为空");
+        }
+    }
+
+    /** 枚举校验：值不在允许集合内抛 400（null 放行，允许部分更新）。 */
+    public static void oneOf(String value, String fieldName, String... allowed) {
+        if (value != null && Arrays.stream(allowed).noneMatch(value::equals)) {
+            throw new BusinessException(
+                    ErrorCode.BAD_REQUEST, fieldName + "非法（仅 " + String.join("/", allowed) + "）");
         }
     }
 }

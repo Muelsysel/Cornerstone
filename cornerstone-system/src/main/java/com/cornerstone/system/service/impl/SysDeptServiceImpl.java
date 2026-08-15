@@ -154,5 +154,6 @@ public class SysDeptServiceImpl implements SysDeptService {
         ValidationUtils.maxLength(dept.getLeader(), 30, "负责人");
         ValidationUtils.maxLength(dept.getPhone(), 30, "联系电话");
         ValidationUtils.maxLength(dept.getEmail(), 50, "邮箱");
+        ValidationUtils.oneOf(dept.getStatus(), "部门状态", "0", "1");
     }
 }

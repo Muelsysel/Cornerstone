@@ -83,6 +83,25 @@ class SysRoleServiceImplTest {
     }
 
     @Test
+    void addRejectsInvalidDataScope() {
+        // 回归：非法数据范围会在权限解析时被 fail-closed 静默按「仅本人」处理；现保存时即报 400 暴露配置错误
+        when(service.count(any())).thenReturn(0L);
+        SysRole r = role(null, "ok-key", "9");
+
+        assertThatThrownBy(() -> service.add(r)).isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    void addRejectsInvalidStatus() {
+        // 回归：非法角色状态（char(1)）此前可入库；现保存时即报 400
+        when(service.count(any())).thenReturn(0L);
+        SysRole r = role(null, "ok-key", "1");
+        r.setStatus("9");
+
+        assertThatThrownBy(() -> service.add(r)).isInstanceOf(BusinessException.class);
+    }
+
+    @Test
     void addWithCustomScopeInsertsDepts() {
         when(service.count(any())).thenReturn(0L);
         SysRole r = role(5L, "ops", "2");

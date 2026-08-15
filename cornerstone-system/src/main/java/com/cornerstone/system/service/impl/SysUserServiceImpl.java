@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.cornerstone.common.exception.BusinessException;
+import com.cornerstone.common.util.ValidationUtils;
 import com.cornerstone.system.domain.entity.SysUser;
 import com.cornerstone.system.domain.mapper.SysUserMapper;
 import com.cornerstone.system.domain.mapper.SysUserRoleMapper;
@@ -48,6 +49,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
     public SysUser add(SysUser user) {
         validateUsernameLength(user.getUsername());
         validateNicknameLength(user.getNickname());
+        validateStatus(user.getStatus());
         long exists =
                 this.count(
                         new LambdaQueryWrapper<SysUser>()
@@ -80,6 +82,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
             validateUsernameLength(user.getUsername());
         }
         validateNicknameLength(user.getNickname());
+        validateStatus(user.getStatus());
         if (hasText(user.getUsername()) && !user.getUsername().equals(exist.getUsername())) {
             long exists =
                     this.count(
@@ -124,10 +127,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
             throw new BusinessException(SystemErrorCode.USER_NOT_FOUND);
         }
         // 状态合法性：仅接受 0（正常）/ 1（停用），防非法值污染 DB（char(1) 列）
-        if (!"0".equals(status) && !"1".equals(status)) {
-            throw new BusinessException(
-                    com.cornerstone.common.core.ErrorCode.BAD_REQUEST, "状态值非法（仅 0/1）");
-        }
+        validateStatus(status);
         SysUser user = new SysUser();
         user.setId(userId);
         user.setStatus(status);
@@ -166,6 +166,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
 
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    /** 账号状态合法性（仅 0 正常 / 1 停用）：防非法值污染 DB char(1) 列。 */
+    private void validateStatus(String status) {
+        ValidationUtils.oneOf(status, "状态值", "0", "1");
     }
 
     /** 用户名长度上限（与 DB varchar(30) 一致）：超长会触发 DataTruncation → 500，业务层先校验返回友好 400。 */

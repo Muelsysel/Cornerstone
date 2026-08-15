@@ -139,5 +139,6 @@ public class SysConfigServiceImpl implements SysConfigService {
         ValidationUtils.maxLength(config.getConfigKey(), 100, "参数键名");
         ValidationUtils.maxLength(config.getConfigValue(), 500, "参数键值");
         ValidationUtils.maxLength(config.getRemark(), 500, "备注");
+        ValidationUtils.oneOf(config.getConfigType(), "参数类型", "Y", "N");
     }
 }

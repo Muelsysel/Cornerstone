@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.cornerstone.common.exception.BusinessException;
+import com.cornerstone.common.util.ValidationUtils;
 import com.cornerstone.system.domain.entity.SysRole;
 import com.cornerstone.system.domain.mapper.SysRoleDeptMapper;
 import com.cornerstone.system.domain.mapper.SysRoleMapper;
@@ -55,7 +56,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
     @Override
     @Transactional(rollbackFor = Exception.class)
     public SysRole add(SysRole role) {
-        validateRoleLengths(role.getRoleName(), role.getRoleKey(), role.getRemark());
+        validateRoleFields(role);
         long exists =
                 this.count(
                         new LambdaQueryWrapper<SysRole>()
@@ -80,7 +81,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
         if (exist == null) {
             throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
         }
-        validateRoleLengths(role.getRoleName(), role.getRoleKey(), role.getRemark());
+        validateRoleFields(role);
         // 修改 roleKey 时校验唯一性（排除自己；并发撞唯一索引由 DuplicateKeyException 兜底）
         if (hasText(role.getRoleKey()) && !role.getRoleKey().equals(exist.getRoleKey())) {
             long exists =
@@ -175,19 +176,13 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole>
      * 角色名称/标识长度校验（与 DB 列一致：role_name varchar(30)、role_key varchar(50)）： 超长会触发 DataTruncation →
      * 500，业务层先校验返回友好 400。
      */
-    private void validateRoleLengths(String roleName, String roleKey, String remark) {
-        if (roleName != null && roleName.length() > 30) {
-            throw new BusinessException(
-                    com.cornerstone.common.core.ErrorCode.BAD_REQUEST, "角色名称不能超过 30 个字符");
-        }
-        if (roleKey != null && roleKey.length() > 50) {
-            throw new BusinessException(
-                    com.cornerstone.common.core.ErrorCode.BAD_REQUEST, "角色标识不能超过 50 个字符");
-        }
-        // remark varchar(500)：超长触发 DataTruncation → 500，先校验返回友好 400
-        if (remark != null && remark.length() > 500) {
-            throw new BusinessException(
-                    com.cornerstone.common.core.ErrorCode.BAD_REQUEST, "备注不能超过 500 个字符");
-        }
+    private void validateRoleFields(SysRole role) {
+        ValidationUtils.maxLength(role.getRoleName(), 30, "角色名称");
+        ValidationUtils.maxLength(role.getRoleKey(), 50, "角色标识");
+        ValidationUtils.maxLength(role.getRemark(), 500, "备注");
+        ValidationUtils.oneOf(role.getStatus(), "角色状态", "0", "1");
+        // 数据范围非法值会在数据权限解析时被 fail-closed 视为「仅本人」（静默收缩权限），
+        // 显式校验让配置错误在保存时就暴露
+        ValidationUtils.oneOf(role.getDataScope(), "数据范围", "1", "2", "3", "4", "5");
     }
 }

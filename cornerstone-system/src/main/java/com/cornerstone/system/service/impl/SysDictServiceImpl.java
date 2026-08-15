@@ -187,6 +187,7 @@ public class SysDictServiceImpl implements SysDictService {
         ValidationUtils.maxLength(type.getDictName(), 100, "字典名称");
         ValidationUtils.maxLength(type.getDictType(), 100, "字典类型");
         ValidationUtils.maxLength(type.getRemark(), 500, "备注");
+        ValidationUtils.oneOf(type.getStatus(), "字典状态", "0", "1");
     }
 
     /**
@@ -198,5 +199,7 @@ public class SysDictServiceImpl implements SysDictService {
         ValidationUtils.maxLength(data.getDictLabel(), 100, "字典标签");
         ValidationUtils.maxLength(data.getDictValue(), 100, "字典键值");
         ValidationUtils.maxLength(data.getRemark(), 500, "备注");
+        ValidationUtils.oneOf(data.getStatus(), "字典状态", "0", "1");
+        ValidationUtils.oneOf(data.getIsDefault(), "是否默认", "Y", "N");
     }
 }

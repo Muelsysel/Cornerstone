@@ -40,4 +40,21 @@ class ValidationUtilsTest {
                         BusinessException.class, () -> ValidationUtils.required(null, "名称"));
         assertThat(e.getCode()).isEqualTo(400);
     }
+
+    @Test
+    void oneOfAllowsNullAndAllowedValues() {
+        assertThatCode(() -> ValidationUtils.oneOf(null, "状态值", "0", "1"))
+                .doesNotThrowAnyException();
+        assertThatCode(() -> ValidationUtils.oneOf("0", "状态值", "0", "1"))
+                .doesNotThrowAnyException();
+        assertThatCode(() -> ValidationUtils.oneOf("3", "数据范围", "1", "2", "3", "4", "5"))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void oneOfRejectsDisallowedWithFriendlyMessage() {
+        assertThatThrownBy(() -> ValidationUtils.oneOf("9", "数据范围", "1", "2", "3", "4", "5"))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("数据范围非法（仅 1/2/3/4/5）");
+    }
 }

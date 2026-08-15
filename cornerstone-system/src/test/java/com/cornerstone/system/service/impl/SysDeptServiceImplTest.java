@@ -110,6 +110,16 @@ class SysDeptServiceImplTest {
     }
 
     @Test
+    void addRejectsInvalidStatus() {
+        // 回归：非法部门状态（char(1)）此前可入库；现保存时即报 400
+        SysDept d = dept(null, 0L, "部门", null, 1);
+        d.setStatus("9");
+
+        assertThatThrownBy(() -> service.add(d)).isInstanceOf(BusinessException.class);
+        verify(deptMapper, never()).insert(any(SysDept.class));
+    }
+
+    @Test
     void addUnderParentResolvesAncestorsChain() {
         SysDept parent = dept(5L, 1L, "研发部", "0,1", 1);
         SysDept d = dept(null, 5L, "测试组", null, 1);

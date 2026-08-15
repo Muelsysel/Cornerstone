@@ -143,6 +143,16 @@ class SysConfigServiceImplTest {
     }
 
     @Test
+    void addRejectsInvalidConfigType() {
+        // 回归：非法参数类型（char(1)：Y/N）此前可入库；现保存时即报 400
+        SysConfig c = config(null, "a", "v");
+        c.setConfigType("X");
+
+        assertThatThrownBy(() -> service.add(c)).isInstanceOf(BusinessException.class);
+        verify(configMapper, never()).insert(any(SysConfig.class));
+    }
+
+    @Test
     void deleteEvictsCache() {
         when(configMapper.selectById(1L)).thenReturn(config(1L, "a", "v"));
         service.delete(1L);

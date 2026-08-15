@@ -499,6 +499,37 @@ try {
     }
     Assert 'Password policy: short rejected + reset works' $rpOk 'OK'
 
+    # 13b. 账号状态契约：停用账号（status=1）登录必须失败（fail-closed：视为不存在，避免账号状态枚举）
+    $dsUser = "verify-ds-$ts"
+    $dsOk = 'FAIL'
+    Write-JsonBody "{`"username`":`"$dsUser`",`"password`":`"DsP@ss!2026`",`"status`":`"0`"}"
+    $dsCreate = curl.exe -s --max-time 20 -X POST 'http://localhost:8080/system/user' `
+        -H "Authorization: Bearer $adminToken" -H 'Content-Type: application/json' --data-binary "@$tmpJson"
+    try { $dsId = ($dsCreate | ConvertFrom-Json).data.userId } catch {}
+    if ($dsId) {
+        # 先停用（changeStatus → status=1，query 参数）
+        $dsOff = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 `
+            -X PUT "http://localhost:8080/system/user/$dsId/status?status=1" `
+            -H "Authorization: Bearer $adminToken"
+        if ($dsOff -eq '200') {
+            Write-JsonBody "{`"username`":`"$dsUser`",`"password`":`"DsP@ss!2026`"}"
+            $dsLogin = curl.exe -s --max-time 20 -X POST 'http://localhost:8080/auth/login' `
+                -H 'Content-Type: application/json' --data-binary "@$tmpJson"
+            $dsCode = $null
+            try { $dsCode = ($dsLogin | ConvertFrom-Json).code } catch {}
+            if ($dsCode -ne 200) { $dsOk = 'OK' }
+        }
+        # 清理临时用户（幂等重试）
+        for ($attempt = 1; $attempt -le 2; $attempt++) {
+            $delCode = curl.exe -s -o NUL -w '%{http_code}' --max-time 20 `
+                -X DELETE "http://localhost:8080/system/user/$dsId" `
+                -H "Authorization: Bearer $adminToken"
+            if ($delCode -eq '200') { break }
+            Start-Sleep -Milliseconds 500
+        }
+    }
+    Assert 'Disabled user login rejected (fail-closed)' $dsOk 'OK'
+
     # 14. 主键 JSON 契约：操作日志/登录日志响应必须含 operId/infoId（回归：曾返回 id，
     #     前端读 operId 得 null → 删除日志失败）
     $logIdOk = 'FAIL'

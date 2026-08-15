@@ -118,6 +118,26 @@ class SysMenuServiceImplTest {
     }
 
     @Test
+    void addRejectsInvalidMenuType() {
+        // 回归：非法菜单类型（char(1)：M/C/F）此前可入库；现保存时即报 400
+        SysMenu m = menu(null, 0L, "菜单", 1);
+        m.setMenuType("X");
+
+        assertThatThrownBy(() -> service.add(m)).isInstanceOf(BusinessException.class);
+        verify(menuMapper, never()).insert(any(SysMenu.class));
+    }
+
+    @Test
+    void addRejectsInvalidStatus() {
+        // 回归：非法菜单状态（char(1)）此前可入库；现保存时即报 400
+        SysMenu m = menu(null, 0L, "菜单", 1);
+        m.setStatus("9");
+
+        assertThatThrownBy(() -> service.add(m)).isInstanceOf(BusinessException.class);
+        verify(menuMapper, never()).insert(any(SysMenu.class));
+    }
+
+    @Test
     void addKeepsProvidedParentId() {
         SysMenu m = menu(null, 5L, "子菜单", 1);
         when(menuMapper.insert(m)).thenReturn(1);

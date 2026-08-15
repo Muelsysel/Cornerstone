@@ -130,5 +130,8 @@ public class SysMenuServiceImpl implements SysMenuService {
         ValidationUtils.maxLength(menu.getComponent(), 255, "组件路径");
         ValidationUtils.maxLength(menu.getPerms(), 100, "权限标识");
         ValidationUtils.maxLength(menu.getIcon(), 100, "菜单图标");
+        ValidationUtils.oneOf(menu.getMenuType(), "菜单类型", "M", "C", "F");
+        ValidationUtils.oneOf(menu.getVisible(), "显示状态", "0", "1");
+        ValidationUtils.oneOf(menu.getStatus(), "菜单状态", "0", "1");
     }
 }

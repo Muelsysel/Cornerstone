@@ -70,6 +70,16 @@ class SysUserServiceImplTest {
     }
 
     @Test
+    void addRejectsInvalidStatus() {
+        // 回归：非法账号状态（char(1)）此前可入库；现保存时即报 400
+        when(userMapper.selectCount(any())).thenReturn(0L);
+        SysUser u = user(null, "bad-status");
+        u.setStatus("9");
+
+        assertThatThrownBy(() -> service.add(u)).isInstanceOf(BusinessException.class);
+    }
+
+    @Test
     void deleteRejectsBuiltinAdmin() {
         assertThatThrownBy(() -> service.delete(1L)).isInstanceOf(BusinessException.class);
         verify(userRoleMapper, never()).deleteUserRoleByUserId(any());

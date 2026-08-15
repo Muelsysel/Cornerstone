@@ -2,6 +2,13 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.40] - 2026-08-16
+
+- fix(security): **停用账号禁止登录**——`AuthUserSupportService.findByUsername` 查询强制过滤 `status='0'`，停用用户视为不存在（认证统一报「用户名或密码错误」，与游客访问非已发布公告按不存在处理同款 fail-closed，避免账号状态枚举）；`AuthUserSupportServiceTest` 新增 `disabledUserReturnsNull`
+- fix(data): RBAC 各实体枚举字段补合法性校验（`ValidationUtils.oneOf`）——用户/部门/菜单/字典状态仅 0/1、菜单类型仅 M/C/F、菜单显示状态仅 0/1、参数类型仅 Y/N、字典默认值仅 Y/N、角色数据范围仅 1-5（此前非法值可入库；数据范围非法值会在权限解析时被 fail-closed 静默按「仅本人」收缩，配置错误难发现）；5 个 ServiceImplTest + ValidationUtilsTest 新增 10 个用例
+
+**测试方法**：`mvn test -pl cornerstone-system`（152 用例）。
+
 ## [1.2.39] - 2026-08-16
 
 - fix(bug): **RBAC 全部可写字符串字段补长度校验**（防 DB DataTruncation → 500）——参数（configName/configKey ≤100、configValue/remark ≤500）、字典（dictName/dictType/dictLabel/dictValue ≤100、remark ≤500）、菜单（menuName ≤50、path ≤200、component ≤255、perms/icon ≤100）、部门（leader/phone ≤30、email ≤50）、角色（remark ≤500）；新增 `ValidationUtils.maxLength` 统一入口（common），5 个 ServiceImplTest 共新增 11 个用例锁定

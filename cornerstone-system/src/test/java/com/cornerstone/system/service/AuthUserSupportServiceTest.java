@@ -3,8 +3,10 @@ package com.cornerstone.system.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cornerstone.api.dto.UserAuthDTO;
 import com.cornerstone.system.domain.entity.SysMenu;
 import com.cornerstone.system.domain.entity.SysRole;
@@ -64,6 +66,22 @@ class AuthUserSupportServiceTest {
     void userNotFoundReturnsNull() {
         when(userMapper.selectOne(any())).thenReturn(null);
         assertThat(service.findByUsername("ghost")).isNull();
+    }
+
+    @Test
+    void disabledUserReturnsNull() {
+        // 回归：停用账号（status=1）此前仍可登录；现 findByUsername 查询强制过滤 status='0'，
+        // 停用视为不存在（fail-closed，与游客访问非已发布公告按不存在处理同策略，避免账号状态枚举）
+        when(userMapper.selectOne(any())).thenReturn(user(7L, "fired"));
+
+        service.findByUsername("fired");
+
+        // 捕获查询条件，断言 status='0' 已注入（仅 mock 返回值无法证明过滤生效）
+        org.mockito.ArgumentCaptor<LambdaQueryWrapper<SysUser>> captor =
+                org.mockito.ArgumentCaptor.forClass(LambdaQueryWrapper.class);
+        verify(userMapper).selectOne(captor.capture());
+        // SQL 片段用参数占位符（#{ew.paramNameValuePairs.*}），断言条件已注入即可
+        assertThat(captor.getValue().getSqlSegment()).contains("username =").contains("status =");
     }
 
     @Test

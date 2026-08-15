@@ -45,11 +45,15 @@ public class AuthUserSupportService {
         this.menuMapper = menuMapper;
     }
 
-    /** 按用户名查询认证所需用户信息；用户不存在返回 null。 */
+    /** 按用户名查询认证所需用户信息；用户不存在或已停用（status=1）返回 null。 */
     public UserAuthDTO findByUsername(String username) {
         SysUser user =
                 userMapper.selectOne(
-                        new LambdaQueryWrapper<SysUser>().eq(SysUser::getUsername, username));
+                        new LambdaQueryWrapper<SysUser>()
+                                .eq(SysUser::getUsername, username)
+                                // 停用账号视为不存在：认证中心统一报「用户名或密码错误」，
+                                // 与「游客访问非已发布公告按不存在处理」同款 fail-closed 策略，避免账号状态枚举
+                                .eq(SysUser::getStatus, "0"));
         if (user == null) {
             return null;
         }

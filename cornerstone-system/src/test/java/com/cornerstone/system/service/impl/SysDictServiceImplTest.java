@@ -92,6 +92,16 @@ class SysDictServiceImplTest {
     }
 
     @Test
+    void addDataRejectsInvalidIsDefault() {
+        // 回归：非法是否默认值（char(1)：Y/N）此前可入库；现保存时即报 400
+        SysDictData d = data(null, "gender", "男");
+        d.setIsDefault("X");
+
+        assertThatThrownBy(() -> service.addData(d)).isInstanceOf(BusinessException.class);
+        verify(dataMapper, never()).insert(any(SysDictData.class));
+    }
+
+    @Test
     void addTypeRejectsDuplicate() {
         when(typeMapper.selectCount(any())).thenReturn(1L);
         SysDictType type = new SysDictType();
