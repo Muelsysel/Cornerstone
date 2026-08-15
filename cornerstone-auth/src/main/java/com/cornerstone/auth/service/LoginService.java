@@ -72,6 +72,8 @@ public class LoginService {
     public LoginResponse login(LoginRequest request, String clientIp) {
         String username = request.username();
         if (isLocked(username)) {
+            // 锁定拒绝同样落登录日志（审计完整性）
+            recordLog(username, clientIp, "1", "登录失败次数过多，已锁定");
             throw new BusinessException(ErrorCode.UNAUTHORIZED, "登录失败次数过多，请稍后再试");
         }
         UserAuthDTO user = findUser(username);
