@@ -78,6 +78,12 @@
         <el-form-item label="参数键值" prop="configValue">
           <el-input v-model="form.configValue" type="textarea" :rows="3" maxlength="500" show-word-limit placeholder="参数键值" />
         </el-form-item>
+        <el-form-item label="系统内置">
+          <el-radio-group v-model="form.configType">
+            <el-radio value="Y">是</el-radio>
+            <el-radio value="N">否</el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="form.remark" type="textarea" :rows="2" maxlength="500" show-word-limit placeholder="备注" />
         </el-form-item>
@@ -103,6 +109,8 @@ interface ConfigForm {
   configName: string
   configKey: string
   configValue: string
+  /** 系统内置：Y 是 / N 否 */
+  configType?: string
   remark?: string
 }
 
@@ -158,7 +166,7 @@ const rules: FormRules<ConfigForm> = {
 
 function handleCreate() {
   isEdit.value = false
-  Object.assign(form, { configId: undefined, configName: '', configKey: '', configValue: '', remark: '' })
+  Object.assign(form, { configId: undefined, configName: '', configKey: '', configValue: '', configType: 'N', remark: '' })
   dialogVisible.value = true
 }
 
@@ -169,6 +177,7 @@ function handleEdit(row: Config) {
     configName: row.configName || '',
     configKey: row.configKey,
     configValue: row.configValue || '',
+    configType: row.configType || 'N',
     remark: row.remark || '',
   })
   dialogVisible.value = true

@@ -118,6 +118,8 @@ export interface Config {
   configName?: string
   configKey: string
   configValue?: string
+  /** 系统内置：Y 是 / N 否 */
+  configType?: string
   remark?: string
   createTime?: string
 }
