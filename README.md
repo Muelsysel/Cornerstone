@@ -44,6 +44,7 @@ Cornerstone 仓库里的文档不是摆设，而是每个 AI 必须遵守的**�
 | 🧩 **模块化** | 7 个模块（4 服务 + 2 库 + 1 前端）；**API 契约先行**（禁止服务间直连）；新模块照 `cornerstone-demo` 活模板克隆 |
 | 🎨 **前端** | Vue3 + Vite + Element Plus（**按需引入**，主包 gzip ≈ 130KB）；「基石蓝」设计语言；nginx 容器化部署（前后端分离） |
 | 📊 **数据** | MySQL 8（Flyway 增量迁移）+ Redis + MyBatis-Plus + Nacos 注册配置 |
+| 🛡️ **数据完整性** | 字典类型改名**级联同步数据项**（防孤儿）；菜单三级结构校验（按钮为叶子、父节点存在性/自环防护）；字段/枚举输入校验（ValidationUtils）与 DB 列长对齐 |
 
 > ⚠️ **生产安全须知**：演示环境的内部令牌（`cornerstone.internal-token`）、数据库密码、Nacos 凭据为**硬编码默认值**，仅用于本地/CI 演示。生产部署必须通过环境变量覆盖（如 `SPRING_DATASOURCE_PASSWORD`、`CORNERSTONE_INTERNAL_TOKEN`），并更换 JWT 签名密钥对（`rsa-private.pem`/`rsa-public.pem` 与各服务 `public-key`）。
 
@@ -165,12 +166,12 @@ curl -u "cornerstone-client:cornerstone-secret" -X POST \
 
 | 检查项 | 命令 | 说明 |
 | --- | --- | --- |
-| 后端全量测试 | `mvn clean test` | 编译 + 单测/集成测试（H2/mock，不依赖外部服务） |
+| 后端全量测试 | `mvn clean test` | 编译 + 单测/集成测试（**271 用例**，H2/mock 不依赖外部服务） |
 | 代码格式 | `mvn spotless:check` | google-java-format（AOSP）；不过则 `spotless:apply` |
 | 文档完整性 | `bash scripts/check-docs.sh` | CONTEXT/ADR/CHANGELOG 存在性 + ADR 编号 |
 | 前端构建 | `cd cornerstone-web && npm run build` | vue-tsc 类型检查 + vite 构建 |
-| 前端单测 | `cd cornerstone-web && npm test` | Vitest + jsdom |
-| 端到端 | `scripts/verify-chain.ps1 -UseRunning` | 39 项契约断言（前端容器/认证/分页/隐私/树/角色过滤/审计/时间区间/公告状态机/字段长度上限/IDOR/缺参 400/锁定/数据权限/部门过滤/JWT deptId/密码绑定/停用拒登/脱敏/服务身份越权），见 `docs/guides/run-demo.md` |
+| 前端单测 | `cd cornerstone-web && npm test` | Vitest + jsdom（**34 用例**） |
+| 端到端 | `scripts/verify-chain.ps1 -UseRunning` | 39 项契约断言（前端容器/认证/分页/隐私/树/角色过滤/审计/时间区间/公告状态机/字段长度上限/IDOR/缺参 400/锁定/数据权限/部门过滤/JWT deptId/密码绑定/停用拒登/脱敏/服务身份越权/菜单按钮叶子），见 `docs/guides/run-demo.md` |
 
 > 接口纪律：**新增/修改接口必须补测试并全量跑通后再推送**（AGENTS.md「文档维护义务」）。
 

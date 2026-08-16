@@ -3,6 +3,14 @@
 > 项目级版本里程碑与仓库级变更记录。模块级细节见各模块 `CHANGELOG.md`
 > （common/api/gateway/auth/system/demo/web）。所有 AI 都是文档维护者（AGENTS.md「文档维护义务」）。
 
+## [1.5.30] - 2026-08-16（系统功能与数据完整性收尾）
+
+- feat(system): **字典类型改名级联同步数据项**（防孤儿数据）；**用户分页部门过滤**（deptId）+ 前端部门树选择器；**角色分页 roleKey 过滤**（此前前端搜索静默无效）；**个人中心回填部门名**；参数列表「内置」筛选；菜单数据项弹窗**标签模糊搜索**
+- fix(data): **菜单三级结构完整性**——按钮(F)是叶子权限点，父节点不能是按钮（`validateParent` 前后端闭环，防按钮挂子级）；父节点存在性/自环校验回归
+- fix(contract): **用户信息接口回填 roles**（SystemUserClient 契约完整性）；兜底 500 日志带请求路径/方法（定位提速）
+- feat(ops): docker-compose 全容器健康检查 + 重启策略（前端 wget 127.0.0.1，规避 busybox ::1）；网关访问日志记录操作人（user=…）
+- test: 后端 246→**271 用例**（common 35 + gateway 21 + auth 19 + system 169 + demo 27）、前端 34、e2e 34→**39**；ServiceImplTest 统一补 `TableInfoHelper.initTableInfo`（消除 CI 测试顺序偶发失败）；verify-chain 全部断言幂等重试（消除 curl 偶发空响应假失败）
+
 ## [1.5.29] - 2026-08-16（透传头防伪造 + 数据权限 fail-open 修复）
 
 - fix(security): **透传头防伪造**——网关转发附加 `X-Internal-Token`，服务端 `UserContextFilter` 仅采信携带有效令牌的 X-Cornerstone-* 身份头（直连服务端口伪造 roles=admin 等身份头现被忽略，fail-closed）；限流键支持受信反代（`ClientIpKeyResolver`，XFF 仅受信代理采信）
