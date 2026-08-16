@@ -34,7 +34,7 @@
 
 ## 执行
 
-可通过 [GitHub Issues](https://github.com/Muelsysel/cornerstone/issues) 联系项目维护者举报辱骂、骚扰或其他不可接受的行为。所有投诉都会得到及时、公正的审查与处理。
+可通过 [GitHub Issues](https://github.com/Muelsysel/Cornerstone/issues) 联系项目维护者举报辱骂、骚扰或其他不可接受的行为。所有投诉都会得到及时、公正的审查与处理。
 
 ## 归属
 

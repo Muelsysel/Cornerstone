@@ -7,8 +7,8 @@
 采用业界成熟工程范式（RBAC · 前后端分离 · 模块化），**零依赖第三方业务代码、从零自研**。
 核心卖点不是代码，而是：**任何 AI 读文档即可上手、遵循统一工作流、产出符合规范的代码**。
 
-[![CI](https://img.shields.io/github/actions/workflow/status/Muelsysel/cornerstone/ci.yml?branch=master&style=flat-square&logo=githubactions&logoColor=white&label=CI)](https://github.com/Muelsysel/cornerstone/actions/workflows/ci.yml)
-[![License](https://img.shields.io/github/license/Muelsysel/cornerstone?style=flat-square&color=4f46e5)](LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/Muelsysel/Cornerstone/ci.yml?branch=master&style=flat-square&logo=githubactions&logoColor=white&label=CI)](https://github.com/Muelsysel/Cornerstone/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/Muelsysel/Cornerstone?style=flat-square&color=4f46e5)](LICENSE)
 [![Java](https://img.shields.io/badge/Java-17-orange?style=flat-square&logo=openjdk&logoColor=white)](https://www.oracle.com/java/technologies/downloads/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2-6db33f?style=flat-square&logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
 [![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2023.0-6db33f?style=flat-square&logo=spring&logoColor=white)](https://spring.io/projects/spring-cloud)
