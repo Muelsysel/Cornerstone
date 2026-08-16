@@ -174,6 +174,22 @@ class SysMenuServiceImplTest {
     }
 
     @Test
+    void addRejectsButtonAsParent() {
+        // 回归：父节点是按钮(F)时此前允许挂子级，破坏「目录/菜单/按钮」三级结构；现报 INVALID_PARENT
+        SysMenu button = menu(9L, 0L, "用户查询按钮", 1);
+        button.setMenuType("F");
+        when(menuMapper.selectById(9L)).thenReturn(button);
+        SysMenu m = menu(null, 9L, "子菜单", 1);
+        m.setMenuType("C");
+
+        assertThatThrownBy(() -> service.add(m))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getCode())
+                .isEqualTo(SystemErrorCode.INVALID_PARENT.getCode());
+        verify(menuMapper, never()).insert(any(SysMenu.class));
+    }
+
+    @Test
     void updateThrowsWhenMenuMissing() {
         SysMenu m = menu(42L, 0L, "不存在", 1);
         when(menuMapper.selectById(42L)).thenReturn(null);
@@ -210,6 +226,24 @@ class SysMenuServiceImplTest {
         when(menuMapper.selectList(null)).thenReturn(List.of(exist));
         when(menuMapper.selectById(99L)).thenReturn(null);
         SysMenu m = menu(1L, 99L, "系统管理", 1);
+
+        assertThatThrownBy(() -> service.update(m))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).getCode())
+                .isEqualTo(SystemErrorCode.INVALID_PARENT.getCode());
+        verify(menuMapper, never()).updateById(any(SysMenu.class));
+    }
+
+    @Test
+    void updateRejectsButtonAsParent() {
+        // 回归：父节点是按钮(F)时此前允许挂子级；现报 INVALID_PARENT
+        SysMenu exist = menu(1L, 0L, "系统管理", 1);
+        SysMenu button = menu(9L, 0L, "用户查询按钮", 1);
+        button.setMenuType("F");
+        when(menuMapper.selectById(1L)).thenReturn(exist);
+        when(menuMapper.selectList(null)).thenReturn(List.of(exist));
+        when(menuMapper.selectById(9L)).thenReturn(button);
+        SysMenu m = menu(1L, 9L, "系统管理", 1);
 
         assertThatThrownBy(() -> service.update(m))
                 .isInstanceOf(BusinessException.class)

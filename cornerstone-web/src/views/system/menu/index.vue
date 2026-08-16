@@ -45,7 +45,7 @@
         </el-table-column>
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }: { row: any }">
-            <el-button v-permission="'system:menu:add'" link type="primary" @click="handleCreate(row)">新增</el-button>
+            <el-button v-if="row.menuType !== 'F'" v-permission="'system:menu:add'" link type="primary" @click="handleCreate(row)">新增</el-button>
             <el-button v-permission="'system:menu:edit'" link type="primary" @click="handleEdit(row)">编辑</el-button>
             <el-button v-permission="'system:menu:remove'" link type="danger" @click="handleDelete(row)">删除</el-button>
           </template>
@@ -196,16 +196,25 @@ const rules: FormRules<MenuForm> = {
   menuName: [{ required: true, message: '请输入菜单名称', trigger: 'blur' }],
 }
 
-// 树选择数据：去掉当前编辑节点自身的子树，避免把节点设为自身子级。
+// 树选择数据：去掉当前编辑节点自身的子树（避免把节点设为自身子级），且按钮(F)是叶子权限点不能作为父级
 const treeSelectData = computed(() => {
-  if (!isEdit.value || !form.menuId) return tree.value
-  // 深拷贝后从根移除当前节点
-  const clone: Menu[] = JSON.parse(JSON.stringify(tree.value || []))
-  const filterOut = (nodes: Menu[], id: number): Menu[] =>
+  const source = tree.value || []
+  // 深拷贝并移除按钮节点（F），按钮下不应再挂子级
+  const clone: Menu[] = JSON.parse(JSON.stringify(source))
+  const keepParentable = (nodes: Menu[]): Menu[] =>
     nodes
-      .filter((n) => n.menuId !== id)
-      .map((n) => ({ ...n, children: n.children ? filterOut(n.children, id) : undefined }))
-  return filterOut(clone, form.menuId as number)
+      .filter((n) => n.menuType !== 'F')
+      .map((n) => ({ ...n, children: n.children ? keepParentable(n.children) : undefined }))
+  let candidates = keepParentable(clone)
+  if (isEdit.value && form.menuId) {
+    // 编辑时再从根移除当前节点，防止把自己设为子级
+    const filterOut = (nodes: Menu[], id: number): Menu[] =>
+      nodes
+        .filter((n) => n.menuId !== id)
+        .map((n) => ({ ...n, children: n.children ? filterOut(n.children, id) : undefined }))
+    candidates = filterOut(candidates, form.menuId as number)
+  }
+  return candidates
 })
 
 async function loadData() {

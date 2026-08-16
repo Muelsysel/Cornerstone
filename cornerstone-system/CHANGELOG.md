@@ -2,6 +2,12 @@
 
 > **变更记录规范**：每次修改/升级/修复，在本文件顶部新增条目。所有 AI 都是文档维护者（见 AGENTS.md「文档维护义务」）。
 
+## [1.2.57] - 2026-08-16
+
+- fix(data): **菜单父级校验补「按钮不能挂子级」**——按钮(F)是叶子权限点，此前 API 允许把子级挂到按钮下，破坏「目录/菜单/按钮」三级结构语义；`add`/`update` 统一走 `validateParent`（存在性 + 非按钮），`SysMenuServiceImplTest` 新增两个用例
+
+**测试方法**：`mvn test -pl cornerstone-system`（169 用例）。
+
 ## [1.2.56] - 2026-08-16
 
 - fix(contract): `GET /system/user/{id}` 回填 `roles` 字段（SystemUserClient 契约完整性）——契约 DTO 声明了角色集合但实现从未填充，调用方无法据此做角色判断；`SystemSecurityTest` 补 mock

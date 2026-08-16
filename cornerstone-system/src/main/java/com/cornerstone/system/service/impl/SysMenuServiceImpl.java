@@ -44,9 +44,9 @@ public class SysMenuServiceImpl implements SysMenuService {
         if (menu.getParentId() == null) {
             menu.setParentId(0L);
         }
-        // 父节点必须存在（与部门 add 的 resolveAncestors 同级校验）：否则生成悬空节点，树组装时被丢弃、后台不可见
-        if (menu.getParentId() != 0L && menuMapper.selectById(menu.getParentId()) == null) {
-            throw new BusinessException(SystemErrorCode.INVALID_PARENT);
+        // 父节点必须存在且不能是按钮（与部门 add 的 resolveAncestors 同级校验）：否则生成悬空节点，树组装时被丢弃、后台不可见
+        if (menu.getParentId() != 0L) {
+            validateParent(menu.getParentId());
         }
         menuMapper.insert(menu);
         return menu;
@@ -59,14 +59,14 @@ public class SysMenuServiceImpl implements SysMenuService {
         if (exist == null) {
             throw new BusinessException(SystemErrorCode.RESOURCE_NOT_FOUND);
         }
-        // 父节点不能选自己或自身子节点（选子节点会形成环，破坏菜单树）；父节点须存在（防悬空节点）
+        // 父节点不能选自己或自身子节点（选子节点会形成环，破坏菜单树）；父节点须存在且不能是按钮（防悬空节点/按钮挂子级）
         Long newParent = menu.getParentId();
         if (newParent != null
                 && (newParent.equals(menu.getId()) || isDescendant(menu.getId(), newParent))) {
             throw new BusinessException(SystemErrorCode.INVALID_PARENT);
         }
-        if (newParent != null && newParent != 0L && menuMapper.selectById(newParent) == null) {
-            throw new BusinessException(SystemErrorCode.INVALID_PARENT);
+        if (newParent != null && newParent != 0L) {
+            validateParent(newParent);
         }
         menuMapper.updateById(menu);
         return menuMapper.selectById(menu.getId());
@@ -78,6 +78,17 @@ public class SysMenuServiceImpl implements SysMenuService {
         java.util.Set<Long> descendants = new java.util.HashSet<>();
         collectDescendants(all, nodeId, descendants);
         return descendants.contains(candidateParentId);
+    }
+
+    /** 校验父节点合法性：必须存在（防悬空节点）且不能是按钮——按钮（F）是叶子权限点，承载权限标识， 挂子级会破坏「目录/菜单/按钮」三级结构语义（按钮下不应再有目录/菜单）。 */
+    private void validateParent(Long parentId) {
+        SysMenu parent = menuMapper.selectById(parentId);
+        if (parent == null) {
+            throw new BusinessException(SystemErrorCode.INVALID_PARENT);
+        }
+        if ("F".equals(parent.getMenuType())) {
+            throw new BusinessException(SystemErrorCode.INVALID_PARENT);
+        }
     }
 
     private void collectDescendants(
